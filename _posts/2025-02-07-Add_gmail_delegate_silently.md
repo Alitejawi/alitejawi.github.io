@@ -19,3 +19,5 @@ Now while this is straight forward where a user is delegating their account, thi
 ## Delegation using GAM
 
 When you use [gam](https://github.com/taers232c/GAMADV-XTD3) to do this, 
+
+WIP
