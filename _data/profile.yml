@@ -1,0 +1,29 @@
+# Source of truth for the home-page hero. Edit this, not _layouts/home.html.
+name: Ali Al-Itejawi
+role_label: Principal Systems Engineer
+role_context: 15 years across multiple large and small companies
+oneliner: I make corporate infrastructure quiet — secure, automated, invisible.
+
+stats:
+  - "5,000 endpoints"
+  - "8 regulated environments"
+  - "5 SOC2 cycles"
+  - "7y fintech"
+  - "3y web3"
+
+stack:
+  - Okta
+  - Workspace
+  - Jamf
+  - Terraform
+
+cta:
+  primary:
+    label: "Get in touch →"
+    href: "mailto:ali@itejawi.com"
+  secondary:
+    label: "GitHub"
+    href: "https://github.com/alitejawi"
+
+proof_strip: "15 years across multiple large and small companies — 7 in fintech, 3 in Web3."
+posts_on_home: 2
