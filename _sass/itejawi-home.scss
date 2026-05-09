@@ -79,6 +79,28 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   a:focus-visible { outline: 3px solid var(--color-ring); outline-offset: 2px; border-radius: 2px; }
 }
 
+// ---------- Skip to content ----------
+.skip-link {
+  position: absolute;
+  left: var(--space-md);
+  top: var(--space-md);
+  background: var(--color-fg);
+  color: var(--color-bg);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 100;
+  transform: translateY(-150%);
+  transition: transform 200ms ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: none;
+}
+
 // ---------- Top bar ----------
 .home-topbar {
   display: flex;

@@ -21,7 +21,7 @@
   </script>
 
   <title>{{ site.title }} — {{ site.tagline }}</title>
-  {%- seo -%}
+  {%- seo title=false -%}
 
   <link rel="icon" href="{{ site.favicon | default: '/assets/img/favicons/favicon.ico' | relative_url }}">
 
@@ -34,6 +34,8 @@
 </head>
 <body class="home-page">
 
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="home-topbar">
     <a class="home-brand" href="{{ '/' | relative_url }}">itejawi</a>
     <nav aria-label="Primary">
@@ -43,7 +45,7 @@
     </nav>
   </header>
 
-  <main>
+  <main id="main">
     <div class="home-hero">
       {% include home/hero.html %}
       {% include home/writing.html %}
