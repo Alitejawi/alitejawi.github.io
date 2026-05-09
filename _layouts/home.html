@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="{{ site.lang | default: 'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {%- comment -%}
+    Initialise dark mode from Chirpy's localStorage key BEFORE first paint.
+    Chirpy's mode-toggle.js sets localStorage["mode"] to "dark" or "light".
+    We read it here so visitors who toggled dark on a Chirpy page see dark on
+    the home page too. Falls through to OS preference when unset.
+  {%- endcomment -%}
+  <script>
+    (function () {
+      try {
+        var m = localStorage.getItem("mode");
+        if (m === "dark" || m === "light") {
+          document.documentElement.setAttribute("data-mode", m);
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <title>{{ site.title }} — {{ site.tagline }}</title>
+  {%- seo -%}
+
+  <link rel="icon" href="{{ site.favicon | default: '/assets/img/favicons/favicon.ico' | relative_url }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap">
+
+  <link rel="stylesheet" href="{{ '/assets/css/home.css' | relative_url }}">
+</head>
+<body class="home-page">
+
+  <header class="home-topbar">
+    <a class="home-brand" href="{{ '/' | relative_url }}">itejawi</a>
+    <nav aria-label="Primary">
+      <a href="{{ '/archives/' | relative_url }}">Archives</a>
+      <a class="home-nav-categories" href="{{ '/categories/' | relative_url }}">Categories</a>
+      <a href="{{ '/about/' | relative_url }}">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="home-hero">
+      {% include home/hero.html %}
+      {% include home/writing.html %}
+    </div>
+
+    {% include home/proof-strip.html %}
+  </main>
+
+  {% include home/footer.html %}
+
+</body>
+</html>
