@@ -2,6 +2,8 @@
 // Loaded via assets/css/home.scss which is requested only by _layouts/home.html.
 // Do NOT @import this from any Chirpy file — it must remain page-scoped.
 
+$font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
 // ---------- Tokens ----------
 :root {
   // Colors (light mode default)
@@ -13,7 +15,7 @@
   --color-border: #E4E4E7;
   --color-accent: #2563EB;
   --color-on-accent: #FFFFFF;
-  --color-ring: rgba(37, 99, 235, 0.32);
+  --color-ring: #2563EB;
 
   // Spacing (8pt rhythm)
   --space-xs: 4px;
@@ -42,7 +44,7 @@
   --color-border: rgba(125, 125, 125, 0.25);
   --color-accent: #2F81F7;
   --color-on-accent: #FFFFFF;
-  --color-ring: rgba(47, 129, 247, 0.4);
+  --color-ring: #2F81F7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,7 +57,7 @@
     --color-border: rgba(125, 125, 125, 0.25);
     --color-accent: #2F81F7;
     --color-on-accent: #FFFFFF;
-    --color-ring: rgba(47, 129, 247, 0.4);
+    --color-ring: #2F81F7;
   }
 }
 
@@ -127,7 +129,7 @@
 
 // Mono micro-label used over each section
 .home-mlabel {
-  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: $font-mono;
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -171,7 +173,7 @@
     gap: var(--space-sm) 6px;
 
     .home-stat {
-      font-family: "JetBrains Mono", monospace;
+      font-family: $font-mono;
       font-size: 12px;
       padding: 4px 10px;
       border: 1px solid var(--color-border);
@@ -184,7 +186,7 @@
 
   .home-stack {
     margin-top: var(--space-md);
-    font-family: "JetBrains Mono", monospace;
+    font-family: $font-mono;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -234,7 +236,7 @@
   .home-post:first-of-type { border-top-color: transparent; padding-top: var(--space-sm); }
 
   .home-post-meta {
-    font-family: "JetBrains Mono", monospace;
+    font-family: $font-mono;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -292,7 +294,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: "JetBrains Mono", monospace;
+  font-family: $font-mono;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
