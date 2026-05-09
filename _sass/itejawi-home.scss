@@ -1,0 +1,344 @@
+// itejawi.com — home page styles only.
+// Loaded via assets/css/home.scss which is requested only by _layouts/home.html.
+// Do NOT @import this from any Chirpy file — it must remain page-scoped.
+
+$font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+// ---------- Tokens ----------
+:root {
+  // Colors (light mode default)
+  --color-bg: #FAFAFA;
+  --color-bg-elev: #FFFFFF;
+  --color-fg: #09090B;
+  --color-secondary: #3F3F46;
+  --color-muted: #71717A;
+  --color-border: #E4E4E7;
+  --color-accent: #2563EB;
+  --color-on-accent: #FFFFFF;
+  --color-ring: #2563EB;
+
+  // Spacing (8pt rhythm)
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  // Layout
+  --container-max: 1100px;
+  --container-pad: 32px;
+  --section-rhythm: var(--space-3xl);
+}
+
+// Dark mode — Chirpy's mode toggle sets [data-mode="dark"] on <html>.
+// Also fall back to OS preference when no toggle has run.
+[data-mode="dark"] {
+  --color-bg: #0E1116;
+  --color-bg-elev: #161B22;
+  --color-fg: #E6EDF3;
+  --color-secondary: #C9D1D9;
+  --color-muted: #8B949E;
+  --color-border: rgba(125, 125, 125, 0.25);
+  --color-accent: #2563EB;
+  --color-on-accent: #FFFFFF;
+  --color-ring: #2563EB;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode="light"]) {
+    --color-bg: #0E1116;
+    --color-bg-elev: #161B22;
+    --color-fg: #E6EDF3;
+    --color-secondary: #C9D1D9;
+    --color-muted: #8B949E;
+    --color-border: rgba(125, 125, 125, 0.25);
+    --color-accent: #2563EB;
+    --color-on-accent: #FFFFFF;
+    --color-ring: #2563EB;
+  }
+}
+
+// ---------- Reset for the home page only ----------
+.home-page {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01" 1, "cv01" 1;
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible { outline: 3px solid var(--color-ring); outline-offset: 2px; border-radius: 2px; }
+}
+
+// ---------- Skip to content ----------
+.skip-link {
+  position: absolute;
+  left: var(--space-md);
+  top: var(--space-md);
+  background: var(--color-fg);
+  color: var(--color-bg);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 100;
+  transform: translateY(-150%);
+  transition: transform 200ms ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: none;
+}
+
+// ---------- Top bar ----------
+.home-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--container-pad);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+
+  .home-brand {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-fg);
+  }
+
+  nav a {
+    margin-left: 20px;
+    color: var(--color-secondary);
+    transition: color 200ms ease;
+  }
+  nav a:hover { color: var(--color-fg); }
+
+  @media (max-width: 639px) {
+    padding: var(--space-md);
+    nav a { margin-left: 12px; }
+    nav a.home-nav-categories { display: none; } // hide on smallest screens per spec
+  }
+}
+
+// ---------- Hero (editorial split) ----------
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--space-3xl);
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--container-pad) var(--space-3xl);
+
+  @media (max-width: 959px) {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+  @media (max-width: 639px) {
+    padding: var(--space-xl) var(--space-md) var(--space-2xl);
+    gap: var(--space-xl);
+  }
+}
+
+// Mono micro-label used over each section
+.home-mlabel {
+  font-family: $font-mono;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-secondary);
+  margin: 0;
+}
+
+// Identity column
+.home-identity {
+  .home-name {
+    font-family: "Newsreader", Georgia, "Iowan Old Style", serif;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 48;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.0;
+    margin: var(--space-sm) 0 0 0;
+    color: var(--color-fg);
+    text-wrap: balance;
+  }
+
+  .home-role-context {
+    color: var(--color-secondary);
+    font-size: 14px;
+    margin-top: var(--space-md);
+  }
+
+  .home-oneliner {
+    font-size: 15px;
+    max-width: 28ch;
+    margin-top: var(--space-lg);
+    color: var(--color-fg);
+  }
+
+  .home-stats {
+    margin-top: var(--space-lg);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) 6px;
+
+    .home-stat {
+      font-family: $font-mono;
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      font-variant-numeric: tabular-nums;
+      background: var(--color-bg-elev);
+      color: var(--color-fg);
+    }
+  }
+
+  .home-stack {
+    margin-top: var(--space-md);
+    font-family: $font-mono;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-secondary);
+  }
+
+  .home-ctas {
+    margin-top: var(--space-lg);
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    flex-wrap: wrap;
+
+    .home-cta-primary {
+      background: var(--color-accent);
+      color: var(--color-on-accent);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: opacity 200ms ease, transform 200ms ease;
+      cursor: pointer;
+    }
+    .home-cta-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .home-cta-secondary {
+      color: var(--color-fg);
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 1px;
+      transition: border-color 200ms ease;
+    }
+    .home-cta-secondary:hover { border-color: var(--color-fg); }
+  }
+}
+
+// Writing column
+.home-writing {
+  padding-top: 2px;
+
+  .home-post {
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-border);
+    transition: color 200ms ease;
+  }
+  .home-post:first-of-type { border-top-color: transparent; padding-top: var(--space-sm); }
+
+  .home-post-meta {
+    font-family: $font-mono;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    margin-bottom: 6px;
+  }
+
+  .home-post-title {
+    font-family: "Newsreader", serif;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--color-fg);
+    transition: color 200ms ease;
+    text-wrap: pretty;
+  }
+  .home-post:hover .home-post-title { color: var(--color-accent); }
+
+  .home-all {
+    display: inline-block;
+    margin-top: var(--space-md);
+    font-size: 13px;
+    color: var(--color-secondary);
+    transition: color 200ms ease;
+  }
+  .home-all:hover { color: var(--color-fg); }
+}
+
+// ---------- Proof strip ----------
+.home-proof {
+  text-align: center;
+  padding: var(--space-2xl) var(--container-pad);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-elev);
+
+  p {
+    font-family: "Newsreader", serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--color-secondary);
+    max-width: 56ch;
+    margin: 0 auto;
+    text-wrap: balance;
+  }
+}
+
+// ---------- Footer ----------
+.home-footer {
+  padding: var(--space-xl) var(--container-pad);
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: $font-mono;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-muted);
+
+  .home-foot-right { display: flex; gap: var(--space-md); }
+  a { color: var(--color-secondary); transition: color 200ms ease; }
+  a:hover { color: var(--color-fg); }
+
+  @media (max-width: 639px) {
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+}
+
+// ---------- Reduced motion ----------
+@media (prefers-reduced-motion: reduce) {
+  .home-page *,
+  .home-page *::before,
+  .home-page *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

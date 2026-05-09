@@ -1,0 +1,26 @@
+{%- assign limit = site.data.profile.posts_on_home | default: 2 -%}
+{%- assign latest = site.posts | slice: 0, limit -%}
+<section class="home-writing" aria-label="Latest writing">
+  <p class="home-mlabel">Latest writing</p>
+
+  {%- if latest.size == 0 -%}
+    <p class="home-post-meta">No posts yet.</p>
+  {%- else -%}
+    {%- for post in latest -%}
+      <a class="home-post" href="{{ post.url | relative_url }}">
+        <p class="home-post-meta">
+          {{ post.date | date: "%Y-%m-%d" }}
+          {%- if post.categories.size > 0 -%}
+            {%- assign first_cat = post.categories | first -%}
+            {%- if first_cat and first_cat | downcase != "none" -%}
+              &middot; {{ first_cat | upcase }}
+            {%- endif -%}
+          {%- endif -%}
+        </p>
+        <p class="home-post-title">{{ post.title }}</p>
+      </a>
+    {%- endfor -%}
+  {%- endif -%}
+
+  <a class="home-all" href="{{ '/archives/' | relative_url }}">→ All posts</a>
+</section>
