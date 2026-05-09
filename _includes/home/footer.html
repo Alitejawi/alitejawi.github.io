@@ -1,0 +1,8 @@
+{%- assign p = site.data.profile -%}
+<footer class="home-footer">
+  <div>&copy; {{ 'now' | date: "%Y" }} {{ p.name }}</div>
+  <div class="home-foot-right">
+    <a href="{{ p.cta.primary.href }}">{{ p.cta.primary.href | remove: 'mailto:' }}</a>
+    <a href="{{ p.cta.secondary.href }}" rel="me noopener">GitHub</a>
+  </div>
+</footer>
