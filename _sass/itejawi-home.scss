@@ -42,9 +42,9 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --color-secondary: #C9D1D9;
   --color-muted: #8B949E;
   --color-border: rgba(125, 125, 125, 0.25);
-  --color-accent: #2F81F7;
+  --color-accent: #2563EB;
   --color-on-accent: #FFFFFF;
-  --color-ring: #2F81F7;
+  --color-ring: #2563EB;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,9 +55,9 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     --color-secondary: #C9D1D9;
     --color-muted: #8B949E;
     --color-border: rgba(125, 125, 125, 0.25);
-    --color-accent: #2F81F7;
+    --color-accent: #2563EB;
     --color-on-accent: #FFFFFF;
-    --color-ring: #2F81F7;
+    --color-ring: #2563EB;
   }
 }
 
