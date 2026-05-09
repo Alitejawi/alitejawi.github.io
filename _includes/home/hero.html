@@ -1,26 +1,24 @@
 {%- assign p = site.data.profile -%}
-<section class="home-identity" aria-label="About {{ p.name }}">
+<section class="home-identity">
   <p class="home-mlabel">{{ p.role_label }}</p>
   <h1 class="home-name">{{ p.name }}</h1>
   <p class="home-role-context">{{ p.role_context }}</p>
   <p class="home-oneliner">{{ p.oneliner }}</p>
 
-  <div class="home-stats" role="list" aria-label="Career scale">
+  <div class="home-stats">
     {%- for stat in p.stats -%}
-      <span class="home-stat" role="listitem">{{ stat }}</span>
+      <span class="home-stat">{{ stat }}</span>
     {%- endfor -%}
   </div>
 
   <p class="home-stack">{{ p.stack | join: " · " }}</p>
 
-  <p class="home-ctas">
-    <a class="home-cta-primary"
-       href="{{ p.cta.primary.href }}"
-       aria-label="Email {{ p.name }} at {{ p.cta.primary.href | remove: 'mailto:' }}">
+  <div class="home-ctas">
+    <a class="home-cta-primary" href="{{ p.cta.primary.href }}">
       {{ p.cta.primary.label }}
     </a>
     <a class="home-cta-secondary" href="{{ p.cta.secondary.href }}" rel="me noopener">
       {{ p.cta.secondary.label }}
     </a>
-  </p>
+  </div>
 </section>

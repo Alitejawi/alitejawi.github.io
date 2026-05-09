@@ -10,9 +10,9 @@
       <a class="home-post" href="{{ post.url | relative_url }}">
         <p class="home-post-meta">
           {{ post.date | date: "%Y-%m-%d" }}
-          {%- if post.categories and post.categories.size > 0 -%}
+          {%- if post.categories.size > 0 -%}
             {%- assign first_cat = post.categories | first -%}
-            {%- if first_cat and first_cat != "none" -%}
+            {%- if first_cat and first_cat | downcase != "none" -%}
               &middot; {{ first_cat | upcase }}
             {%- endif -%}
           {%- endif -%}

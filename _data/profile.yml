@@ -17,6 +17,8 @@ stack:
   - Jamf
   - Terraform
 
+email: ali@itejawi.com
+
 cta:
   primary:
     label: "Get in touch →"
