@@ -14,12 +14,13 @@ timezone: Europe/Amsterdam
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Code, thoughts and inspiration # the main title
+title: Ali Al-Itejawi # the main title
 
-tagline: There is no tagline # it will display as the subtitle
+tagline: Principal Systems Engineer # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
-  Code, writing.
+  Ali Al-Itejawi — Principal Systems Engineer. Corporate infrastructure,
+  identity, endpoint, and security tooling at fintech and Web3 scale.
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
