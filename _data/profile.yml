@@ -1,6 +1,6 @@
 # Source of truth for the home-page hero. Edit this, not _layouts/home.html.
 name: Ali Al-Itejawi
-role_label: Principal Systems Engineer
+role_label: AI Engineer · Principal Systems Engineer
 role_context: 15 years across multiple large and small companies
 oneliner: I make corporate infrastructure quiet — secure, automated, invisible.
 
@@ -16,6 +16,9 @@ stack:
   - Workspace
   - Jamf
   - Terraform
+  - Git
+  - n8n
+  - Hyperautomation
 
 email: ali@itejawi.com
 
