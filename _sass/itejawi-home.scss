@@ -6,14 +6,12 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
 // ---------- Tokens ----------
 :root {
-  // Colors (light mode default)
-  --color-bg: #FAFAFA;
-  --color-bg-elev: #FFFFFF;
-  --color-fg: #09090B;
-  --color-secondary: #3F3F46;
-  --color-muted: #71717A;
-  --color-border: #E4E4E7;
-  --color-grid: rgba(0, 0, 0, 0.05);
+  --color-bg: #FFFFFF;
+  --color-bg-elev: #FAFAFA;
+  --color-fg: #0A0A0A;
+  --color-secondary: #27272A;
+  --color-muted: #52525B;
+  --color-border: #D4D4D8;
   --color-accent: #0E5764;
   --color-on-accent: #FFFFFF;
   --color-ring: #0E5764;
@@ -37,13 +35,12 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 // Dark mode — Chirpy's mode toggle sets [data-mode="dark"] on <html>.
 // Also fall back to OS preference when no toggle has run.
 [data-mode="dark"] {
-  --color-bg: #0E1116;
+  --color-bg: #0B0E13;
   --color-bg-elev: #161B22;
-  --color-fg: #F2F4F7;
-  --color-secondary: #C9D1D9;
-  --color-muted: #8B949E;
-  --color-border: rgba(125, 125, 125, 0.25);
-  --color-grid: rgba(255, 255, 255, 0.035);
+  --color-fg: #F5F7FA;
+  --color-secondary: #D6DCE3;
+  --color-muted: #A0A8B2;
+  --color-border: rgba(255, 255, 255, 0.12);
   --color-accent: #4FB3C7;
   --color-on-accent: #07151A;
   --color-ring: #4FB3C7;
@@ -51,13 +48,12 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-mode="light"]) {
-    --color-bg: #0E1116;
+    --color-bg: #0B0E13;
     --color-bg-elev: #161B22;
-    --color-fg: #F2F4F7;
-    --color-secondary: #C9D1D9;
-    --color-muted: #8B949E;
-    --color-border: rgba(125, 125, 125, 0.25);
-    --color-grid: rgba(255, 255, 255, 0.035);
+    --color-fg: #F5F7FA;
+    --color-secondary: #D6DCE3;
+    --color-muted: #A0A8B2;
+    --color-border: rgba(255, 255, 255, 0.12);
     --color-accent: #4FB3C7;
     --color-on-accent: #07151A;
     --color-ring: #4FB3C7;
@@ -72,8 +68,6 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss01" 1, "cv01" 1;
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -141,12 +135,6 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   max-width: var(--container-max);
   margin: 0 auto;
   padding: var(--space-2xl) var(--container-pad) var(--space-3xl);
-  position: relative;
-  background-image: radial-gradient(circle, var(--color-grid) 1px, transparent 1px);
-  background-size: 24px 24px;
-  background-position: 0 0;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,0.4) 80px, rgba(0,0,0,0.4) calc(100% - 80px), transparent 100%);
-          mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,0.4) 80px, rgba(0,0,0,0.4) calc(100% - 80px), transparent 100%);
 
   @media (max-width: 959px) {
     grid-template-columns: 1fr;
