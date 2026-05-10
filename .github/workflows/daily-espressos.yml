@@ -40,8 +40,8 @@ jobs:
             echo "No change to commit"
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Ali Al-Itejawi"
+          git config user.email "ali@itejawi.com"
           git add _tabs/about.md
           git commit -m "Daily espressos +2"
           git push
