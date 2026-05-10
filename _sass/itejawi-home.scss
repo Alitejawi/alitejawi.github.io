@@ -13,6 +13,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --color-secondary: #3F3F46;
   --color-muted: #71717A;
   --color-border: #E4E4E7;
+  --color-grid: rgba(0, 0, 0, 0.05);
   --color-accent: #0E5764;
   --color-on-accent: #FFFFFF;
   --color-ring: #0E5764;
@@ -38,10 +39,11 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 [data-mode="dark"] {
   --color-bg: #0E1116;
   --color-bg-elev: #161B22;
-  --color-fg: #E6EDF3;
+  --color-fg: #F2F4F7;
   --color-secondary: #C9D1D9;
   --color-muted: #8B949E;
   --color-border: rgba(125, 125, 125, 0.25);
+  --color-grid: rgba(255, 255, 255, 0.035);
   --color-accent: #4FB3C7;
   --color-on-accent: #07151A;
   --color-ring: #4FB3C7;
@@ -51,10 +53,11 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   :root:not([data-mode="light"]) {
     --color-bg: #0E1116;
     --color-bg-elev: #161B22;
-    --color-fg: #E6EDF3;
+    --color-fg: #F2F4F7;
     --color-secondary: #C9D1D9;
     --color-muted: #8B949E;
     --color-border: rgba(125, 125, 125, 0.25);
+    --color-grid: rgba(255, 255, 255, 0.035);
     --color-accent: #4FB3C7;
     --color-on-accent: #07151A;
     --color-ring: #4FB3C7;
@@ -139,7 +142,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   margin: 0 auto;
   padding: var(--space-2xl) var(--container-pad) var(--space-3xl);
   position: relative;
-  background-image: radial-gradient(circle, var(--color-border) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--color-grid) 1px, transparent 1px);
   background-size: 24px 24px;
   background-position: 0 0;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,0.4) 80px, rgba(0,0,0,0.4) calc(100% - 80px), transparent 100%);
@@ -194,7 +197,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   .home-oneliner-display {
     font-family: "Newsreader", Georgia, serif;
     font-style: italic;
-    font-weight: 400;
+    font-weight: 500;
     font-size: clamp(1.5rem, 3vw, 2.1rem);
     line-height: 1.25;
     letter-spacing: -0.01em;
@@ -253,14 +256,19 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     .home-cta-secondary,
     .home-cta-tertiary {
       color: var(--color-fg);
+      background: transparent;
+      padding: 10px 18px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
       font-size: 14px;
-      font-weight: 500;
-      border-bottom: 1px solid var(--color-border);
-      padding-bottom: 1px;
-      transition: border-color 200ms ease;
+      font-weight: 600;
+      transition: border-color 200ms ease, color 200ms ease, transform 200ms ease;
     }
     .home-cta-secondary:hover,
-    .home-cta-tertiary:hover { border-color: var(--color-fg); }
+    .home-cta-tertiary:hover {
+      border-color: var(--color-fg);
+      transform: translateY(-1px);
+    }
   }
 }
 
@@ -334,18 +342,15 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 // ---------- Proof strip ----------
 .home-proof {
   text-align: center;
-  padding: var(--space-2xl) var(--container-pad);
+  padding: var(--space-md) var(--container-pad);
   border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-elev);
 
   p {
-    font-family: "Newsreader", serif;
-    font-style: italic;
-    font-weight: 400;
-    font-size: clamp(1rem, 2vw, 1.25rem);
-    color: var(--color-secondary);
-    max-width: 56ch;
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--color-muted);
+    max-width: 64ch;
     margin: 0 auto;
     text-wrap: balance;
   }
