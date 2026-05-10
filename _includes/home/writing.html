@@ -34,7 +34,12 @@
       <p class="home-mlabel home-topics-label">Topics</p>
       <ul class="home-topics-list">
         {%- for topic in topics -%}
-          <li><a class="home-topic" href="{{ '/tags/' | append: topic | append: '/' | relative_url }}">{{ topic }}</a></li>
+          {%- assign tagged = site.tags[topic] -%}
+          {%- if tagged and tagged.size > 0 -%}
+            <li><a class="home-topic" href="{{ '/tags/' | append: topic | append: '/' | relative_url }}">{{ topic }}</a></li>
+          {%- else -%}
+            <li><span class="home-topic home-topic-empty">{{ topic }}</span></li>
+          {%- endif -%}
         {%- endfor -%}
       </ul>
     </div>

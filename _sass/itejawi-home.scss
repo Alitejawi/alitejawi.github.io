@@ -356,6 +356,12 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     border-color: var(--color-fg);
     color: var(--color-fg);
   }
+  .home-topic-empty,
+  .home-topic-empty:hover {
+    color: var(--color-muted);
+    border-color: var(--color-border);
+    cursor: default;
+  }
 }
 
 // ---------- Proof strip ----------
