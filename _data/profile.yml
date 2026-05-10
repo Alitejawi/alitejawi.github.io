@@ -34,3 +34,10 @@ cta:
 
 proof_strip: "Currently shipping AI-driven security automation in regulated fintech. Previously: SOC2 across 8 environments, 5,000-endpoint Okta+Jamf rollouts, 7 years fintech, 3 years Web3."
 posts_on_home: 2
+
+topics:
+  - security
+  - automation
+  - fintech
+  - ai
+  - web3

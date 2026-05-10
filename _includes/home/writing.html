@@ -27,4 +27,16 @@
   {%- endif -%}
 
   <a class="home-all" href="{{ '/archives/' | relative_url }}">→ All posts</a>
+
+  {%- assign topics = site.data.profile.topics -%}
+  {%- if topics and topics.size > 0 -%}
+    <div class="home-topics" aria-label="Topics">
+      <p class="home-mlabel home-topics-label">Topics</p>
+      <ul class="home-topics-list">
+        {%- for topic in topics -%}
+          <li><a class="home-topic" href="{{ '/tags/' | append: topic | append: '/' | relative_url }}">{{ topic }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  {%- endif -%}
 </section>

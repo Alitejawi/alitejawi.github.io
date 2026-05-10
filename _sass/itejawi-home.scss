@@ -325,6 +325,37 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     transition: color 200ms ease;
   }
   .home-all:hover { color: var(--color-fg); }
+
+  .home-topics {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+  .home-topics-label {
+    margin-bottom: var(--space-sm);
+  }
+  .home-topics-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .home-topic {
+    display: inline-block;
+    font-family: $font-mono;
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-secondary);
+    transition: border-color 200ms ease, color 200ms ease;
+  }
+  .home-topic:hover {
+    border-color: var(--color-fg);
+    color: var(--color-fg);
+  }
 }
 
 // ---------- Proof strip ----------
