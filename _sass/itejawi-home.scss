@@ -12,6 +12,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --color-secondary: #27272A;
   --color-muted: #52525B;
   --color-border: #D4D4D8;
+  --color-rule: #BEBEC4;
   --color-accent: #0E5764;
   --color-on-accent: #FFFFFF;
   --color-ring: #0E5764;
@@ -32,32 +33,23 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --section-rhythm: var(--space-3xl);
 }
 
-// Dark mode — Chirpy's mode toggle sets [data-mode="dark"] on <html>.
-// Also fall back to OS preference when no toggle has run.
-[data-mode="dark"] {
+@mixin dark-tokens {
   --color-bg: #0B0E13;
   --color-bg-elev: #161B22;
   --color-fg: #F5F7FA;
   --color-secondary: #D6DCE3;
   --color-muted: #A0A8B2;
-  --color-border: rgba(255, 255, 255, 0.12);
+  --color-border: rgba(255, 255, 255, 0.18);
+  --color-rule: rgba(255, 255, 255, 0.22);
   --color-accent: #4FB3C7;
   --color-on-accent: #07151A;
   --color-ring: #4FB3C7;
 }
 
+[data-mode="dark"] { @include dark-tokens; }
+
 @media (prefers-color-scheme: dark) {
-  :root:not([data-mode="light"]) {
-    --color-bg: #0B0E13;
-    --color-bg-elev: #161B22;
-    --color-fg: #F5F7FA;
-    --color-secondary: #D6DCE3;
-    --color-muted: #A0A8B2;
-    --color-border: rgba(255, 255, 255, 0.12);
-    --color-accent: #4FB3C7;
-    --color-on-accent: #07151A;
-    --color-ring: #4FB3C7;
-  }
+  :root:not([data-mode="light"]) { @include dark-tokens; }
 }
 
 // ---------- Reset for the home page only ----------
@@ -74,6 +66,16 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   a { color: inherit; text-decoration: none; }
   a:focus-visible { outline: 3px solid var(--color-ring); outline-offset: 2px; border-radius: 2px; }
+}
+
+%chip {
+  display: inline-block;
+  font-family: $font-mono;
+  font-size: 11px;
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 // ---------- Skip to content ----------
@@ -95,7 +97,6 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 .skip-link:focus,
 .skip-link:focus-visible {
   transform: translateY(0);
-  outline: none;
 }
 
 // ---------- Top bar ----------
@@ -151,7 +152,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     gap: var(--space-2xl);
   }
   .home-writing {
-    border-left: 1px solid var(--color-border);
+    border-left: 1px solid var(--color-rule);
     padding-left: var(--space-2xl);
   }
 }
@@ -202,12 +203,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     gap: var(--space-sm) 6px;
 
     .home-stat {
-      font-family: $font-mono;
-      font-size: 12px;
-      padding: 4px 10px;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      font-variant-numeric: tabular-nums;
+      @extend %chip;
       background: var(--color-bg-elev);
       color: var(--color-fg);
     }
@@ -215,11 +211,11 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   .home-stack {
     margin-top: var(--space-md);
-    font-family: $font-mono;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-secondary);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-muted);
   }
 
   .home-ctas {
@@ -343,23 +339,20 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     gap: 6px;
   }
   .home-topic {
-    display: inline-block;
-    font-family: $font-mono;
-    font-size: 11px;
-    padding: 4px 10px;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
+    @extend %chip;
     color: var(--color-secondary);
-    transition: border-color 200ms ease, color 200ms ease;
+    transition: border-color 200ms ease, color 200ms ease, background 200ms ease;
   }
   .home-topic:hover {
-    border-color: var(--color-fg);
-    color: var(--color-fg);
+    border-color: var(--color-accent);
+    color: var(--color-on-accent);
+    background: var(--color-accent);
   }
   .home-topic-empty,
   .home-topic-empty:hover {
     color: var(--color-muted);
-    border-color: var(--color-border);
+    border: 1px dashed var(--color-border);
+    background: transparent;
     cursor: default;
   }
 }
@@ -375,7 +368,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     font-size: 13px;
     line-height: 1.55;
     color: var(--color-muted);
-    max-width: 64ch;
+    max-width: 680px;
     margin: 0 auto;
     text-wrap: balance;
   }
@@ -444,6 +437,8 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 .home-writing > *:nth-child(3) { animation-delay: 360ms; }
 .home-writing > *:nth-child(4) { animation-delay: 440ms; }
 .home-writing > *:nth-child(5) { animation-delay: 520ms; }
+.home-identity > *:nth-child(n+6) { animation-delay: 560ms; }
+.home-writing > *:nth-child(n+6) { animation-delay: 600ms; }
 
 // ---------- Reduced motion ----------
 @media (prefers-reduced-motion: reduce) {

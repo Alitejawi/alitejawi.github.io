@@ -1,6 +1,6 @@
 {%- assign limit = site.data.profile.posts_on_home | default: 2 -%}
 {%- assign latest = site.posts | slice: 0, limit -%}
-<section class="home-writing" aria-label="Latest writing">
+<section class="home-writing">
   <h2 class="home-mlabel">Latest writing</h2>
 
   {%- if latest.size == 0 -%}
@@ -19,8 +19,6 @@
         <p class="home-post-title">{{ post.title }}</p>
         {%- if post.description and post.description != "" -%}
           <p class="home-post-excerpt">{{ post.description }}</p>
-        {%- else -%}
-          <p class="home-post-excerpt">{{ post.excerpt | strip_html | strip_newlines | strip | truncatewords: 25 }}</p>
         {%- endif -%}
       </a>
     {%- endfor -%}

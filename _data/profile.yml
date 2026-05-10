@@ -1,6 +1,6 @@
 # Source of truth for the home-page hero. Edit this, not _layouts/home.html.
 name: Ali Al-Itejawi
-role_label: AI Engineer · Principal Systems Engineer
+role_label: Principal Systems Engineer · AI Automation
 oneliner: I make corporate infrastructure quiet — secure, automated, invisible.
 
 stats:
@@ -23,7 +23,7 @@ email: ali@itejawi.com
 
 cta:
   primary:
-    label: "Get in touch →"
+    label: "Work with me →"
     href: "mailto:ali@itejawi.com"
   secondary:
     label: "GitHub"
@@ -32,12 +32,12 @@ cta:
     label: "LinkedIn"
     href: "https://www.linkedin.com/in/alitejawi/"
 
-proof_strip: "Currently shipping AI-driven security automation in regulated fintech. Previously: SOC2 across 8 environments, 5,000-endpoint Okta+Jamf rollouts, 7 years fintech, 3 years Web3."
+proof_strip: "Currently shipping AI-driven security automation in regulated fintech."
 posts_on_home: 2
 
 topics:
-  - security
   - automation
-  - fintech
+  - security
   - ai
+  - fintech
   - web3
