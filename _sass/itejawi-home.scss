@@ -13,9 +13,9 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --color-secondary: #3F3F46;
   --color-muted: #71717A;
   --color-border: #E4E4E7;
-  --color-accent: #2563EB;
+  --color-accent: #0E5764;
   --color-on-accent: #FFFFFF;
-  --color-ring: #2563EB;
+  --color-ring: #0E5764;
 
   // Spacing (8pt rhythm)
   --space-xs: 4px;
@@ -42,9 +42,9 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --color-secondary: #C9D1D9;
   --color-muted: #8B949E;
   --color-border: rgba(125, 125, 125, 0.25);
-  --color-accent: #2563EB;
-  --color-on-accent: #FFFFFF;
-  --color-ring: #2563EB;
+  --color-accent: #4FB3C7;
+  --color-on-accent: #07151A;
+  --color-ring: #4FB3C7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,9 +55,9 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     --color-secondary: #C9D1D9;
     --color-muted: #8B949E;
     --color-border: rgba(125, 125, 125, 0.25);
-    --color-accent: #2563EB;
-    --color-on-accent: #FFFFFF;
-    --color-ring: #2563EB;
+    --color-accent: #4FB3C7;
+    --color-on-accent: #07151A;
+    --color-ring: #4FB3C7;
   }
 }
 
@@ -138,6 +138,12 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   max-width: var(--container-max);
   margin: 0 auto;
   padding: var(--space-2xl) var(--container-pad) var(--space-3xl);
+  position: relative;
+  background-image: radial-gradient(circle, var(--color-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,0.4) 80px, rgba(0,0,0,0.4) calc(100% - 80px), transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,0.4) 80px, rgba(0,0,0,0.4) calc(100% - 80px), transparent 100%);
 
   @media (max-width: 959px) {
     grid-template-columns: 1fr;
@@ -146,6 +152,16 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   @media (max-width: 639px) {
     padding: var(--space-xl) var(--space-md) var(--space-2xl);
     gap: var(--space-xl);
+  }
+}
+
+@media (min-width: 960px) {
+  .home-hero {
+    gap: var(--space-2xl);
+  }
+  .home-writing {
+    border-left: 1px solid var(--color-border);
+    padding-left: var(--space-2xl);
   }
 }
 
@@ -175,17 +191,17 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     text-wrap: balance;
   }
 
-  .home-role-context {
-    color: var(--color-secondary);
-    font-size: 14px;
-    margin-top: var(--space-md);
-  }
-
-  .home-oneliner {
-    font-size: 15px;
-    max-width: 28ch;
-    margin-top: var(--space-lg);
+  .home-oneliner-display {
+    font-family: "Newsreader", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    max-width: 22ch;
+    margin-top: var(--space-xl);
     color: var(--color-fg);
+    text-wrap: balance;
   }
 
   .home-stats {
@@ -234,7 +250,8 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     }
     .home-cta-primary:hover { opacity: 0.92; transform: translateY(-1px); }
 
-    .home-cta-secondary {
+    .home-cta-secondary,
+    .home-cta-tertiary {
       color: var(--color-fg);
       font-size: 14px;
       font-weight: 500;
@@ -242,7 +259,8 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
       padding-bottom: 1px;
       transition: border-color 200ms ease;
     }
-    .home-cta-secondary:hover { border-color: var(--color-fg); }
+    .home-cta-secondary:hover,
+    .home-cta-tertiary:hover { border-color: var(--color-fg); }
   }
 }
 
@@ -254,6 +272,7 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     padding: var(--space-md) 0;
     border-top: 1px solid var(--color-border);
     transition: color 200ms ease;
+    position: relative;
   }
   .home-post:first-of-type { border-top-color: transparent; padding-top: var(--space-sm); }
 
@@ -269,14 +288,38 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   .home-post-title {
     font-family: "Newsreader", serif;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 21px;
     line-height: 1.25;
     letter-spacing: -0.01em;
     color: var(--color-fg);
     transition: color 200ms ease;
     text-wrap: pretty;
   }
+  .home-post-title::after {
+    content: "→";
+    display: inline-block;
+    margin-left: 8px;
+    opacity: 0;
+    transform: translateX(-4px);
+    color: var(--color-accent);
+    transition: opacity 200ms ease, transform 200ms ease;
+    font-family: "Inter", sans-serif;
+  }
   .home-post:hover .home-post-title { color: var(--color-accent); }
+  .home-post:hover .home-post-title::after {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .home-post-excerpt {
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-secondary);
+    margin-top: 4px;
+    max-width: 38ch;
+    text-wrap: pretty;
+  }
 
   .home-all {
     display: inline-block;
@@ -332,6 +375,45 @@ $font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     align-items: flex-start;
   }
 }
+
+@media (max-width: 639px) {
+  .home-page .home-stats {
+    gap: 0;
+  }
+  .home-page .home-stats .home-stat {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 12px;
+  }
+  .home-page .home-stats .home-stat:not(:last-child)::after {
+    content: " · ";
+    color: var(--color-muted);
+    margin: 0 4px;
+  }
+}
+
+// ---------- Staggered fade-up ----------
+@keyframes home-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.home-identity > *,
+.home-writing > * {
+  opacity: 0;
+  animation: home-fade-up 500ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.home-identity > *:nth-child(1) { animation-delay: 80ms; }
+.home-identity > *:nth-child(2) { animation-delay: 160ms; }
+.home-identity > *:nth-child(3) { animation-delay: 240ms; }
+.home-identity > *:nth-child(4) { animation-delay: 320ms; }
+.home-identity > *:nth-child(5) { animation-delay: 400ms; }
+.home-identity > *:nth-child(6) { animation-delay: 480ms; }
+.home-writing > *:nth-child(1) { animation-delay: 200ms; }
+.home-writing > *:nth-child(2) { animation-delay: 280ms; }
+.home-writing > *:nth-child(3) { animation-delay: 360ms; }
+.home-writing > *:nth-child(4) { animation-delay: 440ms; }
+.home-writing > *:nth-child(5) { animation-delay: 520ms; }
 
 // ---------- Reduced motion ----------
 @media (prefers-reduced-motion: reduce) {

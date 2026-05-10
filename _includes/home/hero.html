@@ -2,8 +2,7 @@
 <section class="home-identity">
   <p class="home-mlabel">{{ p.role_label }}</p>
   <h1 class="home-name">{{ p.name }}</h1>
-  <p class="home-role-context">{{ p.role_context }}</p>
-  <p class="home-oneliner">{{ p.oneliner }}</p>
+  <p class="home-oneliner-display">{{ p.oneliner }}</p>
 
   <div class="home-stats">
     {%- for stat in p.stats -%}
@@ -19,6 +18,9 @@
     </a>
     <a class="home-cta-secondary" href="{{ p.cta.secondary.href }}" rel="me noopener">
       {{ p.cta.secondary.label }}
+    </a>
+    <a class="home-cta-tertiary" href="{{ p.cta.tertiary.href }}" rel="me noopener" target="_blank">
+      {{ p.cta.tertiary.label }}
     </a>
   </div>
 </section>

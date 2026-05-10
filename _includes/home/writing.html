@@ -1,7 +1,7 @@
 {%- assign limit = site.data.profile.posts_on_home | default: 2 -%}
 {%- assign latest = site.posts | slice: 0, limit -%}
 <section class="home-writing" aria-label="Latest writing">
-  <p class="home-mlabel">Latest writing</p>
+  <h2 class="home-mlabel">Latest writing</h2>
 
   {%- if latest.size == 0 -%}
     <p class="home-post-meta">No posts yet.</p>
@@ -10,14 +10,18 @@
       <a class="home-post" href="{{ post.url | relative_url }}">
         <p class="home-post-meta">
           {{ post.date | date: "%Y-%m-%d" }}
-          {%- if post.categories.size > 0 -%}
-            {%- assign first_cat = post.categories | first -%}
-            {%- if first_cat and first_cat | downcase != "none" -%}
-              &middot; {{ first_cat | upcase }}
-            {%- endif -%}
+          {%- assign first_cat = post.categories | first | default: "" -%}
+          {%- assign first_cat_norm = first_cat | strip | downcase -%}
+          {%- if first_cat_norm != "" and first_cat_norm != "none" and first_cat_norm != "null" -%}
+            &middot; {{ first_cat | upcase }}
           {%- endif -%}
         </p>
         <p class="home-post-title">{{ post.title }}</p>
+        {%- if post.description and post.description != "" -%}
+          <p class="home-post-excerpt">{{ post.description }}</p>
+        {%- else -%}
+          <p class="home-post-excerpt">{{ post.excerpt | strip_html | strip_newlines | strip | truncatewords: 25 }}</p>
+        {%- endif -%}
       </a>
     {%- endfor -%}
   {%- endif -%}
