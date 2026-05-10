@@ -1,0 +1,52 @@
+name: "Daily Espressos"
+
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Increment espressos counter
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          path = Path("_tabs/about.md")
+          text = path.read_text()
+          pattern = re.compile(r"(\*\*Espressos Consumed\*\* ☕: )([\d,]+)")
+          match = pattern.search(text)
+          if not match:
+              raise SystemExit("espressos line not found")
+          current = int(match.group(2).replace(",", ""))
+          updated = f"{current + 2:,}"
+          path.write_text(pattern.sub(rf"\g<1>{updated}", text))
+          print(f"{match.group(2)} -> {updated}")
+          PY
+
+      - name: Commit and push
+        run: |
+          if git diff --quiet; then
+            echo "No change to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _tabs/about.md
+          git commit -m "Daily espressos +2"
+          git push
+
+      - name: Trigger pages deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages-deploy.yml --ref main
