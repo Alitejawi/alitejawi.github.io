@@ -14,7 +14,7 @@ Security, Okta, Google Workspace, Jamf Pro, Security, automate everything
 ```
 
 - **Industry** 🖥️: Fintech  
-- **Espressos Consumed** ☕: 12,863  
+- **Espressos Consumed** ☕: 12,865  
 - **Countries Visited** ✈️: 29  
 - **Books Read** 📚: TBA  
 - **Music** 🎵: Lo-fi, Synthwave
