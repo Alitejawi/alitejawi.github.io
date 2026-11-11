@@ -194,18 +194,12 @@ test('no code links', () => {
   }
 });
 
-test('fill-in markers are visible', () => {
-  const html = readDist('projects/daily-diff/index.html');
-  const $ = loadDist('projects/daily-diff/index.html');
-
-  expect(html).toContain('FILL IN');
-  expect($('main').text()).toContain('[FILL IN: Demo video coming soon]');
-  expect($('main').text()).toContain('[FILL IN: photo to follow]');
-  expect($('main').text()).toContain('I keep forgetting where I save things.');
-  expect($('[data-fill-in]')).toHaveLength(2);
-  expect($('[data-fill-in][hidden], [hidden] [data-fill-in]')).toHaveLength(0);
-  const brain = loadDist('projects/brain/index.html');
-  expect(brain('main').text()).toContain('[FILL IN: Demo video coming soon]');
+test('placeholders are hidden while site.showPlaceholders is false', () => {
+  for (const page of ['projects/daily-diff/index.html', 'projects/brain/index.html']) {
+    expect(readDist(page)).not.toContain('FILL IN');
+    expect(loadDist(page)('[data-fill-in]')).toHaveLength(0);
+  }
+  expect(loadDist('projects/daily-diff/index.html')('main').text()).toContain('I keep forgetting where I save things.');
 });
 
 test('about shows live espresso count', () => {

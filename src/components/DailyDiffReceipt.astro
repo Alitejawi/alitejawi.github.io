@@ -4,10 +4,11 @@ import Receipt from './Receipt.astro';
 import ReceiptLine from './ReceiptLine.astro';
 import Chip from './Chip.astro';
 import FillIn from './FillIn.astro';
+import { site } from '../data/site';
 ---
 
 <Figure no={1} caption="One morning's brief, as a receipt">
-  <div class="brief-figure">
+  <div class:list={['brief-figure', { single: !site.showPlaceholders }]}>
     <Receipt title="The Daily Diff" aside="Run stats" footer="Email · podcast · paper">
       <Chip text="19 Oct – 11 Nov 2026" />
       <div>
@@ -20,10 +21,12 @@ import FillIn from './FillIn.astro';
         <ReceiptLine label="Email arrival" value="~07:34" />
       </div>
     </Receipt>
-    <div class="photo-placeholder">
-      <span class="label muted">Photo of a printed brief</span>
-      <FillIn text="photo to follow" />
-    </div>
+    {site.showPlaceholders && (
+      <div class="photo-placeholder">
+        <span class="label muted">Photo of a printed brief</span>
+        <FillIn text="photo to follow" />
+      </div>
+    )}
   </div>
 </Figure>
 
@@ -33,6 +36,10 @@ import FillIn from './FillIn.astro';
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     align-items: stretch;
     gap: 1.25rem;
+  }
+
+  .brief-figure.single {
+    grid-template-columns: minmax(0, 28rem);
   }
 
   .photo-placeholder {

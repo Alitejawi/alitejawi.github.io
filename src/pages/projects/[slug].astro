@@ -16,6 +16,7 @@ export const getStaticPaths = (async () => {
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 const { project } = Astro.props;
 const { Content, headings } = await render(project);
+import { site } from '../../data/site';
 ---
 
 <Article
@@ -25,16 +26,18 @@ const { Content, headings } = await render(project);
   lede={project.data.oneLiner}
   headings={headings}
 >
-  <div slot="metadata" class="project-demo">
-    {project.data.video ? (
-      <>
-        <a href={project.data.video}>Watch demo video</a>
-        {project.id === 'daily-diff' && <p class="label muted">Demo with sample data</p>}
-      </>
-    ) : (
-      <FillIn text="Demo video coming soon" />
-    )}
-  </div>
+  {(project.data.video || site.showPlaceholders) && (
+    <div slot="metadata" class="project-demo">
+      {project.data.video ? (
+        <>
+          <a href={project.data.video}>Watch demo video</a>
+          {project.id === 'daily-diff' && <p class="label muted">Demo with sample data</p>}
+        </>
+      ) : (
+        <FillIn text="Demo video coming soon" />
+      )}
+    </div>
+  )}
   <Content />
   <a slot="footer" href="/projects/">All projects</a>
 </Article>

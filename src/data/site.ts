@@ -12,6 +12,7 @@ export const site: {
     linkedin: 'https://www.linkedin.com/in/alitejawi/';
   };
   showDates: false;
+  showPlaceholders: boolean;
   stack: { name: string; role: string }[];
   ticker: string[];
 } = {
@@ -28,6 +29,8 @@ export const site: {
     linkedin: 'https://www.linkedin.com/in/alitejawi/',
   },
   showDates: false,
+  // Set to true to show [FILL IN] boxes for content Ali still has to supply.
+  showPlaceholders: false,
   stack: [
     { name: 'Okta', role: 'Identity' },
     { name: 'Google Workspace', role: 'GAM' },
