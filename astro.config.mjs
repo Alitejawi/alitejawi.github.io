@@ -9,4 +9,9 @@ export default defineConfig({
     format: 'directory',
   },
   integrations: [mdx()],
+  redirects: {
+    '/tags/': '/writing/',
+    '/categories/': '/writing/',
+    '/archives/': '/writing/',
+  },
 });

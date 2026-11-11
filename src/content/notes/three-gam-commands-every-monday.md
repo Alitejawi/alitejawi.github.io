@@ -1,18 +1,16 @@
 ---
 title: Three GAM commands I run every Monday morning
 date: 2026-05-11 09:00:00 +0200
-categories: [cli]
-tags: [automation, security]
 description: When you manage Google Workspace at scale, three things drift weekly. The GAM commands that catch them before your auditor does.
+slug: three-gam-commands-every-monday
+topic: Google Workspace
 ---
-
-# Quiet weeks are the goal.
 
 A Workspace tenant with a few thousand users means a lot of small things move every week. Some admin got added for a one-off task. A delegate was set up. Somebody granted a scope to a tool they're trying out. Most of it is fine, a small slice of it isn't, and the boring sweep I run every Monday is how I tell the difference between the two.
 
 It's three commands. What does the work isn't the command itself, it's the API call underneath it and the diff against last week.
 
-## 1. Active super admins, and when they last signed in
+## Active super admins, and when they last signed in
 
 ```sh
 gam print users query "isAdmin=True" allfields
@@ -22,7 +20,7 @@ Under the hood this hits `users.list` with the filter `isAdmin=True`. The output
 
 What this usually catches is a vendor or a contractor who got elevated for a one-off task and never got reverted. The Workspace admin console doesn't surface elevation history in a useful way. The API does.
 
-## 2. Every delegate, on every mailbox
+## Every delegate, on every mailbox
 
 ```sh
 gam all users print delegates
@@ -34,7 +32,7 @@ New rows are usually legitimate. A new EA, a new shared inbox. Occasionally one 
 
 If you read my post on silent delegation, this is the inverse. A weekly sweep that surfaces the silent delegations somebody else set up.
 
-## 3. OAuth scopes granted in the last seven days
+## OAuth scopes granted in the last seven days
 
 ```sh
 gam report token start_time -7d

@@ -1,0 +1,36 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import { getNotes } from '../../lib/notes';
+
+export const getStaticPaths = (async () => {
+  const notes = await getNotes();
+
+  return notes.map((note) => ({
+    params: { slug: note.data.slug },
+    props: { note },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+
+<Base title={`${note.data.title} · ${site.name}`} description={note.data.description}>
+  <article>
+    <header>
+      <h1>{note.data.title}</h1>
+      <p class="muted">{note.data.description}</p>
+      {site.showDates && (
+        <time datetime={note.data.date.toISOString()}>
+          {note.data.date.toLocaleDateString('en-GB', { timeZone: site.timeZone, dateStyle: 'long' })}
+        </time>
+      )}
+    </header>
+    <Content />
+  </article>
+  <p><a href="/writing/">All writing</a></p>
+</Base>

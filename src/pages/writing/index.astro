@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+import { formatNo, getNotes, readMinutes } from '../../lib/notes';
+
+const notes = await getNotes();
+---
+
+<Base title={`Writing · ${site.name}`} description="Field notes on systems, scripts, and automation.">
+  <h1>Writing</h1>
+  <ol class="notes" role="list">
+    {notes.map((note) => (
+      <li>
+        <div class="note-meta">
+          {note.no !== null && <span class="note-number">{formatNo(note.no)}</span>}
+          <span>{readMinutes(note.body ?? '')} min</span>
+          {site.showDates && (
+            <time datetime={note.data.date.toISOString()}>
+              {note.data.date.toLocaleDateString('en-GB', { timeZone: site.timeZone, dateStyle: 'long' })}
+            </time>
+          )}
+        </div>
+        <h2><a href={`/posts/${note.data.slug}/`}>{note.data.title}</a></h2>
+        <p class="muted">{note.data.description}</p>
+      </li>
+    ))}
+  </ol>
+</Base>
+
+<style>
+  .notes {
+    max-width: 48rem;
+    margin: 2.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .notes li {
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--mid-grey);
+  }
+
+  .note-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--dark-grey);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  .notes h2 {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.375rem, 3vw, 1.75rem);
+    line-height: 1.3;
+  }
+
+  .notes p {
+    margin: 0;
+  }
+</style>

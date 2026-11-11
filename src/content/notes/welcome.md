@@ -1,9 +1,10 @@
 ---
 title: Welcome
 date: 2025-02-05 21:40:00 +0100
-categories: []
-tags: []     # TAG names should always be lowercase
 description: A short note on why this site exists. Random scripts, snippets, and ideas worth sharing with other engineers.
+slug: Welcome
+topic: General
+numbered: false
 ---
 
 # Treat this site as a place where I post some random code that you may find useful. 
