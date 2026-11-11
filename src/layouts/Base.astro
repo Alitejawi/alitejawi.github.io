@@ -3,6 +3,7 @@ import '../styles/global.css';
 import geistBody from '@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url';
 import geistMono from '@fontsource/geist-mono/files/geist-mono-latin-400-normal.woff2?url';
 import { site } from '../data/site';
+import Nav from '../components/Nav.astro';
 
 interface Props {
   title: string;
@@ -13,6 +14,10 @@ interface Props {
 const { title, description, ogImage = '/assets/img/og.png' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, site.url);
 const socialImage = new URL(ogImage, site.url);
+const section = Astro.url.pathname.split('/')[1];
+const current = section === 'posts' || section === 'writing' ? 'writing'
+  : section === 'projects' || section === 'now' || section === 'about' ? section
+  : undefined;
 const person = {
   '@context': 'https://schema.org',
   '@type': 'Person',
@@ -52,7 +57,7 @@ const person = {
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <slot name="nav" />
+    <slot name="nav"><Nav current={current} /></slot>
     <main id="main"><slot /></main>
   </body>
 </html>

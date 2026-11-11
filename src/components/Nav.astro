@@ -1,0 +1,123 @@
+---
+import { site } from '../data/site';
+import Ticker from './Ticker.astro';
+
+interface Props {
+  current?: 'writing' | 'projects' | 'now' | 'about';
+  newDot?: 'writing' | 'projects' | 'now' | 'about';
+}
+
+const { current, newDot } = Astro.props;
+const links = [
+  { id: 'writing', label: 'Writing', href: '/writing/' },
+  { id: 'projects', label: 'Projects', href: '/projects/' },
+  { id: 'now', label: 'Now', href: '/now/' },
+  { id: 'about', label: 'About', href: '/about/' },
+] as const;
+---
+
+<header class="nav-shell">
+  <nav aria-label="Main navigation">
+    <a class="home-link" href="/" aria-label={`${site.name} · Home`}>
+      <span class="logo-mark" aria-hidden="true"></span>
+    </a>
+    <ul>
+      {links.map(({ id, label, href }) => (
+        <li>
+          <a href={href} aria-current={current === id ? 'page' : undefined}>
+            {label}
+            {newDot === id && <span class="new-dot" role="img" aria-label="New"></span>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <Ticker items={site.ticker} />
+</header>
+
+<style>
+  .nav-shell {
+    width: calc(100% - 2 * var(--page-gutter));
+    max-width: 35rem;
+    min-width: 0;
+    margin: 1.75rem auto 0;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.875rem;
+    background: var(--ink);
+    background-image: radial-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px);
+    background-size: 3px 3px;
+    color: var(--mid-grey);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 3vw, 1.5rem);
+    padding: 0 0.25rem 0.5rem;
+  }
+
+  .home-link {
+    display: grid;
+    flex: 0 0 1.75rem;
+    min-height: 2.25rem;
+    place-items: center;
+  }
+
+  .logo-mark {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.25rem;
+    background: repeating-linear-gradient(135deg, var(--paper) 0 1.5px, transparent 1.5px 4px);
+  }
+
+  ul {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.125rem 0.75rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: clamp(0.625rem, 2.8vw, 0.875rem);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  li a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    text-decoration: none;
+  }
+
+  a:hover,
+  a[aria-current='page'] {
+    color: var(--paper);
+  }
+
+  a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.35em;
+  }
+
+  a:focus-visible {
+    outline-color: var(--accent);
+    border-radius: 0.125rem;
+  }
+
+  .new-dot {
+    position: absolute;
+    top: 0.25rem;
+    right: -0.375rem;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+</style>

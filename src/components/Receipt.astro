@@ -1,0 +1,61 @@
+---
+interface Props {
+  title: string;
+  aside?: string;
+  footer?: string;
+}
+
+const { title, aside, footer } = Astro.props;
+---
+
+<section class="receipt" data-receipt aria-label={title}>
+  <header class="receipt-header">
+    <h2>{title}</h2>
+    {aside && <span class="receipt-aside">{aside}</span>}
+  </header>
+  <div class="receipt-body"><slot /></div>
+  {footer && <footer>{footer}</footer>}
+</section>
+
+<style>
+  .receipt {
+    min-width: 0;
+    max-width: 100%;
+    border: 1px dashed var(--dashed-line);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .receipt-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 1rem;
+    border-bottom: 1px dashed var(--dashed-line);
+  }
+
+  h2 {
+    margin: 0;
+    font: inherit;
+  }
+
+  .receipt-aside {
+    color: var(--dark-grey);
+  }
+
+  .receipt-body {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  footer {
+    padding: 0 1rem 1rem;
+    color: var(--dark-grey);
+  }
+</style>

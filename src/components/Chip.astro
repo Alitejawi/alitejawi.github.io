@@ -1,0 +1,27 @@
+---
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<span class="chip">{text}</span>
+
+<style>
+  .chip {
+    display: inline-block;
+    max-width: 100%;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--ghost-grey);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+  }
+</style>

@@ -1,0 +1,59 @@
+<div data-fade><slot /></div>
+
+<script>
+  const elements = document.querySelectorAll<HTMLElement>('[data-fade]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Content starts visible: unavailable JavaScript or observers never hide it.
+  if (!reducedMotion.matches && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      });
+    });
+
+    elements.forEach((element) => {
+      element.dataset.fadeReady = '';
+      observer.observe(element);
+    });
+
+    reducedMotion.addEventListener('change', (event) => {
+      if (event.matches) {
+        elements.forEach((element) => element.classList.add('in'));
+        observer.disconnect();
+      }
+    });
+  }
+</script>
+
+<style>
+  [data-fade] {
+    min-width: 0;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-fade-ready] {
+      opacity: 0;
+      transform: translateY(0.75rem);
+      transition: opacity 500ms ease, transform 500ms ease;
+    }
+
+    [data-fade-ready].in,
+    [data-fade-ready]:focus-within {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-fade] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
