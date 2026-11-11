@@ -1,0 +1,75 @@
+---
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Article from '../../layouts/Article.astro';
+import FillIn from '../../components/FillIn.astro';
+import { readMinutes } from '../../lib/notes';
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+const { project } = Astro.props;
+const { Content, headings } = await render(project);
+---
+
+<Article
+  kicker="Project"
+  minutes={readMinutes(project.body ?? '')}
+  title={project.data.title}
+  lede={project.data.oneLiner}
+  headings={headings}
+>
+  <div slot="metadata" class="project-demo">
+    {project.data.video ? (
+      <>
+        <a href={project.data.video}>Watch demo video</a>
+        {project.id === 'daily-diff' && <p class="label muted">Demo with sample data</p>}
+      </>
+    ) : (
+      <FillIn text="Demo video coming soon" />
+    )}
+  </div>
+  <Content />
+  <a slot="footer" href="/projects/">All projects</a>
+</Article>
+
+<style>
+  .project-demo {
+    margin-top: 1.25rem;
+  }
+
+  .project-demo p {
+    margin: 0.5rem 0 0;
+  }
+
+  :global(.article-body table) {
+    width: 100%;
+    margin: 1.5rem 0;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  :global(.article-body th),
+  :global(.article-body td) {
+    padding: 0.75rem 0.625rem;
+    border-bottom: 1px solid var(--mid-grey);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  :global(.article-body th) {
+    color: var(--dark-grey);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+</style>

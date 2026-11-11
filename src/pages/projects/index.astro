@@ -1,0 +1,89 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title={`Projects · ${site.name}`} description="Brain and The Daily Diff: AI systems I build and run every day.">
+  <h1>Projects</h1>
+  <ul class="projects" role="list">
+    {projects.map((project) => (
+      <li>
+        <a class="project" href={`/projects/${project.id}/`}>
+          <div class="project-image">
+            {project.data.image ? (
+              <img src={project.data.image} alt="" width="640" height="400" loading="lazy" />
+            ) : (
+              <span class="label muted">Image coming soon</span>
+            )}
+          </div>
+          <h2>{project.data.title}</h2>
+          <p class="muted">{project.data.oneLiner}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+</Base>
+
+<style>
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+    margin: 2.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .projects li {
+    min-width: 0;
+  }
+
+  .project {
+    display: block;
+    text-decoration: none;
+  }
+
+  .project-image {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 8 / 5;
+    margin-bottom: 1.25rem;
+    border: 1px dashed var(--dashed-line);
+    background-image: radial-gradient(var(--mid-grey) 0.5px, transparent 0.5px);
+    background-size: 6px 6px;
+  }
+
+  .project-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  h2 {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.375rem, 3vw, 1.75rem);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .project:hover h2 {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.2em;
+  }
+
+  .project p {
+    margin: 0;
+  }
+
+  @media (width < 600px) {
+    .projects {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

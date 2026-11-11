@@ -1,0 +1,45 @@
+---
+title: 'The Daily Diff: an AI morning brief, on paper too'
+oneLiner: 'At 07:30 each day, about 190 candidates become about 18 picks, by email, podcast and receipt printer.'
+receiptValue: '07:34 daily'
+order: 2
+---
+
+import DailyDiffReceipt from '../../components/DailyDiffReceipt.astro';
+import FillIn from '../../components/FillIn.astro';
+
+## Problem
+
+Every morning there's more worth knowing than time to read it: saved links, GitHub trending, YouTube, Anthropic news. <FillIn text="one or two sentences in your words on why you built it, e.g. what you were doing before." />
+
+## What I built
+
+A morning brief that picks for me and arrives in three forms.
+
+- **Ranks** my saves, GitHub trending, YouTube and Anthropic news.
+- **Learns my taste** from 👍/👎 votes in my Reader app.
+- **Delivers** a designed email, a NotebookLM podcast link, and a printed copy.
+- **Prints on paper:** an HPRT TP808 80 mm thermal printer over Wi-Fi, driven by raw ESC/POS commands written by hand, including 1-bit weather icons drawn in code.
+
+## How it's running
+
+From the brief notes, 19 October to 11 November 2026:
+
+| What | Result |
+|---|---|
+| Briefs sent | 21 |
+| Candidates per day | median 193 (range 65 to 268) |
+| Picks per day | median 18 (max 22) |
+| Podcast episodes | 18 made, 18 succeeded, 0 failed |
+| Email arrival | about 07:34, printed copy right after |
+
+<DailyDiffReceipt />
+
+## What went wrong, and what I changed
+
+Around 6 to 9 November some briefs didn't go out: a Python upgrade blocked file access for the scheduled jobs. I fixed it and added a daily health check, so a silent failure like that now gets caught.
+
+## What's next
+
+- If the printer is offline: retry, then alert my phone instead of skipping the print.
+- Reader app v2: add Raindrop and Instagram as sources, and read-aloud.

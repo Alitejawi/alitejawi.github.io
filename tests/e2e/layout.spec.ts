@@ -13,11 +13,8 @@ const pages = [
   '/now/',
 ];
 
-// Remove each entry as its page lands in Tasks 7 and 8. Existing routes must stay built.
+// Remove each entry as its page lands in Task 8. Existing routes must stay built.
 const pendingPages = new Set([
-  '/projects/',
-  '/projects/brain/',
-  '/projects/daily-diff/',
   '/about/',
   '/now/',
 ]);

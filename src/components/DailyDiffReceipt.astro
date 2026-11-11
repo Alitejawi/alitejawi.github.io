@@ -1,0 +1,58 @@
+---
+import Figure from './Figure.astro';
+import Receipt from './Receipt.astro';
+import ReceiptLine from './ReceiptLine.astro';
+import Chip from './Chip.astro';
+import FillIn from './FillIn.astro';
+---
+
+<Figure no={1} caption="One morning's brief, as a receipt">
+  <div class="brief-figure">
+    <Receipt title="The Daily Diff" aside="Run stats" footer="Email · podcast · paper">
+      <Chip text="19 Oct – 11 Nov 2026" />
+      <div>
+        <ReceiptLine label="Briefs sent" value="21" />
+        <ReceiptLine label="Candidates / day" value="median 193" />
+        <ReceiptLine label="Picks / day" value="median 18" />
+      </div>
+      <div>
+        <ReceiptLine label="Podcast succeeded" value="18/18" />
+        <ReceiptLine label="Email arrival" value="~07:34" />
+      </div>
+    </Receipt>
+    <div class="photo-placeholder">
+      <span class="label muted">Photo of a printed brief</span>
+      <FillIn text="photo to follow" />
+    </div>
+  </div>
+</Figure>
+
+<style>
+  .brief-figure {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-width: 0;
+    min-height: 12rem;
+    padding: 1rem;
+    border: 1px dashed var(--dashed-line);
+    background-image: radial-gradient(var(--mid-grey) 0.5px, transparent 0.5px);
+    background-size: 6px 6px;
+    text-align: center;
+  }
+
+  @media (width < 600px) {
+    .brief-figure {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

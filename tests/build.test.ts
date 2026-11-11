@@ -142,3 +142,66 @@ test('homepage has no dates and no Work section', () => {
   const headings = $('h1, h2, h3, h4, h5, h6').map((_, heading) => $(heading).text().trim()).get();
   expect(headings).not.toContain('Work');
 });
+
+test('case studies exist', () => {
+  for (const slug of ['brain', 'daily-diff']) {
+    expect(existsSync(new URL(`../dist/projects/${slug}/index.html`, import.meta.url))).toBe(true);
+    const $ = loadDist(`projects/${slug}/index.html`);
+    expect($('.article-kicker').text()).toContain('Project');
+    expect($('[data-contents] a[href="#problem"]').length).toBeGreaterThan(0);
+  }
+
+  const $ = loadDist('projects/index.html');
+  expect($('main a').map((_, link) => $(link).attr('href')).get()).toEqual([
+    '/projects/brain/',
+    '/projects/daily-diff/',
+  ]);
+});
+
+test('brain shows real eval numbers', () => {
+  const html = readDist('projects/brain/index.html');
+
+  for (const value of ['42%', '68%', '22%', '40%', '1,476']) {
+    expect(html).toContain(value);
+  }
+  const $ = loadDist('projects/brain/index.html');
+  expect($('figure').text()).toContain('Fig. 01 · Hybrid search on 50 frozen queries');
+});
+
+test('daily diff uses real numbers', () => {
+  const html = readDist('projects/daily-diff/index.html');
+
+  expect(html).toContain('193');
+  expect(html).toContain('18');
+  expect(html).not.toContain('214');
+  expect(html).not.toContain('5 picks');
+  const $ = loadDist('projects/daily-diff/index.html');
+  expect($('figure').text()).toContain("Fig. 01 · One morning's brief, as a receipt");
+});
+
+test('no code links', () => {
+  const pages = readdirSync(new URL('../dist/projects/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && path.endsWith('.html'));
+
+  expect(pages.length).toBeGreaterThanOrEqual(3);
+  for (const path of pages) {
+    const $ = loadDist(`projects/${path}`);
+    for (const link of $('a[href]').toArray()) {
+      expect($(link).attr('href')).not.toMatch(/github\.com\/Alitejawi\/(?:n8n|brain)/i);
+    }
+  }
+});
+
+test('fill-in markers are visible', () => {
+  const html = readDist('projects/daily-diff/index.html');
+  const $ = loadDist('projects/daily-diff/index.html');
+
+  expect(html).toContain('FILL IN');
+  expect($('main').text()).toContain('[FILL IN: Demo video coming soon]');
+  expect($('main').text()).toContain('[FILL IN: photo to follow]');
+  expect($('main').text()).toContain('[FILL IN: one or two sentences in your words on why you built it, e.g. what you were doing before.]');
+  expect($('[data-fill-in]')).toHaveLength(3);
+  expect($('[data-fill-in][hidden], [hidden] [data-fill-in]')).toHaveLength(0);
+  const brain = loadDist('projects/brain/index.html');
+  expect(brain('main').text()).toContain('[FILL IN: Demo video coming soon]');
+});
