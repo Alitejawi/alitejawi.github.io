@@ -11,23 +11,29 @@ import { formatCount } from '../../scripts/bump-espresso.mjs';
 
 <Base
   title={`About · ${site.name}`}
-  description="A little about Ali: systems, AI, the people behind the problems, and espresso."
+  description="About Ali Al-Itejawi: security, systems and IT, the AI systems I build, and espresso."
 >
   <Nav slot="nav" current="about" />
   <h1>About</h1>
   <div class="about">
     <div class="about-copy">
       <p>
-        I'm {site.name}, a {site.role} based in {site.location}. My background is in
-        systems and IT, and I build AI systems that run in production.
+        I'm Ali, a {site.role} in {site.location}. My background is in security, systems
+        and IT. For years that has meant Okta, Google Workspace, Jamf, and the scripts
+        between them.
       </p>
       <p>
-        I'm a problem solver. I like making repetitive tasks disappear, helping systems
-        run quietly, and making useful information easier to find.
+        I like problems that stay solved. If something has to be done every week, I'd
+        rather automate it, and a quiet week is how I know it worked.
       </p>
       <p>
-        I like to understand a problem with the people facing it, explain the trade-offs
-        plainly, and keep improving what we build after it ships.
+        These days I also build AI systems for myself and run them daily. One reads
+        everything I save so I can find it again. Another picks my morning reading and
+        prints it on a receipt printer.
+      </p>
+      <p>
+        I work best close to the people who have the problem, and I ask a lot of
+        questions before I build anything.
       </p>
       <p class="contact">Say hello: <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
     </div>

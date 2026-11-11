@@ -218,5 +218,10 @@ test('about has no books placeholder', () => {
 });
 
 test('now page exists', () => {
-  expect(readDist('now/index.html')).toContain('FILL IN');
+  const html = readDist('now/index.html');
+
+  expect(html).toContain('Improved offboarding pipelines');
+  expect(html).toContain('Automated DLP security reporting and fixes');
+  expect(html).toContain('Fine-tuning local AI models for inference');
+  expect(html).not.toContain('FILL IN');
 });

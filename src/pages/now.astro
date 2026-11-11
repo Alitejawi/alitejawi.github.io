@@ -1,17 +1,31 @@
 ---
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
-import FillIn from '../components/FillIn.astro';
+import Receipt from '../components/Receipt.astro';
+import ReceiptLine from '../components/ReceiptLine.astro';
 import { site } from '../data/site';
+
+const building = [
+  'Improved offboarding pipelines',
+  'Automated DLP security reporting and fixes',
+  'Fine-tuning local AI models for inference',
+];
 ---
 
-<Base title={`Now · ${site.name}`} description="Current focus, what I'm building, and what I'm reading.">
+<Base title={`Now · ${site.name}`} description="What I'm building and reading right now.">
   <Nav slot="nav" current="now" />
   <div class="now">
     <h1>Now</h1>
-    <p>
-      <FillIn text="Ali writes this before launch: current focus, what I'm building, what I'm reading" />
-    </p>
+    <Receipt title="Now" aside={site.location}>
+      <div>
+        <h2>What I'm building</h2>
+        {building.map((item, i) => <ReceiptLine label={`${String(i + 1).padStart(2, '0')} ${item}`} />)}
+      </div>
+      <div>
+        <h2>Reading</h2>
+        <ReceiptLine label="Books" />
+      </div>
+    </Receipt>
   </div>
 </Base>
 
@@ -20,7 +34,17 @@ import { site } from '../data/site';
     max-width: 40rem;
   }
 
-  .now p {
+  .now :global(.receipt) {
     margin-top: 2.5rem;
+  }
+
+  .now h2 {
+    margin: 0 0 0.5rem;
+    color: var(--dark-grey);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 </style>
