@@ -4,6 +4,13 @@ date: 2025-02-07 21:40:00 +0100
 description: GAM's users.settings.delegates.create call skips the confirmation email when invoked with admin credentials. A one-line command, the API mechanics, and why this works.
 slug: Add_gmail_delegate_silently
 topic: Google Workspace
+commands:
+  - label: delegate to
+    value: Add
+  - label: show delegates
+    value: Verify
+  - label: delete delegate
+    value: Remove
 ---
 
 For a while I had been trying to see if there was a possible way to add a delegate to a Google Workspace account without notifying the user. There's numerous reasons why you would want to do that and this post isn't about the intricacies on why you might not want to do that. 

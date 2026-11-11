@@ -1,36 +1,55 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { render } from 'astro:content';
-import Base from '../../layouts/Base.astro';
+import Article from '../../layouts/Article.astro';
 import { site } from '../../data/site';
-import { getNotes } from '../../lib/notes';
+import { formatNo, getNotes, readMinutes, type NumberedNote } from '../../lib/notes';
 
 export const getStaticPaths = (async () => {
   const notes = await getNotes();
+  const numbered = notes.filter((note) => note.no !== null).sort((a, b) => a.no! - b.no!);
+  const neighbor = (note: NumberedNote | undefined, direction: string) => note && ({
+    href: `/posts/${note.data.slug}/`,
+    label: `${direction} · ${formatNo(note.no!)}`,
+    title: note.data.title,
+  });
 
-  return notes.map((note) => ({
-    params: { slug: note.data.slug },
-    props: { note },
-  }));
+  return notes.map((note) => {
+    const index = numbered.findIndex((entry) => entry.id === note.id);
+    return {
+      params: { slug: note.data.slug },
+      props: {
+        note,
+        prev: index > 0 ? neighbor(numbered[index - 1], 'Previous') : undefined,
+        next: index >= 0 ? neighbor(numbered[index + 1], 'Next') : undefined,
+      },
+    };
+  });
 }) satisfies GetStaticPaths;
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
-const { note } = Astro.props;
-const { Content } = await render(note);
+const { note, prev, next } = Astro.props;
+const { Content, headings } = await render(note);
 ---
 
-<Base title={`${note.data.title} · ${site.name}`} description={note.data.description}>
-  <article>
-    <header>
-      <h1>{note.data.title}</h1>
-      <p class="muted">{note.data.description}</p>
-      {site.showDates && (
-        <time datetime={note.data.date.toISOString()}>
-          {note.data.date.toLocaleDateString('en-GB', { timeZone: site.timeZone, dateStyle: 'long' })}
-        </time>
-      )}
-    </header>
-    <Content />
-  </article>
-  <p><a href="/writing/">All writing</a></p>
-</Base>
+<Article
+  kicker={note.no === null ? 'Field note' : `Field note ${formatNo(note.no)}`}
+  chip={note.data.topic}
+  minutes={readMinutes(note.body ?? '')}
+  title={note.data.title}
+  lede={note.data.description}
+  headings={headings}
+  extraReceipt={note.data.commands?.length ? { title: 'Commands used', lines: note.data.commands } : undefined}
+  prev={prev}
+  next={next}
+>
+  <Fragment slot="metadata">
+    {site.showDates && (
+      <time datetime={note.data.date.toISOString()}>
+        {note.data.date.toLocaleDateString('en-GB', { timeZone: site.timeZone, dateStyle: 'long' })}
+      </time>
+    )}
+  </Fragment>
+  <Content />
+  <a slot="footer" href="/writing/">All writing</a>
+</Article>

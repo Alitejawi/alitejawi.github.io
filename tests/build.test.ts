@@ -69,3 +69,46 @@ test('writing index has no dates', () => {
   expect($('main ol li').last().text()).not.toContain('No.');
   expect($('main ol li').toArray().every((item) => /\d+ min/.test($(item).text()))).toBe(true);
 });
+
+test('post shows kicker, chip and read time', () => {
+  const html = readDist('posts/Add_gmail_delegate_silently/index.html');
+
+  expect(html).toContain('Field note No. 01');
+  expect(html).toContain('Google Workspace');
+  expect(html).toContain('min read');
+});
+
+test('post shows no date', () => {
+  const html = readDist('posts/Add_gmail_delegate_silently/index.html');
+
+  expect(html).not.toContain('2025');
+  expect(html).not.toContain('Feb');
+});
+
+test('contents receipt lists sections', () => {
+  const $ = loadDist('posts/Add_gmail_delegate_silently/index.html');
+  const contents = $('[data-contents]');
+
+  expect(contents.text()).toContain('Default delegation');
+  expect(contents.find('a[href="#default-delegation"]').first().text()).toContain('01 Default delegation');
+});
+
+test('no contents receipt when a note has no h2', () => {
+  const $ = loadDist('posts/Welcome/index.html');
+
+  expect($('[data-contents]').length).toBe(0);
+});
+
+test('commands receipt', () => {
+  const html = readDist('posts/Add_gmail_delegate_silently/index.html');
+  const $ = loadDist('posts/Add_gmail_delegate_silently/index.html');
+  const commands = $('[data-receipt]').filter((_, element) => $(element).text().includes('Commands used'));
+
+  expect(html).toContain('show delegates');
+  expect(commands.text()).toContain('delegate to');
+  expect(commands.text()).toContain('Add');
+  expect(commands.text()).toContain('show delegates');
+  expect(commands.text()).toContain('Verify');
+  expect(commands.text()).toContain('delete delegate');
+  expect(commands.text()).toContain('Remove');
+});

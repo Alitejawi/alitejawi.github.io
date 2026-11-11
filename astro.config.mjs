@@ -9,6 +9,11 @@ export default defineConfig({
     format: 'directory',
   },
   integrations: [mdx()],
+  markdown: {
+    shikiConfig: {
+      theme: 'github-dark',
+    },
+  },
   redirects: {
     '/tags/': '/writing/',
     '/categories/': '/writing/',

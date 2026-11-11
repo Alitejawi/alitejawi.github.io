@@ -1,0 +1,125 @@
+---
+import Receipt from './Receipt.astro';
+import ReceiptLine from './ReceiptLine.astro';
+
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+  extraReceipt?: { title: string; lines: { label: string; value: string }[] };
+}
+
+const { headings, extraReceipt } = Astro.props;
+const sections = headings.filter((heading) => heading.depth === 2);
+---
+
+{sections.length > 0 && (
+  <aside class="contents" data-contents aria-label="Article contents">
+    {['desktop', 'mobile'].map((variant) => {
+      const Tag = variant === 'mobile' ? 'details' : 'div';
+      return (
+        <Tag class={`contents-${variant}`}>
+          {variant === 'mobile' && <summary>Contents</summary>}
+          <Receipt title="Contents">
+            <nav aria-label="Sections">
+              {sections.map((heading, index) => (
+                <ReceiptLine
+                  label={`${String(index + 1).padStart(2, '0')} ${heading.text}`}
+                  href={`#${heading.slug}`}
+                />
+              ))}
+            </nav>
+            {extraReceipt && (
+              <div class="extra-receipt">
+                <h3>{extraReceipt.title}</h3>
+                {extraReceipt.lines.map((line) => <ReceiptLine {...line} />)}
+              </div>
+            )}
+          </Receipt>
+        </Tag>
+      );
+    })}
+  </aside>
+)}
+
+<script>
+  const contents = document.querySelector<HTMLElement>('[data-contents]');
+  if (contents && 'IntersectionObserver' in window) {
+    const links = [...contents.querySelectorAll<HTMLAnchorElement>('nav a[href^="#"]')];
+    const sections = [...document.querySelectorAll<HTMLElement>('.article-body > h2[id]')];
+    const end = document.querySelector('.article-body')?.lastElementChild;
+    const updateCurrent = () => {
+      let current = sections[0];
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= window.innerHeight * 0.35) current = section;
+      }
+      // A short final section may never reach the upper part of the viewport.
+      if (end && end.getBoundingClientRect().bottom <= window.innerHeight) current = sections.at(-1);
+      for (const link of links) {
+        const active = link.hash === `#${current?.id}`;
+        link.classList.toggle('current', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      }
+    };
+    const observer = new IntersectionObserver(updateCurrent, { rootMargin: '0px 0px -65% 0px' });
+    sections.forEach((section) => observer.observe(section));
+    if (end) new IntersectionObserver(updateCurrent, { threshold: 1 }).observe(end);
+    updateCurrent();
+  }
+</script>
+
+<style>
+  .contents {
+    position: sticky;
+    top: 1.5rem;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: start;
+    min-width: 0;
+  }
+
+  .contents-mobile {
+    display: none;
+  }
+
+  .extra-receipt {
+    border-top: 1px dashed var(--dashed-line);
+    padding-top: 1rem;
+  }
+
+  h3 {
+    margin-bottom: 0.75rem;
+    color: var(--dark-grey);
+    font: inherit;
+  }
+
+  summary {
+    cursor: pointer;
+    padding: 0.875rem 1rem;
+    border: 1px dashed var(--dashed-line);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  details[open] > summary {
+    border-bottom: 0;
+  }
+
+  @media (width < 900px) {
+    .contents {
+      position: static;
+      grid-column: 1;
+      grid-row: auto;
+      margin-bottom: 2rem;
+    }
+
+    .contents-desktop {
+      display: none;
+    }
+
+    .contents-mobile {
+      display: block;
+    }
+  }
+</style>
