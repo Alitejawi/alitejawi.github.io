@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import FillIn from '../components/FillIn.astro';
+import { site } from '../data/site';
+---
+
+<Base title={`Now · ${site.name}`} description="Current focus, what I'm building, and what I'm reading.">
+  <Nav slot="nav" current="now" />
+  <div class="now">
+    <h1>Now</h1>
+    <p>
+      <FillIn text="Ali writes this before launch: current focus, what I'm building, what I'm reading" />
+    </p>
+  </div>
+</Base>
+
+<style>
+  .now {
+    max-width: 40rem;
+  }
+
+  .now p {
+    margin-top: 2.5rem;
+  }
+</style>

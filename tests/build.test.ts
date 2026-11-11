@@ -205,3 +205,18 @@ test('fill-in markers are visible', () => {
   const brain = loadDist('projects/brain/index.html');
   expect(brain('main').text()).toContain('[FILL IN: Demo video coming soon]');
 });
+
+test('about shows live espresso count', () => {
+  const html = readDist('about/index.html');
+
+  expect(html).toContain(formatCount(espresso.count));
+  expect(html).toContain('29');
+});
+
+test('about has no books placeholder', () => {
+  expect(readDist('about/index.html')).not.toContain('TBA');
+});
+
+test('now page exists', () => {
+  expect(readDist('now/index.html')).toContain('FILL IN');
+});

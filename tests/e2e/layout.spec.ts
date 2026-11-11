@@ -13,19 +13,12 @@ const pages = [
   '/now/',
 ];
 
-// Remove each entry as its page lands in Task 8. Existing routes must stay built.
-const pendingPages = new Set([
-  '/about/',
-  '/now/',
-]);
-
 test.use({ viewport: { width: 375, height: 812 } });
 
 for (const path of pages) {
   test.describe(path, () => {
     test('no horizontal overflow at 375px', async ({ page }) => {
       const response = await page.goto(path);
-      test.skip(response?.status() === 404 && pendingPages.has(path), 'Page is not built yet');
       expect(response?.status()).toBe(200);
       await page.evaluate(() => document.fonts.ready);
 

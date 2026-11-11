@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Receipt from '../components/Receipt.astro';
+import ReceiptLine from '../components/ReceiptLine.astro';
+import Chip from '../components/Chip.astro';
+import { site } from '../data/site';
+import espresso from '../data/espresso.json';
+import { formatCount } from '../../scripts/bump-espresso.mjs';
+---
+
+<Base
+  title={`About · ${site.name}`}
+  description="A little about Ali: systems, AI, the people behind the problems, and espresso."
+>
+  <Nav slot="nav" current="about" />
+  <h1>About</h1>
+  <div class="about">
+    <div class="about-copy">
+      <p>
+        I'm {site.name}, a {site.role} based in {site.location}. My background is in
+        systems and IT, and I build AI systems that run in production.
+      </p>
+      <p>
+        I'm a problem solver. I like making repetitive tasks disappear, helping systems
+        run quietly, and making useful information easier to find.
+      </p>
+      <p>
+        I like to understand a problem with the people facing it, explain the trade-offs
+        plainly, and keep improving what we build after it ships.
+      </p>
+      <p class="contact">Say hello: <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+    </div>
+    <Receipt title="A few personal facts" aside={site.location}>
+      <div>
+        <ReceiptLine label="Espressos consumed" value={formatCount(espresso.count)} />
+        <Chip text="+2 every day" />
+      </div>
+      <div>
+        <ReceiptLine label="Countries visited" value="29" />
+        <ReceiptLine label="Music" value="Lo-fi, Synthwave" />
+      </div>
+    </Receipt>
+  </div>
+</Base>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(2rem, 5vw, 4rem);
+    margin-top: 2.5rem;
+  }
+
+  .about-copy {
+    max-width: 40rem;
+    min-width: 0;
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
+
+  .about-copy p {
+    margin-bottom: 1.5rem;
+  }
+
+  .about-copy .contact {
+    margin-bottom: 0;
+  }
+
+  @media (width < 900px) {
+    .about {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
