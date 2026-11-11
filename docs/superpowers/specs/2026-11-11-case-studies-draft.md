@@ -64,7 +64,7 @@ Photo of a printed brief: [FILL IN: photo to follow]
 
 ### 01 Problem
 
-Every morning there's more worth knowing than time to read it: saved links, GitHub trending, YouTube, Anthropic news. [FILL IN: one or two sentences in your words on why you built it, e.g. what you were doing before.]
+Every morning there's more worth knowing than time to read it: saved links, GitHub trending, YouTube, Anthropic news. I keep forgetting where I save things. With The Daily Diff, I stay up to date on news, trends and AI security, and get reminded of my recent saves.
 
 ### 02 What I built
 

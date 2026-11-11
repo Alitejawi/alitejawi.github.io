@@ -199,8 +199,8 @@ test('fill-in markers are visible', () => {
   expect(html).toContain('FILL IN');
   expect($('main').text()).toContain('[FILL IN: Demo video coming soon]');
   expect($('main').text()).toContain('[FILL IN: photo to follow]');
-  expect($('main').text()).toContain('[FILL IN: one or two sentences in your words on why you built it, e.g. what you were doing before.]');
-  expect($('[data-fill-in]')).toHaveLength(3);
+  expect($('main').text()).toContain('I keep forgetting where I save things.');
+  expect($('[data-fill-in]')).toHaveLength(2);
   expect($('[data-fill-in][hidden], [hidden] [data-fill-in]')).toHaveLength(0);
   const brain = loadDist('projects/brain/index.html');
   expect(brain('main').text()).toContain('[FILL IN: Demo video coming soon]');

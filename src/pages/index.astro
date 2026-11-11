@@ -38,7 +38,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
           <h3>Projects</h3>
           {projects.map((project) => (
             <ReceiptLine
-              label={project.data.title}
+              label={project.data.title.split(':')[0]}
               value={project.data.receiptValue}
               href={`/projects/${project.id}/`}
             />
