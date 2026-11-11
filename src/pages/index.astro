@@ -1,14 +1,285 @@
 ---
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Receipt from '../components/Receipt.astro';
+import ReceiptLine from '../components/ReceiptLine.astro';
+import Chip from '../components/Chip.astro';
+import FadeIn from '../components/FadeIn.astro';
 import { site } from '../data/site';
+import espresso from '../data/espresso.json';
+import { formatNo, getNotes, readMinutes } from '../lib/notes';
+import { formatCount } from '../../scripts/bump-espresso.mjs';
+
+const notes = (await getNotes()).filter((note) => note.no !== null);
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 ---
 
-<Base
-  title={`${site.name} · ${site.role}`}
-  description="Field notes and projects on systems engineering, automation, and AI."
->
-  <p class="label muted">{site.role} · {site.location}</p>
-  <h1>{site.name}</h1>
-  <p class="muted">Field notes and projects on systems engineering, automation, and AI.</p>
-  <p>This site is being rebuilt. More soon.</p>
+<Base title={`${site.name} · ${site.role}`} description={site.lede}>
+  <Nav slot="nav" newDot="projects" />
+
+  <FadeIn>
+    <section class="hero" aria-labelledby="headline">
+      <div class="intro">
+        <p class="label muted">{site.name} · {site.role}</p>
+        <h1 id="headline">{site.headline}</h1>
+        <p class="lede">{site.lede}</p>
+        <div class="espresso">
+          <p class="espresso-count">{formatCount(espresso.count)}</p>
+          <div class="espresso-caption">
+            <span class="label">Espressos consumed</span>
+            <Chip text="+2 every day" />
+          </div>
+        </div>
+      </div>
+
+      <Receipt title="Field notes & work" aside="itejawi.com" footer="Thank you for reading">
+        <div class="receipt-group">
+          <h3>Projects</h3>
+          {projects.map((project) => (
+            <ReceiptLine
+              label={project.data.title}
+              value={project.data.receiptValue}
+              href={`/projects/${project.id}/`}
+            />
+          ))}
+        </div>
+        <div class="receipt-group">
+          <h3>Field notes</h3>
+          {notes.map((note) => (
+            <ReceiptLine
+              label={`${formatNo(note.no!)} · ${note.data.title}`}
+              value={`${readMinutes(note.body ?? '')} min`}
+              href={`/posts/${note.data.slug}/`}
+            />
+          ))}
+        </div>
+        <div class="receipt-group">
+          <h3>Stack</h3>
+          {site.stack.map(({ name, role }) => <ReceiptLine label={name} value={role} />)}
+        </div>
+      </Receipt>
+    </section>
+  </FadeIn>
+
+  <FadeIn>
+    <section class="home-section" aria-labelledby="selected-work">
+      <h2 class="label muted" id="selected-work">Selected work</h2>
+      <ul class="projects" role="list">
+        {projects.map((project) => (
+          <li>
+            <a class="project" href={`/projects/${project.id}/`}>
+              <div class="project-image">
+                {project.data.image ? (
+                  <img src={project.data.image} alt="" width="640" height="400" loading="lazy" />
+                ) : (
+                  <span class="label muted">Image coming soon</span>
+                )}
+              </div>
+              <h3>{project.data.title}</h3>
+              <p class="muted">{project.data.oneLiner}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </FadeIn>
+
+  <FadeIn>
+    <section class="home-section" aria-labelledby="field-notes">
+      <h2 class="label muted" id="field-notes">Field notes</h2>
+      <ol class="notes" role="list">
+        {notes.map((note) => (
+          <li>
+            <div class="note-meta label muted">
+              <span>{formatNo(note.no!)}</span>
+              <span>{readMinutes(note.body ?? '')} min</span>
+              {site.showDates && (
+                <time datetime={note.data.date.toISOString()}>
+                  {note.data.date.toLocaleDateString('en-GB', { timeZone: site.timeZone, dateStyle: 'long' })}
+                </time>
+              )}
+            </div>
+            <h3><a href={`/posts/${note.data.slug}/`}>{note.data.title}</a></h3>
+            <p class="muted">{note.data.description}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  </FadeIn>
+
+  <FadeIn>
+    <footer class="closing">
+      <p class="muted">Thanks for stopping by. Find me on <a href={site.links.github}>GitHub</a> or <a href={site.links.linkedin}>LinkedIn</a>, or <a href={`mailto:${site.email}`}>send me an email</a>.</p>
+    </footer>
+  </FadeIn>
 </Base>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: start;
+    gap: 3rem;
+  }
+
+  .intro {
+    min-width: 0;
+  }
+
+  h1 {
+    max-width: 18ch;
+    margin: 1.5rem 0 1.125rem;
+    font-size: clamp(2.25rem, 4vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    max-width: 38ch;
+    margin: 0;
+    color: var(--dark-grey);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+
+  .espresso {
+    margin-top: 3.5rem;
+  }
+
+  .espresso-count {
+    margin: 0 0 0.625rem;
+    font-size: clamp(4rem, 10vw, 7rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .espresso-caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.625rem;
+  }
+
+  .receipt-group h3 {
+    margin: 0 0 0.625rem;
+    color: var(--dark-grey);
+    font: inherit;
+  }
+
+  .receipt-group :global(.receipt-value) {
+    flex-shrink: 0;
+  }
+
+  .home-section {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--mid-grey);
+  }
+
+  .home-section > h2 {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .projects,
+  .notes {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project {
+    display: block;
+    text-decoration: none;
+  }
+
+  .project-image {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 8 / 5;
+    margin-bottom: 1rem;
+    border: 1px dashed var(--dashed-line);
+    background-image: radial-gradient(var(--mid-grey) 0.5px, transparent 0.5px);
+    background-size: 6px 6px;
+  }
+
+  .project-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .project h3,
+  .notes h3 {
+    margin-bottom: 0.625rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+
+  .project:hover h3 {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
+  .project p,
+  .notes p,
+  .closing p {
+    margin: 0;
+  }
+
+  .notes li + li {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--mid-grey);
+  }
+
+  .note-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .closing {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--mid-grey);
+    font-size: 0.875rem;
+  }
+
+  @media (width < 900px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-section {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (width < 600px) {
+    .projects {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

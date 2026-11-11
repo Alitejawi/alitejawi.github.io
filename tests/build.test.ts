@@ -1,5 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { expect, test } from 'vitest';
+import { formatCount } from '../scripts/bump-espresso.mjs';
+import espresso from '../src/data/espresso.json';
 import { loadDist, readDist } from './helpers/dist';
 
 test('CNAME is itejawi.com', () => {
@@ -111,4 +113,32 @@ test('commands receipt', () => {
   expect(commands.text()).toContain('Verify');
   expect(commands.text()).toContain('delete delegate');
   expect(commands.text()).toContain('Remove');
+});
+
+test('homepage shows espresso count', () => {
+  const html = readDist('index.html');
+
+  expect(html).toContain(formatCount(espresso.count));
+  expect(html).toContain('+2 every day');
+});
+
+test('homepage receipt lists numbered notes only', () => {
+  const $ = loadDist('index.html');
+  const receipt = $('[data-receipt]');
+
+  expect(receipt).toHaveLength(1);
+  expect(receipt.text()).toContain('No. 01');
+  expect(receipt.text()).toContain('No. 02');
+  expect(receipt.text()).not.toContain('Welcome');
+});
+
+test('homepage has no dates and no Work section', () => {
+  const $ = loadDist('index.html');
+  const receipt = $('[data-receipt]');
+
+  expect(receipt).toHaveLength(1);
+  expect(receipt.text()).not.toContain('2025');
+  expect(receipt.text()).not.toContain('2026');
+  const headings = $('h1, h2, h3, h4, h5, h6').map((_, heading) => $(heading).text().trim()).get();
+  expect(headings).not.toContain('Work');
 });

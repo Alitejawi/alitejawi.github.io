@@ -1,6 +1,8 @@
 export const site: {
   name: 'Ali Al-Itejawi';
   role: 'Principal Systems Engineer';
+  headline: string;
+  lede: string;
   url: 'https://itejawi.com';
   email: 'ali@itejawi.com';
   location: 'Amsterdam';
@@ -15,6 +17,8 @@ export const site: {
 } = {
   name: 'Ali Al-Itejawi',
   role: 'Principal Systems Engineer',
+  headline: 'I make corporate infrastructure quiet.',
+  lede: 'Secure, automated, invisible. Okta, Google Workspace, Jamf, and the AI systems I build on top.',
   url: 'https://itejawi.com',
   email: 'ali@itejawi.com',
   location: 'Amsterdam',
