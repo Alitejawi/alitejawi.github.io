@@ -15,13 +15,13 @@ Demo video: [FILL IN: video URL]
 
 ### 01 Problem
 
-I save a lot: articles, YouTube videos, Instagram reels, X posts. Saving was easy. Finding the right thing again weeks later was not. Bookmarks pile up, titles don't say what's inside, and half the useful content is spoken in a video or written on a slide, where search can't reach it.
+I save a lot: articles, research papers, case studies, talks and videos. Saving was easy. Finding the right thing again weeks later was not. Bookmarks pile up, titles don't say what's inside, and half the useful content is spoken in a video or written on a slide, where search can't reach it.
 
 ### 02 What I built
 
 A pipeline that reads everything I save, so I don't have to remember where I saw it.
 
-- **Takes in** articles, YouTube, Instagram and X posts.
+- **Takes in** articles, research papers, case studies, videos and posts.
 - **Reads what search can't:** speech is transcribed on the Mac with Whisper, and text on slides is read with Apple Vision.
 - **Local models** (Ollama) write a summary and tags for every save.
 - **`/ask`** answers a question across everything I've saved, and cites the sources it used.
@@ -51,7 +51,7 @@ Brain started on n8n. Once it was running every day, I moved it to a tested Pyth
 ### 06 What's next
 
 - Raise hit@5 from 68% to the 75% target.
-- Transcribe the audio of Instagram reels.
+- Transcribe the audio of short videos.
 
 ---
 
