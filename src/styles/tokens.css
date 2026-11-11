@@ -1,0 +1,16 @@
+:root {
+  color-scheme: light;
+
+  --paper: #f1eee7;
+  --ink: #232323;
+  --dark-grey: #5b5a56;
+  --mid-grey: #cbcbcb;
+  --ghost-grey: #dedede;
+  --dashed-line: #9a978f;
+  --accent: #ff9100;
+
+  --font-body: 'Geist Sans', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --page-width: 1120px;
+  --page-gutter: clamp(1.25rem, 4vw, 3rem);
+}

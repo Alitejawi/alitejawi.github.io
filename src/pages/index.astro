@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+---
+
+<Base
+  title={`${site.name} · ${site.role}`}
+  description="Field notes and projects on systems engineering, automation, and AI."
+>
+  <p class="label muted">{site.role} · {site.location}</p>
+  <h1>{site.name}</h1>
+  <p class="muted">Field notes and projects on systems engineering, automation, and AI.</p>
+  <p>This site is being rebuilt. More soon.</p>
+</Base>

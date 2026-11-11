@@ -12,8 +12,15 @@ _site
 *.gem
 
 # NPM dependencies
-node_modules
-package-lock.json
+node_modules/
+
+# Astro build output
+dist/
+.astro/
+
+# Browser test output
+test-results/
+playwright-report/
 
 # IDE configurations
 .idea
