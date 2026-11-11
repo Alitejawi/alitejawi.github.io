@@ -221,3 +221,24 @@ test('now page exists', () => {
   expect(html).toContain('Fine-tuning local AI models for inference');
   expect(html).not.toContain('FILL IN');
 });
+
+test('robots.txt allows crawling', () => {
+  const robots = readDist('robots.txt');
+
+  expect(robots).toContain('User-agent: *');
+  expect(robots).toContain('Allow: /');
+  expect(robots).not.toContain('Disallow');
+});
+
+test('llms.txt summarises the site from the same data as the pages', () => {
+  const llms = readDist('llms.txt');
+
+  expect(llms.startsWith('# Ali Al-Itejawi\n')).toBe(true);
+  expect(llms).toContain('https://itejawi.com/projects/brain/');
+  expect(llms).toContain('https://itejawi.com/projects/daily-diff/');
+  expect(llms).toContain('https://itejawi.com/posts/Add_gmail_delegate_silently/');
+  expect(llms).toContain('https://itejawi.com/posts/three-gam-commands-every-monday/');
+  expect(llms).not.toContain('/posts/Welcome/');
+  expect(llms).not.toContain('FILL IN');
+  expect(llms).not.toMatch(/\b20\d\d\b/);
+});
