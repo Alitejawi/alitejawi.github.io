@@ -96,4 +96,4 @@ Around 6 to 9 November some briefs didn't go out: a Python upgrade blocked file 
 ### 05 What's next
 
 - If the printer is offline: retry, then alert my phone instead of skipping the print.
-- Reader app v2: add Raindrop and Instagram as sources, and read-aloud.
+- Reader app v2: more sources, and read-aloud.
