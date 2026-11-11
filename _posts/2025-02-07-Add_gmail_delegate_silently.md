@@ -1,6 +1,6 @@
 ---
 title: How to add a Google Workspace delegate without notifying the user
-date: 2025-02-07 21:40:00 +/-TTTT
+date: 2025-02-07 21:40:00 +0100
 categories: [cli]
 tags: [automation, security]
 description: GAM's users.settings.delegates.create call skips the confirmation email when invoked with admin credentials. A one-line command, the API mechanics, and why this works.
