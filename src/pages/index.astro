@@ -107,12 +107,6 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
       </ol>
     </section>
   </FadeIn>
-
-  <FadeIn>
-    <footer class="closing">
-      <p class="muted">Thanks for stopping by. Find me on <a href={site.links.github}>GitHub</a> or <a href={site.links.linkedin}>LinkedIn</a>, or <a href={`mailto:${site.email}`}>send me an email</a>.</p>
-    </footer>
-  </FadeIn>
 </Base>
 
 <style>
@@ -242,8 +236,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   }
 
   .project p,
-  .notes p,
-  .closing p {
+  .notes p {
     margin: 0;
   }
 
@@ -258,13 +251,6 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
     flex-wrap: wrap;
     gap: 0.5rem 1.25rem;
     margin-bottom: 0.75rem;
-  }
-
-  .closing {
-    margin-top: 4rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--mid-grey);
-    font-size: 0.875rem;
   }
 
   @media (width < 900px) {

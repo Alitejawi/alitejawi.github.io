@@ -60,9 +60,11 @@ test('writing index has no dates', () => {
 
   expect(html).toContain('No. 01');
   expect(html).toContain('No. 02');
+  // Post dates stay hidden; the footer's copyright year is outside <main>.
   for (const date of ['2025', '2026', 'Feb', 'May']) {
-    expect(html).not.toContain(date);
+    expect($('main').text()).not.toContain(date);
   }
+  expect($('footer.site-footer').text()).toContain(`© ${new Date().getFullYear()} Ali Al-Itejawi`);
   expect($('main ol li a').map((_, link) => $(link).attr('href')).get()).toEqual([
     '/posts/three-gam-commands-every-monday/',
     '/posts/Add_gmail_delegate_silently/',
