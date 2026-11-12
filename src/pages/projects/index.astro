@@ -12,13 +12,15 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
     {projects.map((project) => (
       <li>
         <a class="project" href={`/projects/${project.id}/`}>
-          <div class="project-image">
-            {project.data.image ? (
-              <img src={project.data.image} alt="" width="640" height="400" loading="lazy" />
-            ) : (
-              <span class="label muted">Image coming soon</span>
-            )}
-          </div>
+          {(project.data.image || site.showPlaceholders) && (
+            <div class="project-image">
+              {project.data.image ? (
+                <img src={project.data.image} alt="" width="640" height="400" loading="lazy" />
+              ) : (
+                <span class="label muted">Image coming soon</span>
+              )}
+            </div>
+          )}
           <h2>{project.data.title}</h2>
           <p class="muted">{project.data.oneLiner}</p>
         </a>

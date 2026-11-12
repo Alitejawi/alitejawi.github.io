@@ -248,3 +248,19 @@ test('llms.txt summarises the site from the same data as the pages', () => {
   expect(llms).not.toContain('FILL IN');
   expect(llms).not.toMatch(/\b20\d\d\b/);
 });
+
+test('no empty image boxes while site.showPlaceholders is false', () => {
+  for (const page of ['index.html', 'projects/index.html']) {
+    expect(readDist(page)).not.toContain('Image coming soon');
+    expect(loadDist(page)('.project-image')).toHaveLength(0);
+  }
+});
+
+test('link preview declares its size and alt text', () => {
+  const $ = loadDist('index.html');
+
+  expect($('meta[property="og:image"]').attr('content')).toBe('https://itejawi.com/assets/img/og.png');
+  expect($('meta[property="og:image:width"]').attr('content')).toBe('1200');
+  expect($('meta[property="og:image:height"]').attr('content')).toBe('630');
+  expect($('meta[property="og:image:alt"]').attr('content')).toContain('Ali Al-Itejawi');
+});
