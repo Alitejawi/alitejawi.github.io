@@ -165,7 +165,7 @@ test('brain shows real eval numbers', () => {
 
   // Only figures that the source repos back (audit of 2026-11-12).
   // Figures backed by the Mac Studio evidence check of 2026-11-12.
-  for (const value of ['42%', '68%', '22%', '40%', '64%', '1,476', '524', '676', '9 November 2026']) {
+  for (const value of ['42%', '68%', '22%', '40%', '64%', '1,476', '524', '676', '9 November 2026', 'Brain runs on my own 3,644 notes']) {
     expect(html).toContain(value);
   }
   for (const wrong of ['66%', '545', 'real queries', 'every day since', 'no saved link']) {
