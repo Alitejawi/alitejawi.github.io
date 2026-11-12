@@ -5,6 +5,7 @@ import Receipt from '../components/Receipt.astro';
 import ReceiptLine from '../components/ReceiptLine.astro';
 import Chip from '../components/Chip.astro';
 import { site } from '../data/site';
+import { bio } from '../data/bio';
 import espresso from '../data/espresso.json';
 import { formatCount } from '../../scripts/bump-espresso.mjs';
 ---
@@ -17,24 +18,10 @@ import { formatCount } from '../../scripts/bump-espresso.mjs';
   <h1>About</h1>
   <div class="about">
     <div class="about-copy">
-      <p>
-        I'm Ali, a {site.role} in {site.location}. My background is in security, systems
-        and IT. For years that has meant Okta, Google Workspace, Jamf, and the scripts
-        between them.
-      </p>
-      <p>
-        I like problems that stay solved. If something has to be done every week, I'd
-        rather automate it, and a quiet week is how I know it worked.
-      </p>
-      <p>
-        These days I also build AI systems, finetune models, select cloud providers for
-        inference models running in the cloud, and deploy and maintain them in production
-        systems.
-      </p>
-      <p>
-        I work best close to the people who have the problem, and I ask a lot of
-        questions before I build anything.
-      </p>
+      <p>{bio.copy.intro}</p>
+      <p>{bio.copy.solved}</p>
+      <p>{bio.copy.ai}</p>
+      <p>{bio.copy.people}</p>
       <p class="contact">Say hello: <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
     </div>
     <Receipt title="A few personal facts" aside={site.location}>
@@ -43,8 +30,8 @@ import { formatCount } from '../../scripts/bump-espresso.mjs';
         <Chip text="+2 every day" />
       </div>
       <div>
-        <ReceiptLine label="Countries visited" value="29" />
-        <ReceiptLine label="Music" value="Lo-fi, Synthwave" />
+        <ReceiptLine label="Countries visited" value={bio.facts.countries} />
+        <ReceiptLine label="Music" value={bio.facts.music} />
       </div>
     </Receipt>
   </div>

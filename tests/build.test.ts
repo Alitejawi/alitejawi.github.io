@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { expect, test } from 'vitest';
 import { formatCount } from '../scripts/bump-espresso.mjs';
+import { bio } from '../src/data/bio';
 import espresso from '../src/data/espresso.json';
 import { loadDist, readDist } from './helpers/dist';
 
@@ -300,4 +301,55 @@ test('not-found page offers a way back and stays out of search', () => {
   }
   expect($('meta[name="robots"]').attr('content')).toContain('noindex');
   expect(loadDist('index.html')('meta[name="robots"]')).toHaveLength(0);
+});
+
+test('every page carries the README button and note', () => {
+  for (const page of ['index.html', 'about/index.html', 'writing/index.html', 'projects/brain/index.html', '404.html']) {
+    const $ = loadDist(page);
+    const note = $('dialog[data-readme]');
+
+    expect($('button[data-readme-open]')).toHaveLength(1);
+    expect(note).toHaveLength(1);
+    expect(note.find('h3').map((_, heading) => $(heading).text().trim()).get()).toEqual([
+      '001 / Why I build things',
+      '002 / How I work',
+      '003 / Who am I',
+    ]);
+  }
+});
+
+test('README button stays hidden until its script can open the note', () => {
+  // Without JavaScript the button could do nothing; the About link in the nav covers that case.
+  expect(loadDist('index.html')('button[data-readme-open]').attr('hidden')).toBeDefined();
+});
+
+test('README note and About page share one copy of the bio', () => {
+  const note = loadDist('index.html')('dialog[data-readme]').text().replace(/\s+/g, ' ');
+  const about = loadDist('about/index.html')('main').text().replace(/\s+/g, ' ');
+
+  for (const sentence of Object.values(bio.copy)) {
+    expect(note).toContain(sentence);
+    expect(about).toContain(sentence);
+  }
+  expect(note).toContain(formatCount(espresso.count));
+  expect(note).toContain(bio.facts.countries);
+  expect(note).toContain(bio.facts.music);
+});
+
+test('README note only says what the case studies back up', () => {
+  const $ = loadDist('index.html');
+  const note = $('dialog[data-readme]');
+  const text = note.text().replace(/\s+/g, ' ');
+
+  expect(text).toContain('the same 50 test queries');
+  expect(text).toContain('ten weeks');
+  expect(text).toContain('all eight');
+  // Words next to links keep their spaces.
+  expect(text).toContain('what actually arrived, and wrote up what happened.');
+  expect(text).toContain('Find me on GitHub and LinkedIn, or write to ali@itejawi.com.');
+  expect(note.find('a[href="/projects/brain/#what-i-changed-after-launch"]')).toHaveLength(1);
+  expect(loadDist('projects/brain/index.html')('#what-i-changed-after-launch')).toHaveLength(1);
+  for (const leftover of ['Your words go here', 'FILL IN', 'every change']) {
+    expect(text).not.toContain(leftover);
+  }
 });

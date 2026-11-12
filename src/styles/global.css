@@ -12,6 +12,8 @@
 }
 
 html {
+  /* Keep the page from shifting sideways when the README note locks scrolling. */
+  scrollbar-gutter: stable;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);

@@ -13,4 +13,7 @@
   --font-mono: 'Geist Mono', ui-monospace, monospace;
   --page-width: 1120px;
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
+
+  /* Strong ease-out for things that enter or leave. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }

@@ -5,6 +5,7 @@ import geistMono from '@fontsource/geist-mono/files/geist-mono-latin-400-normal.
 import { site } from '../data/site';
 import SiteFooter from '../components/SiteFooter.astro';
 import Nav from '../components/Nav.astro';
+import ReadmeNote from '../components/ReadmeNote.astro';
 
 interface Props {
   title: string;
@@ -68,5 +69,6 @@ const person = {
     <slot name="nav"><Nav current={current} /></slot>
     <main id="main"><slot /></main>
     <SiteFooter />
+    <ReadmeNote />
   </body>
 </html>

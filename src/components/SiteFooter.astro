@@ -52,4 +52,11 @@ const year = new Date().getFullYear();
     text-decoration-thickness: 2px;
     text-underline-offset: 0.25em;
   }
+
+  /* On narrower screens the fixed README button sits over this corner; keep the links clear of it. */
+  @media (width < 77.5rem) {
+    .site-footer {
+      padding-bottom: 7rem;
+    }
+  }
 </style>
