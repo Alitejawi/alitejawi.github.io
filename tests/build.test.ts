@@ -164,14 +164,15 @@ test('brain shows real eval numbers', () => {
   const html = readDist('projects/brain/index.html');
 
   // Only figures that the source repos back (audit of 2026-11-12).
-  for (const value of ['42%', '66%', '1,476', '676']) {
+  // Figures backed by the Mac Studio evidence check of 2026-11-12.
+  for (const value of ['42%', '68%', '22%', '40%', '64%', '1,476', '524', '676', '9 November 2026']) {
     expect(html).toContain(value);
   }
-  for (const unverified of ['68%', '22%', '40%', '545', 'real queries', 'every day since']) {
-    expect(html).not.toContain(unverified);
+  for (const wrong of ['66%', '545', 'real queries', 'every day since', 'no saved link']) {
+    expect(html).not.toContain(wrong);
   }
   const $ = loadDist('projects/brain/index.html');
-  expect($('figure').text()).toContain('Fig. 01 · Rebuilt search on 50 fixed test queries');
+  expect($('figure').text()).toContain('Fig. 01 · Before and after on the same 50 test queries, 9 November 2026');
 });
 
 test('daily diff uses real numbers', () => {

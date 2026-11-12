@@ -1,7 +1,7 @@
 ---
 title: 'Brain: a personal AI knowledge pipeline'
 oneLiner: 'Save a link once. AI reads it, summarises it, and finds it again for you.'
-receiptValue: '66% hit@5'
+receiptValue: '42 → 68% hit@5'
 order: 1
 ---
 
@@ -24,13 +24,27 @@ A pipeline that reads what I save, so I don't have to remember where I saw it.
 
 Search quality is measured against a fixed set of 50 test queries, so every change is compared on the same questions. A local model wrote each query from a saved note, as a stand-in for how I would half-remember it. It is not a study of real searches.
 
-| Metric | Before | After |
-|---|---|---|
-| hit@5 (the right note in the top 5) | 42% | 66% |
+Before and after the search rebuild, both scored on 9 November 2026:
 
-The jump came from a rebuilt search: keyword search (BM25) combined with vector search, a new embedding model, and notes split into passages. I haven't measured each part on its own.
+| Metric | Before | After | Gain (95% range) |
+|---|---|---|---|
+| hit@5 (the right note in the top 5) | 42% | 68% | +26 points (10 to 42) |
+| hit@1 (the right note first) | 22% | 40% | +18 points (2 to 34) |
+
+At hit@5, 17 queries went from missed to found and 4 went the other way. With only 50 queries the ranges are wide, and the hit@1 gain is only just clear of zero.
 
 <HitRateFigure />
+
+The rebuilt search combines keyword search (BM25) with vector search on a new embedding model. On 12 November I scored each method on its own:
+
+| Search method | hit@5 |
+|---|---|
+| The old search | 38% |
+| Keyword only | 52% |
+| Vector only | 56% |
+| Both combined | 64% |
+
+The index had grown since the first run, so the combined score that day was 64%, not 68%. That is why these numbers carry their dates.
 
 ## Guardrails
 
@@ -39,11 +53,11 @@ The jump came from a rebuilt search: keyword search (BM25) combined with vector 
 
 ## What I changed after launch
 
-Brain started on n8n in April 2026. In June, a hardening change to the SSH bridge between n8n and the host machine began rejecting every pipeline command. n8n recorded each failure as data, so 676 runs were marked success while writing nothing. For ten weeks no saved link reached Brain, and all eight of my watchdog checks passed.
+Brain started on n8n in April 2026. On 18 June, a security change to the SSH bridge that n8n used for transcription began rejecting every command. n8n recorded each failure as data, so its runs kept finishing as success: 676 of them in the last two weeks alone. For ten weeks no video or reel transcript reached Brain. Articles kept arriving, which hid the gap, and all eight of my watchdog checks passed. I found out by accident on 29 August, when I searched for something I had saved and it wasn't there.
 
-The checks were testing stand-ins for success: a job ran, a binary existed, an exit code came back. None of them tested the outcome. I replaced them with checks on what actually arrived, then rebuilt the pipeline as a tested Python package and retired n8n on 4 September 2026. Today the package has 1,476 tests.
+The checks were testing stand-ins for success: a job ran, a binary existed, an exit code came back. None of them tested the outcome. I replaced them with checks on what actually arrived, then rebuilt the pipeline as a tested Python package and retired n8n on 4 September 2026. All 176 items in the pipeline's ledger from before that cutover are still there. As of November 2026 the package has 1,476 tests and 524 commits.
 
 ## What's next
 
-- Raise hit@5 from 66% to my 75% target.
+- Raise hit@5 to my 75% target. It was 64% on 12 November.
 - Extend audio transcription to more video sources.

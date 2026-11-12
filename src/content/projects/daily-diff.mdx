@@ -37,7 +37,9 @@ From the brief notes, 19 October to 11 November 2026:
 
 ## What went wrong, and what I changed
 
-No brief went out on 6, 7 or 8 November. A Python upgrade had blocked file access for the scheduled jobs. On 9 November I got the brief running again, added time limits so a stuck run ends instead of hanging, and added a daily check that alerts me when a save goes missing.
+No brief went out on 6, 7 or 8 November. On 5 November Homebrew had updated Python. macOS grants disk access per program path, and the new path had none. The scheduled jobs didn't crash. They waited forever to open a file, so there was no error and no alert.
+
+On 9 November I stopped the stuck jobs, gave the new Python disk access, and added time limits so a frozen run now ends within an hour. I also added a daily check that alerts me when a save goes missing.
 
 ## What's next
 

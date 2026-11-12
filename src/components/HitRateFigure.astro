@@ -2,11 +2,12 @@
 import Figure from './Figure.astro';
 
 const metrics = [
-  { label: 'hit@5', description: 'the right note in the top 5', before: 42, after: 66 },
+  { label: 'hit@5', description: 'the right note in the top 5', before: 42, after: 68 },
+  { label: 'hit@1', description: 'the right note first', before: 22, after: 40 },
 ];
 ---
 
-<Figure no={1} caption="Rebuilt search on 50 fixed test queries">
+<Figure no={1} caption="Before and after on the same 50 test queries, 9 November 2026">
   <div class="metrics">
     {metrics.map(({ label, description, before, after }) => (
       <div class="metric" role="group" aria-label={`${label}: ${description}`}>
@@ -51,7 +52,7 @@ const metrics = [
 
   .bar-row {
     display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr) 3ch;
+    grid-template-columns: 4rem minmax(0, 1fr) 4ch;
     align-items: center;
     gap: 0.75rem;
     margin-top: 0.5rem;
@@ -81,6 +82,7 @@ const metrics = [
   }
 
   .value {
+    white-space: nowrap;
     text-align: right;
     font-variant-numeric: tabular-nums;
   }

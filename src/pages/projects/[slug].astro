@@ -65,6 +65,9 @@ import { site } from '../../data/site';
     border-bottom: 1px solid var(--mid-grey);
     text-align: left;
     vertical-align: top;
+    /* Break at spaces only, so short values such as "42%" never split. */
+    overflow-wrap: normal;
+    word-break: normal;
   }
 
   :global(.article-body th) {
