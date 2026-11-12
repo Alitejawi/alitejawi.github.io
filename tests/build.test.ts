@@ -9,8 +9,20 @@ test('CNAME is itejawi.com', () => {
 });
 
 test('favicons and og image keep their paths', () => {
-  expect(existsSync(new URL('../dist/assets/img/favicons/favicon.ico', import.meta.url))).toBe(true);
+  for (const file of ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png']) {
+    expect(existsSync(new URL(`../dist/assets/img/favicons/${file}`, import.meta.url))).toBe(true);
+  }
   expect(existsSync(new URL('../dist/assets/img/og.png', import.meta.url))).toBe(true);
+});
+
+test('site icon is the original receipt drawing, with no old-theme leftovers', () => {
+  const icon = readDist('assets/img/favicons/favicon.svg');
+
+  expect(icon).toContain('#ff9100');
+  expect(icon).not.toContain('data:image');
+  for (const leftover of ['site.webmanifest', 'browserconfig.xml', 'web-app-manifest-192x192.png']) {
+    expect(existsSync(new URL(`../dist/assets/img/favicons/${leftover}`, import.meta.url))).toBe(false);
+  }
 });
 
 test('JSON-LD Person has no employer', () => {
