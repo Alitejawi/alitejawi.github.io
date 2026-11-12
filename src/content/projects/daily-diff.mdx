@@ -1,7 +1,7 @@
 ---
 title: 'The Daily Diff: an AI morning brief, on paper too'
 oneLiner: 'At 07:30 each day, about 190 candidates become about 18 picks, by email, podcast and receipt printer.'
-receiptValue: '07:34 daily'
+receiptValue: '07:30 daily'
 order: 2
 ---
 
@@ -19,7 +19,7 @@ A morning brief that picks for me and arrives in three forms.
 - **Ranks** my saves, GitHub trending, YouTube and Anthropic news.
 - **Learns my taste** from 👍/👎 votes in my Reader app.
 - **Delivers** a designed email, a NotebookLM podcast link, and a printed copy.
-- **Prints on paper:** an HPRT TP808 80 mm thermal printer over Wi-Fi, driven by raw ESC/POS commands written by hand, including 1-bit weather icons drawn in code.
+- **Prints on paper** (since 10 November): an HPRT TP808 80 mm thermal printer over Wi-Fi, driven by raw ESC/POS commands written by hand, including 1-bit weather icons drawn in code.
 
 ## How it's running
 
@@ -27,17 +27,17 @@ From the brief notes, 19 October to 11 November 2026:
 
 | What | Result |
 |---|---|
-| Briefs sent | 21 |
+| Briefs sent | 21, on 21 of 24 days |
 | Candidates per day | median 193 (range 65 to 268) |
 | Picks per day | median 18 (max 22) |
 | Podcast episodes | 18 made, 18 succeeded, 0 failed |
-| Email arrival | about 07:34, printed copy right after |
+| Email sent | by about 07:34 (send times logged since 10 November) |
 
 <DailyDiffReceipt />
 
 ## What went wrong, and what I changed
 
-Around 6 to 9 November some briefs didn't go out: a Python upgrade blocked file access for the scheduled jobs. I fixed it and added a daily health check, so a silent failure like that now gets caught.
+No brief went out on 6, 7 or 8 November. A Python upgrade had blocked file access for the scheduled jobs. On 9 November I got the brief running again, added time limits so a stuck run ends instead of hanging, and added a daily check that alerts me when a save goes missing.
 
 ## What's next
 

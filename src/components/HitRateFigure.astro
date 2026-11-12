@@ -2,12 +2,11 @@
 import Figure from './Figure.astro';
 
 const metrics = [
-  { label: 'hit@5', description: 'right answer in the top 5', before: 42, after: 68 },
-  { label: 'hit@1', description: 'right answer first', before: 22, after: 40 },
+  { label: 'hit@5', description: 'the right note in the top 5', before: 42, after: 66 },
 ];
 ---
 
-<Figure no={1} caption="Hybrid search on 50 frozen queries">
+<Figure no={1} caption="Rebuilt search on 50 fixed test queries">
   <div class="metrics">
     {metrics.map(({ label, description, before, after }) => (
       <div class="metric" role="group" aria-label={`${label}: ${description}`}>

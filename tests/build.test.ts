@@ -163,11 +163,15 @@ test('case studies exist', () => {
 test('brain shows real eval numbers', () => {
   const html = readDist('projects/brain/index.html');
 
-  for (const value of ['42%', '68%', '22%', '40%', '1,476']) {
+  // Only figures that the source repos back (audit of 2026-11-12).
+  for (const value of ['42%', '66%', '1,476', '676']) {
     expect(html).toContain(value);
   }
+  for (const unverified of ['68%', '22%', '40%', '545', 'real queries', 'every day since']) {
+    expect(html).not.toContain(unverified);
+  }
   const $ = loadDist('projects/brain/index.html');
-  expect($('figure').text()).toContain('Fig. 01 · Hybrid search on 50 frozen queries');
+  expect($('figure').text()).toContain('Fig. 01 · Rebuilt search on 50 fixed test queries');
 });
 
 test('daily diff uses real numbers', () => {
@@ -178,7 +182,8 @@ test('daily diff uses real numbers', () => {
   expect(html).not.toContain('214');
   expect(html).not.toContain('5 picks');
   const $ = loadDist('projects/daily-diff/index.html');
-  expect($('figure').text()).toContain("Fig. 01 · One morning's brief, as a receipt");
+  expect($('figure').text()).toContain('Fig. 01 · Three weeks of briefs, as a receipt');
+  expect(html).toContain('6, 7 or 8 November');
 });
 
 test('no code links', () => {

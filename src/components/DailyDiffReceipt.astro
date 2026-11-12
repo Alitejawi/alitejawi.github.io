@@ -7,7 +7,7 @@ import FillIn from './FillIn.astro';
 import { site } from '../data/site';
 ---
 
-<Figure no={1} caption="One morning's brief, as a receipt">
+<Figure no={1} caption="Three weeks of briefs, as a receipt">
   <div class:list={['brief-figure', { single: !site.showPlaceholders }]}>
     <Receipt title="The Daily Diff" aside="Run stats" footer="Email · podcast · paper">
       <Chip text="19 Oct – 11 Nov 2026" />
@@ -18,7 +18,7 @@ import { site } from '../data/site';
       </div>
       <div>
         <ReceiptLine label="Podcast succeeded" value="18/18" />
-        <ReceiptLine label="Email arrival" value="~07:34" />
+        <ReceiptLine label="Email sent" value="~07:34" />
       </div>
     </Receipt>
     {site.showPlaceholders && (

@@ -1,7 +1,9 @@
 # Case studies: draft copy
 
 Date: 2026-11-11
-Status: draft for Ali to review. Every fact below comes from Ali. Anything missing is marked **[FILL IN]**. No numbers have been invented.
+Status: superseded. The live copy is in `src/content/projects/`. Several figures in this draft were corrected after the source audit of 2026-11-12 (see the site files for the verified wording).
+
+Original status: draft for Ali to review. Every fact below comes from Ali. Anything missing is marked **[FILL IN]**. No numbers have been invented.
 
 Rules for this copy: no employer names; do not link the code (both repos are private); link the demo videos instead.
 
