@@ -5,6 +5,7 @@ const pages = [
   '/writing/',
   '/posts/Add_gmail_delegate_silently/',
   '/posts/three-gam-commands-every-monday/',
+  '/posts/delete-lock-for-ai-agents/',
   '/posts/Welcome/',
   '/projects/',
   '/projects/brain/',

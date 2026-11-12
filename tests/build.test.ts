@@ -54,7 +54,8 @@ test('feed.xml lists the notes', () => {
 
   expect(feed).toContain('How to add a Google Workspace delegate without notifying the user');
   expect(feed).toContain('Three GAM commands I run every Monday morning');
-  for (const slug of ['Add_gmail_delegate_silently', 'three-gam-commands-every-monday', 'Welcome']) {
+  expect(feed).toContain('A delete lock for AI agents: parsing shell commands in a PreToolUse hook');
+  for (const slug of ['Add_gmail_delegate_silently', 'three-gam-commands-every-monday', 'delete-lock-for-ai-agents', 'Welcome']) {
     expect(feed).toContain(`https://itejawi.com/posts/${slug}/`);
   }
 });
@@ -73,12 +74,14 @@ test('writing index has no dates', () => {
 
   expect(html).toContain('No. 01');
   expect(html).toContain('No. 02');
+  expect(html).toContain('No. 03');
   // Post dates stay hidden; the footer's copyright year is outside <main>.
-  for (const date of ['2025', '2026', 'Feb', 'May']) {
+  for (const date of ['2025', '2026', 'Feb', 'May', 'Nov']) {
     expect($('main').text()).not.toContain(date);
   }
   expect($('footer.site-footer').text()).toContain(`© ${new Date().getFullYear()} Ali Al-Itejawi`);
   expect($('main ol li a').map((_, link) => $(link).attr('href')).get()).toEqual([
+    '/posts/delete-lock-for-ai-agents/',
     '/posts/three-gam-commands-every-monday/',
     '/posts/Add_gmail_delegate_silently/',
     '/posts/Welcome/',
@@ -128,6 +131,88 @@ test('commands receipt', () => {
   expect(commands.text()).toContain('Verify');
   expect(commands.text()).toContain('delete delegate');
   expect(commands.text()).toContain('Remove');
+});
+
+const lockNote = 'posts/delete-lock-for-ai-agents/index.html';
+const lockSections = [
+  'The problem',
+  'The hook',
+  'Parsing the command as data',
+  'Rules are data too',
+  'Rollout: log first, then deny',
+  'What went wrong, and what I changed',
+  'The catch',
+];
+const squash = (text: string) => text.replace(/\s+/g, ' ').trim();
+
+test('delete-lock note is field note No. 03 under AI agents', () => {
+  const $ = loadDist(lockNote);
+
+  expect($('.article-kicker').text()).toContain('Field note No. 03');
+  expect($('.article-kicker').text()).toContain('AI agents');
+  expect($('h1').map((_, heading) => squash($(heading).text())).get()).toEqual([
+    'A delete lock for AI agents: parsing shell commands in a PreToolUse hook',
+  ]);
+});
+
+test('delete-lock note leaves section numbering to the contents receipt', () => {
+  const $ = loadDist(lockNote);
+  const headings = $('.article-body h2').map((_, heading) => squash($(heading).text())).get();
+  const lines = $('.contents-desktop nav a').map((_, link) => squash($(link).text())).get();
+
+  expect(headings).toEqual(lockSections);
+  expect(lines).toHaveLength(lockSections.length);
+  lockSections.forEach((section, index) => expect(lines[index]).toContain(`0${index + 1} ${section}`));
+});
+
+test('delete-lock note says its opening line once', () => {
+  const $ = loadDist(lockNote);
+
+  expect($('.lede').text()).toContain('is a prompt');
+  expect($('.article-body').text()).not.toContain('is a prompt');
+});
+
+test('delete-lock note points at no post that does not exist yet', () => {
+  const text = loadDist(lockNote)('article').text();
+
+  for (const phrase of ['next post', 'See also', 'approval panel', 'verifier agent', 'part of the series']) {
+    expect(text).not.toContain(phrase);
+  }
+});
+
+test('delete-lock note only says what the check on the real files backed up', () => {
+  const text = squash(loadDist(lockNote)('article').text());
+
+  for (const fact of [
+    'ten got through, in four groups',
+    'reported 441 passing checks',
+    'all 557 checks',
+    '35.5 ms per call',
+    '562 checks',
+    '--mode log',
+    'onFailure field',
+    'the call runs',
+    'rests on my log',
+    'and seven more',
+    'over 1 MiB',
+    'on a short deny list',
+    'Codex workers',
+  ]) {
+    expect(text).toContain(fact);
+  }
+  for (const claim of [
+    'ten call shapes',
+    'ten shapes',
+    'It fails closed',
+    '--mode deny',
+    'median run was 35 ms',
+    'empty, revoke',
+    'stdbuf and eval in front',
+    'and a few more',
+    'tool batch file.csv',
+  ]) {
+    expect(text).not.toContain(claim);
+  }
 });
 
 test('homepage shows espresso count', () => {
@@ -258,6 +343,7 @@ test('llms.txt summarises the site from the same data as the pages', () => {
   expect(llms).toContain('https://itejawi.com/projects/daily-diff/');
   expect(llms).toContain('https://itejawi.com/posts/Add_gmail_delegate_silently/');
   expect(llms).toContain('https://itejawi.com/posts/three-gam-commands-every-monday/');
+  expect(llms).toContain('https://itejawi.com/posts/delete-lock-for-ai-agents/');
   expect(llms).not.toContain('/posts/Welcome/');
   expect(llms).not.toContain('FILL IN');
   expect(llms).not.toMatch(/\b20\d\d\b/);
@@ -284,7 +370,8 @@ test('sitemap lists the real pages and leaves out redirects', () => {
   const sitemap = readDist('sitemap-0.xml');
 
   for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/',
-    '/posts/Add_gmail_delegate_silently/', '/posts/three-gam-commands-every-monday/', '/about/', '/now/']) {
+    '/posts/Add_gmail_delegate_silently/', '/posts/three-gam-commands-every-monday/',
+    '/posts/delete-lock-for-ai-agents/', '/about/', '/now/']) {
     expect(sitemap).toContain(`<loc>https://itejawi.com${path}</loc>`);
   }
   for (const path of ['/tags/', '/categories/', '/archives/', '/404']) {
