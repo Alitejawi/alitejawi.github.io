@@ -234,6 +234,7 @@ test('robots.txt allows crawling', () => {
   expect(robots).toContain('User-agent: *');
   expect(robots).toContain('Allow: /');
   expect(robots).not.toContain('Disallow');
+  expect(robots).toContain('Sitemap: https://itejawi.com/sitemap-index.xml');
 });
 
 test('llms.txt summarises the site from the same data as the pages', () => {
@@ -263,4 +264,28 @@ test('link preview declares its size and alt text', () => {
   expect($('meta[property="og:image:width"]').attr('content')).toBe('1200');
   expect($('meta[property="og:image:height"]').attr('content')).toBe('630');
   expect($('meta[property="og:image:alt"]').attr('content')).toContain('Ali Al-Itejawi');
+});
+
+test('sitemap lists the real pages and leaves out redirects', () => {
+  expect(readDist('sitemap-index.xml')).toContain('https://itejawi.com/sitemap-0.xml');
+  const sitemap = readDist('sitemap-0.xml');
+
+  for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/',
+    '/posts/Add_gmail_delegate_silently/', '/posts/three-gam-commands-every-monday/', '/about/', '/now/']) {
+    expect(sitemap).toContain(`<loc>https://itejawi.com${path}</loc>`);
+  }
+  for (const path of ['/tags/', '/categories/', '/archives/', '/404']) {
+    expect(sitemap).not.toContain(`https://itejawi.com${path}`);
+  }
+});
+
+test('not-found page offers a way back and stays out of search', () => {
+  const $ = loadDist('404.html');
+
+  expect($('h1').text()).toContain("This page isn't on the receipt.");
+  for (const href of ['/', '/projects/', '/writing/']) {
+    expect($(`main a[href="${href}"]`).length).toBeGreaterThan(0);
+  }
+  expect($('meta[name="robots"]').attr('content')).toContain('noindex');
+  expect(loadDist('index.html')('meta[name="robots"]')).toHaveLength(0);
 });

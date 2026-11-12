@@ -1,5 +1,9 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
+
+// Old theme addresses that only redirect; they do not belong in the sitemap.
+const redirected = ['/tags/', '/categories/', '/archives/'];
 
 export default defineConfig({
   site: 'https://itejawi.com',
@@ -8,7 +12,10 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
-  integrations: [mdx()],
+  integrations: [
+    mdx(),
+    sitemap({ filter: (page) => !redirected.some((path) => new URL(page).pathname === path) }),
+  ],
   markdown: {
     shikiConfig: {
       theme: 'github-dark',

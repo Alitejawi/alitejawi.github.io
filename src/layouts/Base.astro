@@ -10,9 +10,11 @@ interface Props {
   title: string;
   description: string;
   ogImage?: string;
+  /** Keep this page out of search results (used by the not-found page). */
+  noindex?: boolean;
 }
 
-const { title, description, ogImage = '/assets/img/og.png' } = Astro.props;
+const { title, description, ogImage = '/assets/img/og.png', noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, site.url);
 const socialImage = new URL(ogImage, site.url);
 const section = Astro.url.pathname.split('/')[1];
@@ -44,6 +46,7 @@ const person = {
     <link rel="preload" href={geistBody} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={geistMono} as="font" type="font/woff2" crossorigin />
     <link rel="alternate" type="application/rss+xml" title={site.name} href="/feed.xml" />
+    {noindex && <meta name="robots" content="noindex" />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />

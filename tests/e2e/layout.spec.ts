@@ -40,3 +40,22 @@ test('reduced motion stops ticker and shows content', async ({ page }) => {
     await expect(fade).toHaveCSS('opacity', '1');
   }
 });
+
+test('an unknown address shows the not-found receipt with that address', async ({ page }) => {
+  const response = await page.goto('/no/such/page/');
+  expect(response?.status()).toBe(404);
+  await expect(page.locator('h1')).toContainText("This page isn't on the receipt.");
+  await expect(page.locator('.asked .receipt-value')).toHaveText('/no/such/page/');
+});
+
+test('a very long unknown address does not overflow the not-found page', async ({ page }) => {
+  await page.goto(`/${'x'.repeat(140)}/`);
+  await page.evaluate(() => document.fonts.ready);
+  await expect(page.locator('.asked .receipt-value')).toContainText('…');
+
+  const { scrollWidth, innerWidth } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    innerWidth: window.innerWidth,
+  }));
+  expect(scrollWidth).toBeLessThanOrEqual(innerWidth);
+});

@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import Receipt from '../components/Receipt.astro';
+import ReceiptLine from '../components/ReceiptLine.astro';
+import { site } from '../data/site';
+---
+
+<Base title={`Page not found · ${site.name}`} description="That address is not on this site." noindex>
+  <div class="not-found">
+    <h1>This page isn't on the receipt.</h1>
+    <p class="muted">The address may be mistyped, or the page may have moved.</p>
+    <Receipt title={new URL(site.url).host} aside="No. 404" footer="No refund needed">
+      <div>
+        <ReceiptLine label="Item" value="Not found" />
+        <div class="asked"><ReceiptLine label="You asked for" value="this address" /></div>
+        <ReceiptLine label="Charged" value="0.00" />
+      </div>
+      <div>
+        <h3>Try instead</h3>
+        <ReceiptLine label="Home" value="→" href="/" />
+        <ReceiptLine label="Projects" value="→" href="/projects/" />
+        <ReceiptLine label="Writing" value="→" href="/writing/" />
+      </div>
+    </Receipt>
+  </div>
+</Base>
+
+<script>
+  // Show the address the visitor asked for. textContent keeps it inert, and long
+  // addresses are shortened so the receipt line cannot overflow.
+  const value = document.querySelector('.asked .receipt-value');
+  if (value) {
+    const path = window.location.pathname;
+    value.textContent = path.length > 24 ? `${path.slice(0, 23)}…` : path;
+    value.setAttribute('title', path);
+  }
+</script>
+
+<style>
+  .not-found {
+    max-width: 40rem;
+  }
+
+  .not-found > p {
+    margin-top: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .not-found :global(.receipt) {
+    max-width: 26rem;
+    margin-top: 2.5rem;
+  }
+
+  /* The address is one unbreakable word: clip it inside its share of the line. */
+  .asked :global(.receipt-value) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    color: var(--dark-grey);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+</style>
