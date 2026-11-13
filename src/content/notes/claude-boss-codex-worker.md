@@ -1,6 +1,6 @@
 ---
 title: "Claude is the boss, Codex is the worker: splitting work between two coding agents"
-date: 2026-11-14 09:00:00 +0100
+date: 2026-11-17 09:00:00 +0100
 description: "I use two coding agents. One plans, checks and reports. The other does the long, heavy jobs in a tab I can watch. The rules that decide who does what, the loop that hands work over, and where it still breaks."
 slug: claude-boss-codex-worker
 topic: AI agents
