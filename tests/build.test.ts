@@ -219,7 +219,8 @@ test('homepage shows espresso count', () => {
   const html = readDist('index.html');
 
   expect(html).toContain(formatCount(espresso.count));
-  expect(html).toContain('+2 every day');
+  expect(html).toContain('+3 every day');
+  expect(html).not.toContain('+2 every day');
 });
 
 test('homepage receipt lists numbered notes only', () => {
@@ -310,6 +311,8 @@ test('about shows live espresso count', () => {
   const html = readDist('about/index.html');
 
   expect(html).toContain(formatCount(espresso.count));
+  expect(html).toContain('+3 every day');
+  expect(html).not.toContain('+2 every day');
   expect(html).toContain('29');
 });
 

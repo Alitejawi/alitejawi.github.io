@@ -17,12 +17,12 @@ afterEach(() => {
   rmSync(directory, { recursive: true, force: true });
 });
 
-test('bumpEspresso adds 2', () => {
+test('bumpEspresso adds 3', () => {
   writeFileSync(path, JSON.stringify({ count: 13209 }));
 
-  expect(bumpEspresso(path)).toEqual({ from: 13209, to: 13211 });
+  expect(bumpEspresso(path)).toEqual({ from: 13209, to: 13212 });
   const contents = readFileSync(path, 'utf8');
-  expect(JSON.parse(contents)).toEqual({ count: 13211 });
+  expect(JSON.parse(contents)).toEqual({ count: 13212 });
   expect(contents.endsWith('\n')).toBe(true);
 });
 
@@ -76,7 +76,13 @@ test('CLI bumps data and rejects invalid files', () => {
   writeFileSync(data, JSON.stringify({ count: 13209 }));
   const success = run();
   expect(success.status).toBe(0);
-  expect(success.stdout).toBe('13209 -> 13211\n');
+  expect(success.stdout).toBe('13209 -> 13212\n');
   expect(success.stderr).toBe('');
-  expect(JSON.parse(readFileSync(data, 'utf8'))).toEqual({ count: 13211 });
+  expect(JSON.parse(readFileSync(data, 'utf8'))).toEqual({ count: 13212 });
+});
+
+test('the bot commit message names the same amount the script adds', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/daily-espressos.yml', import.meta.url), 'utf8');
+
+  expect(workflow).toContain('git commit -m "Daily espressos +3"');
 });

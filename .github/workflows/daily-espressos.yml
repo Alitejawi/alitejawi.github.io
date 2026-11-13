@@ -33,7 +33,7 @@ jobs:
           git config user.name "Ali Al-Itejawi"
           git config user.email "ali@itejawi.com"
           git add src/data/espresso.json
-          git commit -m "Daily espressos +2"
+          git commit -m "Daily espressos +3"
           git push
 
       - name: Trigger pages deploy

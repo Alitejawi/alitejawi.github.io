@@ -3,10 +3,10 @@ import { fileURLToPath } from 'node:url';
 
 /**
  * @param {string} path
- * @param {number} [by=2]
+ * @param {number} [by=3]
  * @returns {{ from: number, to: number }}
  */
-export function bumpEspresso(path, by = 2) {
+export function bumpEspresso(path, by = 3) {
   const data = JSON.parse(readFileSync(path, 'utf8'));
   const from = data?.count;
 
