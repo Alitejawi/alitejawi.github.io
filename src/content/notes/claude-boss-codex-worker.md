@@ -1,14 +1,14 @@
 ---
 title: "Claude is the boss, Codex is the worker: splitting work between two coding agents"
 date: 2026-11-14 09:00:00 +0100
-description: "I pay for two coding agents. One plans, checks and reports. The other does the long, heavy jobs in a tab I can watch. The rules that decide who does what, the loop that hands work over, and where it still breaks."
+description: "I use two coding agents. One plans, checks and reports. The other does the long, heavy jobs in a tab I can watch. The rules that decide who does what, the loop that hands work over, and where it still breaks."
 slug: claude-boss-codex-worker
 topic: AI agents
 ---
 
 ## The problem
 
-I have two coding agents on two plans: Claude Code and OpenAI's Codex. For a while I used whichever one was open. One plan would hit its limit in the middle of a job while the other sat idle, and two agents in the same folder would sometimes edit the same files.
+I use two coding agents: Claude Code and OpenAI's Codex. For a while I used whichever one was open. Work went to whichever agent I happened to be looking at, not the one that fit the job, and two agents in the same folder would sometimes edit the same files.
 
 I wanted one simple rule for who does what, and I wanted to be able to watch the work happen.
 
@@ -26,14 +26,14 @@ The rule lives in the instruction file Claude reads at the start of every sessio
 - Two or more independent tasks can run in parallel.
 
 ### Keep in Claude
-- Any production API change (tenant checks, dry-runs, downstream-app rules).
+- Any production API change (checks, dry-runs, approvals).
 - Anything that needs connectors: Slack, Gmail, Calendar, Notion, Linear.
 - Planning, judgment calls, verification of Codex output, and every report to me.
 ```
 
 Two lines in there matter most.
 
-**Production stays with the boss.** My day job is identity and Workspace administration. A change to a live tenant needs checks, a dry run and an approval. That happens in the session I am talking to, not in a background worker.
+**Production stays with the boss.** My day job is engineering. A change to a live production system needs checks, a dry run and an approval. That happens in the session I am talking to, not in a background worker.
 
 **Verification is never delegated.** The agent that did the work is the worst one to judge it.
 
