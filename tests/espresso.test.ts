@@ -84,5 +84,25 @@ test('CLI bumps data and rejects invalid files', () => {
 test('the bot commit message names the same amount the script adds', () => {
   const workflow = readFileSync(new URL('../.github/workflows/daily-espressos.yml', import.meta.url), 'utf8');
 
-  expect(workflow).toContain('git commit -m "Daily espressos +3"');
+  expect(workflow).toContain('git commit -m "Daily espressos +$(( 3 * ${{ steps.rest.outputs.days }} ))"');
+  expect(workflow).toContain('node scripts/bump-espresso.mjs "${{ steps.rest.outputs.days }}"');
+});
+
+test('CLI adds 3 per day when it catches up after rest days', () => {
+  mkdirSync(join(directory, 'scripts'));
+  mkdirSync(join(directory, 'src/data'), { recursive: true });
+  const script = join(directory, 'scripts/bump-espresso.mjs');
+  const data = join(directory, 'src/data/espresso.json');
+  copyFileSync(new URL('../scripts/bump-espresso.mjs', import.meta.url), script);
+  writeFileSync(data, JSON.stringify({ count: 100 }));
+
+  const ok = spawnSync(process.execPath, [script, '3'], { encoding: 'utf8' });
+  expect(ok.status).toBe(0);
+  expect(ok.stdout).toBe('100 -> 109\n');
+
+  for (const bad of ['0', '-1', '1.5', 'x']) {
+    const run = spawnSync(process.execPath, [script, bad], { encoding: 'utf8' });
+    expect(run.status).toBe(1);
+    expect(JSON.parse(readFileSync(data, 'utf8'))).toEqual({ count: 109 });
+  }
 });

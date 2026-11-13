@@ -21,10 +21,22 @@ jobs:
         with:
           node-version: 26
 
+      # 1-2 random rest days a week, the same days brain-sync rests (scripts/rest-day.mjs).
+      # No commit on a rest day; the next run adds the missed days.
+      - name: Rest day check
+        id: rest
+        run: |
+          read -r kind days < <(node scripts/rest-day.mjs)
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"
+          echo "days=$days" >> "$GITHUB_OUTPUT"
+          echo "$kind ($days days)"
+
       - name: Increment espressos counter
-        run: node scripts/bump-espresso.mjs
+        if: steps.rest.outputs.kind == 'work'
+        run: node scripts/bump-espresso.mjs "${{ steps.rest.outputs.days }}"
 
       - name: Commit and push
+        if: steps.rest.outputs.kind == 'work'
         run: |
           if git diff --quiet; then
             echo "No change to commit"
@@ -33,10 +45,11 @@ jobs:
           git config user.name "Ali Al-Itejawi"
           git config user.email "ali@itejawi.com"
           git add src/data/espresso.json
-          git commit -m "Daily espressos +3"
+          git commit -m "Daily espressos +$(( 3 * ${{ steps.rest.outputs.days }} ))"
           git push
 
       - name: Trigger pages deploy
+        if: steps.rest.outputs.kind == 'work'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run pages-deploy.yml --ref main

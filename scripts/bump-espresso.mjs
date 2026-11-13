@@ -29,8 +29,13 @@ export function formatCount(n) {
 
 if (import.meta.main) {
   try {
+    // Optional argument: days to cover (rest days skip the run, the next run catches up).
+    const days = Number(process.argv[2] ?? 1);
+    if (!Number.isInteger(days) || days < 1) {
+      throw new Error('Days must be a positive integer');
+    }
     const path = fileURLToPath(new URL('../src/data/espresso.json', import.meta.url));
-    const { from, to } = bumpEspresso(path);
+    const { from, to } = bumpEspresso(path, 3 * days);
     console.log(`${from} -> ${to}`);
   } catch (error) {
     console.error(`Failed to bump espresso count: ${error.message}`);
