@@ -6,6 +6,7 @@ const pages = [
   '/posts/Add_gmail_delegate_silently/',
   '/posts/three-gam-commands-every-monday/',
   '/posts/delete-lock-for-ai-agents/',
+  '/posts/claude-boss-codex-worker/',
   '/posts/Welcome/',
   '/projects/',
   '/projects/brain/',
