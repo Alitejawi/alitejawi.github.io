@@ -64,6 +64,14 @@ test('with a GoatCounter code set, every page loads the counter for that code', 
   }
 });
 
-test('a GoatCounter code that is not a plain site code stops the build', () => {
-  expect(() => build({ SITE_GOATCOUNTER: 'evil.example/x?' })).toThrow();
+test('a GoatCounter code that is not a plain site code stops the build, and says why', () => {
+  let output = '';
+  try {
+    build({ SITE_GOATCOUNTER: 'evil.example/x?' });
+  } catch (error) {
+    const { stdout, stderr } = error as { stdout?: Buffer; stderr?: Buffer };
+    output = `${stdout ?? ''}${stderr ?? ''}`;
+  }
+
+  expect(output).toContain('is not a site code');
 });

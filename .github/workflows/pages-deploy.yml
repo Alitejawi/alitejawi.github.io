@@ -58,3 +58,15 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      # The deploy step can report success while the site does not answer. Ask the site itself:
+      # the homepage, and the script that clears the old site's cache from returning browsers.
+      - name: Check that the live site answers
+        env:
+          SITE: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          for page in "" "sw.min.js" "feed.xml"; do
+            curl --fail --silent --show-error --location --retry 5 --retry-delay 10 --retry-all-errors \
+              --output /dev/null "${SITE%/}/${page}"
+            echo "ok ${SITE%/}/${page}"
+          done

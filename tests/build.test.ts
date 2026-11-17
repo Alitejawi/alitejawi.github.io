@@ -610,7 +610,8 @@ test('the feed carries each note in full, with links that work outside the site'
     for (const link of body('a[href]').toArray()) expect(body(link).attr('href')).toMatch(/^(https?:|mailto:)/);
     expect(body('h1')).toHaveLength(0);
     expect(html).not.toMatch(/ (style|class|tabindex)=/);
-    expect(body('pre').length).toBe((note.body.match(/^```\w*\s*$/gm) ?? []).length / 2);
+    // Every fenced block arrives as one <pre>: an opening and a closing fence each.
+    expect(body('pre').length).toBe((note.body.match(/^```/gm) ?? []).length / 2);
   });
 });
 
