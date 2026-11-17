@@ -1,20 +1,7 @@
-# Bundler cache
-.bundle
-vendor
-Gemfile.lock
-
-# Jekyll cache
-.jekyll-cache
-.jekyll-metadata
-_site
-
-# RubyGems
-*.gem
-
-# NPM dependencies
+# Dependencies
 node_modules/
 
-# Astro build output
+# Astro build output and cache
 dist/
 .astro/
 
@@ -22,16 +9,13 @@ dist/
 test-results/
 playwright-report/
 
-# IDE configurations
+# Editors and the OS
+.DS_Store
 .idea
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
-!.vscode/tasks.json
 
-# Misc
-_sass/vendors
-assets/js/dist
+# Local tool folders
 .gstack/
-
 .superpowers/
