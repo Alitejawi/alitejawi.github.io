@@ -25,6 +25,14 @@ export default defineConfig({
   output: 'static',
   build: {
     format: 'directory',
+    // The whole stylesheet is about 17 kB; inline it so the first paint needs no extra request.
+    inlineStylesheets: 'always',
+  },
+  // Fetch a page when its link is hovered or focused, so the click feels instant.
+  // Astro skips this for visitors on a data-saving or slow connection.
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
   },
   integrations: [
     unpublishedInDev,

@@ -528,3 +528,24 @@ test('pages that are not articles keep the site link-preview image', () => {
   }
   expect(readDist('sitemap-0.xml')).not.toContain('/og/');
 });
+
+test('pages carry their styles inline, so nothing blocks the first paint', () => {
+  for (const page of ['index.html', 'about/index.html', `posts/${notes[0].data.slug}/index.html`, 'projects/brain/index.html']) {
+    const $ = loadDist(page);
+
+    expect($('link[rel="stylesheet"]'), `${page}: no stylesheet request`).toHaveLength(0);
+    expect($('head style').text()).toContain('--paper');
+    expect($('script[src]:not([type="module"]):not([async]):not([defer])'), `${page}: no blocking script`).toHaveLength(0);
+  }
+});
+
+test('pages stay light', () => {
+  const pages = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && path.endsWith('.html'));
+
+  expect(pages.length).toBeGreaterThanOrEqual(12);
+  for (const page of pages) {
+    // HTML with its inlined styles and scripts, before compression.
+    expect(Buffer.byteLength(readDist(page)), `${page} is over 100 kB`).toBeLessThan(100_000);
+  }
+});
