@@ -55,7 +55,8 @@ test('feed.xml lists the notes', () => {
   expect(feed).toContain('How to add a Google Workspace delegate without notifying the user');
   expect(feed).toContain('Three GAM commands I run every Monday morning');
   expect(feed).toContain('A delete lock for AI agents: parsing shell commands in a PreToolUse hook');
-  for (const slug of ['Add_gmail_delegate_silently', 'three-gam-commands-every-monday', 'delete-lock-for-ai-agents', 'Welcome']) {
+  expect(feed).toContain('Claude is the boss, Codex is the worker: splitting work between two coding agents');
+  for (const slug of ['Add_gmail_delegate_silently', 'three-gam-commands-every-monday', 'delete-lock-for-ai-agents', 'claude-boss-codex-worker', 'Welcome']) {
     expect(feed).toContain(`https://itejawi.com/posts/${slug}/`);
   }
 });
@@ -81,6 +82,7 @@ test('writing index has no dates', () => {
   }
   expect($('footer.site-footer').text()).toContain(`© ${new Date().getFullYear()} Ali Al-Itejawi`);
   expect($('main ol li a').map((_, link) => $(link).attr('href')).get()).toEqual([
+    '/posts/claude-boss-codex-worker/',
     '/posts/delete-lock-for-ai-agents/',
     '/posts/three-gam-commands-every-monday/',
     '/posts/Add_gmail_delegate_silently/',
@@ -374,7 +376,7 @@ test('sitemap lists the real pages and leaves out redirects', () => {
 
   for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/',
     '/posts/Add_gmail_delegate_silently/', '/posts/three-gam-commands-every-monday/',
-    '/posts/delete-lock-for-ai-agents/', '/about/', '/now/']) {
+    '/posts/delete-lock-for-ai-agents/', '/posts/claude-boss-codex-worker/', '/about/', '/now/']) {
     expect(sitemap).toContain(`<loc>https://itejawi.com${path}</loc>`);
   }
   for (const path of ['/tags/', '/categories/', '/archives/', '/404']) {
