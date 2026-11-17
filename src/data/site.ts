@@ -13,6 +13,7 @@ export const site: {
   };
   showDates: false;
   showPlaceholders: boolean;
+  analytics: { goatcounter: string };
   stack: { name: string; role: string }[];
   ticker: string[];
 } = {
@@ -31,6 +32,9 @@ export const site: {
   showDates: false,
   // Set to true to show [FILL IN] boxes for content Ali still has to supply.
   showPlaceholders: false,
+  // Visitor counting. Put the GoatCounter site code here (the part before
+  // ".goatcounter.com") to switch it on; empty means no counter and no outside requests.
+  analytics: { goatcounter: '' },
   stack: [
     { name: 'Okta', role: 'Identity' },
     { name: 'Google Workspace', role: 'GAM' },

@@ -53,12 +53,15 @@ test.describe('README note on a desktop screen', () => {
     await openNote(page);
     const box = await note(page).evaluate((element) => {
       const { top, right, bottom, left } = element.getBoundingClientRect();
-      return { top, right, bottom, left, origin: getComputedStyle(element).transformOrigin };
+      // The page's own width: the window less the scrollbar that Windows and Linux draw beside it.
+      const pageWidth = document.documentElement.getBoundingClientRect().width;
+      return { top, right, bottom, left, pageWidth, origin: getComputedStyle(element).transformOrigin };
     });
 
     expect(box.top).toBeGreaterThanOrEqual(0);
     expect(box.left).toBeGreaterThanOrEqual(0);
-    expect(1280 - box.right).toBeLessThanOrEqual(24);
+    expect([1280, 1265]).toContain(box.pageWidth);
+    expect(box.pageWidth - box.right).toBeLessThanOrEqual(24);
     expect(800 - box.bottom).toBeLessThanOrEqual(24);
     // The computed origin is in pixels: the far corner of the panel.
     expect(box.origin).toBe(`${box.right - box.left}px ${box.bottom - box.top}px`);
@@ -106,8 +109,11 @@ test.describe('README note on a phone', () => {
     await openNote(page);
 
     const box = await note(page).boundingBox();
+    // The page's own width: the window less the scrollbar that Windows and Linux draw beside it.
+    const pageWidth = await page.evaluate(() => document.documentElement.getBoundingClientRect().width);
+    expect([375, 360]).toContain(pageWidth);
     expect(box?.x).toBe(0);
-    expect(box?.width).toBe(375);
+    expect(box?.width).toBe(pageWidth);
     const { scrollWidth, innerWidth } = await overflow(page);
     expect(scrollWidth).toBeLessThanOrEqual(innerWidth);
     const inner = await note(page).locator('[data-readme-body]').evaluate((element) => ({

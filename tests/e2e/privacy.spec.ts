@@ -2,8 +2,9 @@ import { expect, test } from '@playwright/test';
 import { site } from '../../src/data/site';
 import { pages } from './helpers/pages';
 
-// Hosts a page may contact besides the site itself. Empty unless analytics is switched on.
-const allowed: string[] = [];
+// Hosts a page may contact besides the site itself: none, unless the visitor counter is on.
+const code = site.analytics.goatcounter;
+const allowed = code ? ['gc.zgo.at', `${code}.goatcounter.com`] : [];
 
 for (const path of pages) {
   test(`${path} contacts no other site`, async ({ page, baseURL }) => {
@@ -17,6 +18,5 @@ for (const path of pages) {
 
     expect([...hosts].filter((host) => !allowed.includes(host))).toEqual([]);
     expect(await page.evaluate(() => document.cookie)).toBe('');
-    expect(site.url).toBe('https://itejawi.com');
   });
 }

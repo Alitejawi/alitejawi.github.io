@@ -3,6 +3,7 @@ import '../styles/global.css';
 import geistBody from '@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url';
 import geistMono from '@fontsource/geist-mono/files/geist-mono-latin-400-normal.woff2?url';
 import { site } from '../data/site';
+import { goatcounter } from '../lib/analytics';
 import SiteFooter from '../components/SiteFooter.astro';
 import Nav from '../components/Nav.astro';
 import ReadmeNote from '../components/ReadmeNote.astro';
@@ -76,6 +77,7 @@ const person = {
     <meta name="twitter:image" content={socialImage} />
     <meta name="twitter:image:alt" content={ogAlt} />
     <script type="application/ld+json" set:html={JSON.stringify(person).replace(/</g, '\\u003c')} />
+    {goatcounter && <script is:inline async data-goatcounter={goatcounter.endpoint} src={goatcounter.script}></script>}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

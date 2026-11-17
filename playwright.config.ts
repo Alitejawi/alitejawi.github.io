@@ -11,7 +11,19 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4321',
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // Windows and Linux draw a scrollbar that takes 15px of the window; macOS lays it over
+    // the page. The layout tests run both ways, so a Mac catches what GitHub's Linux would.
+    {
+      name: 'classic-scrollbar',
+      testMatch: /(readme|layout)\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: { args: ['--disable-features=OverlayScrollbar'], ignoreDefaultArgs: ['--hide-scrollbars'] },
+      },
+    },
+  ],
   // Run npm run build first so these checks exercise the published HTML.
   webServer: {
     // Opt out of Astro's agent auto-backgrounding so Playwright owns the process.
