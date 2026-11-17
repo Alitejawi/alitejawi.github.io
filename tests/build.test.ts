@@ -337,6 +337,19 @@ test('now page exists', () => {
   expect(html).not.toContain('FILL IN');
 });
 
+test('now page names the book being read, with its author', () => {
+  const $ = loadDist('now/index.html');
+  const reading = $('.receipt-body > div').filter((_, group) => $(group).find('h2').text().trim() === 'Reading');
+  const lines = reading.find('.receipt-line').toArray().map((line) => ({
+    label: $(line).find('.receipt-label').text().trim(),
+    value: $(line).find('.receipt-value').text().trim(),
+  }));
+
+  expect(lines).toEqual([{ label: 'Tuesdays with Morrie', value: 'Mitch Albom' }]);
+  // The bare "Books" line was a placeholder for this.
+  expect(reading.text()).not.toMatch(/\bBooks\b/);
+});
+
 test('robots.txt allows crawling', () => {
   const robots = readDist('robots.txt');
 

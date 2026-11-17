@@ -10,6 +10,8 @@ const building = [
   'Automated DLP security reporting and fixes',
   'Fine-tuning local AI models for inference',
 ];
+
+const reading = [{ title: 'Tuesdays with Morrie', author: 'Mitch Albom' }];
 ---
 
 <Base title={`Now · ${site.name}`} description="What I'm building and reading right now.">
@@ -23,7 +25,7 @@ const building = [
       </div>
       <div>
         <h2>Reading</h2>
-        <ReceiptLine label="Books" />
+        {reading.map(({ title, author }) => <ReceiptLine label={title} value={author} />)}
       </div>
     </Receipt>
   </div>
