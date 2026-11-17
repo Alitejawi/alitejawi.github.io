@@ -8,6 +8,7 @@ const notes = await getNotes();
 
 <Base title={`Writing · ${site.name}`} description="Field notes on systems, scripts, and automation.">
   <h1>Writing</h1>
+  <p class="feed label"><a href="/feed.xml">RSS feed</a></p>
   <ol class="notes" role="list">
     {notes.map((note) => (
       <li>
@@ -29,6 +30,15 @@ const notes = await getNotes();
 </Base>
 
 <style>
+  .feed {
+    margin: 1rem 0 0;
+    color: var(--dark-grey);
+  }
+
+  .feed a {
+    text-decoration-thickness: 1px;
+  }
+
   .notes {
     max-width: 48rem;
     margin: 2.5rem 0 0;

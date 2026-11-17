@@ -557,3 +557,31 @@ test('pages stay light', () => {
     expect(Buffer.byteLength(readDist(page)), `${page} is over 100 kB`).toBeLessThan(100_000);
   }
 });
+
+test('the feed carries each note in full, with links that work outside the site', () => {
+  const $ = load(readDist('feed.xml'), { xml: true });
+  const items = $('item').toArray();
+
+  expect($('channel > language').text()).toBe('en');
+  expect(items).toHaveLength(notes.length);
+  items.forEach((item, index) => {
+    const note = notes[index];
+    const html = $(item).children('content\\:encoded').text();
+    const body = load(html);
+    const firstWords = note.body.replace(/```[\s\S]*?```/g, '').match(/[A-Za-z][A-Za-z ]{24,}/)?.[0].trim() ?? '';
+
+    expect(firstWords.length, `${note.file}: found a plain sentence to look for`).toBeGreaterThan(20);
+    expect(squash(body.text()), `${note.file}: the body is in the feed`).toContain(firstWords);
+    // A feed reader shows this outside the site: no site-relative links, no page title, no styling.
+    for (const link of body('a[href]').toArray()) expect(body(link).attr('href')).toMatch(/^(https?:|mailto:)/);
+    expect(body('h1')).toHaveLength(0);
+    expect(html).not.toMatch(/ (style|class|tabindex)=/);
+    expect(body('pre').length).toBe((note.body.match(/^```\w*\s*$/gm) ?? []).length / 2);
+  });
+});
+
+test('the writing page links to the feed', () => {
+  const $ = loadDist('writing/index.html');
+
+  expect($('main a[href="/feed.xml"]').text()).toContain('RSS');
+});
