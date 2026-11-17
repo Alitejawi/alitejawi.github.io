@@ -445,3 +445,16 @@ test('README note only says what the case studies back up', () => {
     expect(text).not.toContain(leftover);
   }
 });
+
+test('the old Jekyll offline cache gets a script that removes it', () => {
+  // The old theme registered /sw.min.js. Browsers only drop it when that same
+  // address serves a worker that unregisters itself.
+  const worker = readDist('sw.min.js');
+
+  expect(worker).toContain('self.registration.unregister()');
+  expect(worker).toContain('caches.delete');
+  expect(worker).not.toContain("addEventListener('fetch'");
+  for (const page of ['index.html', 'about/index.html', 'writing/index.html']) {
+    expect(readDist(page)).not.toContain('serviceWorker');
+  }
+});
