@@ -7,7 +7,7 @@ import { bio } from '../src/data/bio';
 import espresso from '../src/data/espresso.json';
 import { site } from '../src/data/site';
 import { formatNo } from '../src/lib/notes';
-import { liveNotes, readProjects } from './helpers/content';
+import { liveNotes, readNotes, readProjects } from './helpers/content';
 import { loadDist, readDist } from './helpers/dist';
 
 // The notes this build shows, read from the content folder: a new note needs no edits here.
@@ -483,7 +483,8 @@ test('every live note has a page with its number, topic and a single title', () 
 });
 
 test('notes follow the house format, so the page does not repeat itself', () => {
-  for (const note of notes) {
+  // Drafts and scheduled notes too: the format is checked before a note can go live.
+  for (const note of readNotes()) {
     const prose = note.body.replace(/```[\s\S]*?```/g, '');
     const firstParagraph = prose.split(/\n\s*\n/).map((block) => block.trim()).find(Boolean) ?? '';
 
@@ -492,6 +493,23 @@ test('notes follow the house format, so the page does not repeat itself', () => 
     expect(prose, `${note.file}: no hand-numbered headings, the layout numbers them`).not.toMatch(/^##+ \d+[.):]? /m);
     expect(firstParagraph, `${note.file}: do not open with the description, it is already the lede`).not.toBe(note.data.description);
     expect(prose, `${note.file}: no hand-written contents list`).not.toMatch(/^##+ (Table of contents|Contents)\s*$/im);
+  }
+});
+
+test('a note that is live carries no leftover editing comments', () => {
+  for (const note of notes) {
+    expect(note.body, `${note.file}: remove the <!-- comment --> before publishing`).not.toContain('<!--');
+  }
+});
+
+test('a draft is not built, linked or listed anywhere', () => {
+  const html = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && /\.(html|xml|txt)$/.test(path));
+
+  for (const draft of readNotes().filter((note) => note.data.draft)) {
+    expect(existsSync(new URL(`../dist/posts/${draft.data.slug}/index.html`, import.meta.url))).toBe(false);
+    expect(existsSync(new URL(`../dist/og/posts/${draft.data.slug}.png`, import.meta.url))).toBe(false);
+    for (const page of html) expect(readDist(page), `${page} mentions the draft`).not.toContain(draft.data.slug);
   }
 });
 
