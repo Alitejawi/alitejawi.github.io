@@ -56,6 +56,7 @@ numbered: false                   # optional: no "No. NN", not on the homepage r
 | `src/data/espresso.json` | The espresso count. The Daily Espressos workflow commits to it; do not edit by hand. |
 | `src/lib/notes.ts` | Note numbering and the rule for what is published. |
 | `src/layouts/Base.astro`, `Article.astro` | Page shell and the article page. |
+| `astro.config.mjs` (`fonts`), `src/styles/global.css` | The fonts, and the fallback face that keeps text from re-wrapping while they load. |
 | `public/sw.min.js` | Removes the old site's offline cache from returning browsers. Keep it. |
 | `tests/build.test.ts` | Checks on the built pages. |
 | `tests/e2e/` | Browser tests: layout, accessibility, privacy, the README note, the ticker. |

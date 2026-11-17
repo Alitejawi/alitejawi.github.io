@@ -554,13 +554,30 @@ test('pages that are not articles keep the site link-preview image', () => {
   expect(readDist('sitemap-0.xml')).not.toContain('/og/');
 });
 
-test('pages carry their styles inline, so nothing blocks the first paint', () => {
-  for (const page of ['index.html', 'about/index.html', `posts/${notes[0].data.slug}/index.html`, 'projects/brain/index.html']) {
-    const $ = loadDist(page);
+test('text keeps its line breaks while the web font loads', () => {
+  const $ = loadDist('index.html');
+  const head = $('head').html() ?? '';
+  const styles = readdirSync(new URL('../dist/_astro/', import.meta.url))
+    .filter((file) => file.endsWith('.css'))
+    .map((file) => readDist(`_astro/${file}`))
+    .join('\n');
+  const fallback = styles.match(/@font-face\s*\{[^}]*Geist Sans Fallback[^}]*\}/)?.[0] ?? '';
 
-    expect($('link[rel="stylesheet"]'), `${page}: no stylesheet request`).toHaveLength(0);
-    expect($('head style').text()).toContain('--paper');
-    expect($('script[src]:not([type="module"]):not([async]):not([defer])'), `${page}: no blocking script`).toHaveLength(0);
+  // The fonts the top of every page needs are fetched early: body, titles, mono labels.
+  expect($('link[rel="preload"][as="font"][type="font/woff2"]')).toHaveLength(3);
+  // Until they arrive, text sits in a local font scaled to the same proportions...
+  expect(fallback).toMatch(/src:\s*local\(["']?Arial["']?\)/);
+  expect(fallback).toContain('size-adjust');
+  // ...limited to the characters the web font has, so arrows still come from the system font.
+  expect(fallback).toContain('unicode-range');
+  expect(head).toMatch(/--font-geist-sans:\s*"Geist Sans[^"]*",\s*"?Geist Sans Fallback"?,\s*system-ui,\s*sans-serif/);
+  expect(head).toMatch(/--font-geist-mono:\s*"Geist Mono[^"]*",\s*ui-monospace,\s*monospace/);
+  expect(head).not.toContain('fallback: ');
+});
+
+test('no page loads a script that blocks the first paint', () => {
+  for (const page of ['index.html', 'about/index.html', `posts/${notes[0].data.slug}/index.html`, 'projects/brain/index.html']) {
+    expect(loadDist(page)('script[src]:not([type="module"]):not([async]):not([defer])'), page).toHaveLength(0);
   }
 });
 
