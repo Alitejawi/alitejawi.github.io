@@ -12,6 +12,7 @@ const notes = await getNotes();
     {notes.map((note) => (
       <li>
         <div class="note-meta">
+          {note.status !== 'live' && <span>{note.status === 'draft' ? 'Draft' : 'Scheduled'}</span>}
           {note.no !== null && <span class="note-number">{formatNo(note.no)}</span>}
           <span>{readMinutes(note.body ?? '')} min</span>
           {site.showDates && (

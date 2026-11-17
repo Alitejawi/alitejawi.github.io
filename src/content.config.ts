@@ -3,20 +3,25 @@ import { glob } from 'astro/loaders';
 
 const notes = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/notes' }),
-  schema: z.object({
+  // Strict: a key this schema does not know (say `status: draft`) fails the build
+  // instead of being ignored, so a note can never publish by accident.
+  schema: z.strictObject({
     title: z.string(),
     description: z.string(),
+    // The note goes live on this calendar day (Amsterdam time). A later date schedules it.
     date: z.coerce.date(),
     slug: z.string(),
     numbered: z.boolean().default(true),
+    // A draft is built by `npm run dev` only, whatever its date.
+    draft: z.boolean().default(false),
     topic: z.string(),
-    commands: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+    commands: z.array(z.strictObject({ label: z.string(), value: z.string() })).optional(),
   }),
 });
 
 const projects = defineCollection({
   loader: glob({ pattern: '*.mdx', base: './src/content/projects' }),
-  schema: z.object({
+  schema: z.strictObject({
     title: z.string(),
     oneLiner: z.string(),
     receiptValue: z.string(),

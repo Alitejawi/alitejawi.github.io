@@ -1,9 +1,18 @@
 import { existsSync, readdirSync } from 'node:fs';
+import { load } from 'cheerio';
 import { expect, test } from 'vitest';
 import { formatCount } from '../scripts/bump-espresso.mjs';
 import { bio } from '../src/data/bio';
 import espresso from '../src/data/espresso.json';
+import { site } from '../src/data/site';
+import { formatNo } from '../src/lib/notes';
+import { liveNotes } from './helpers/content';
 import { loadDist, readDist } from './helpers/dist';
+
+// The notes this build shows, read from the content folder: a new note needs no edits here.
+const notes = liveNotes();
+const numbered = notes.filter((note) => note.no !== null);
+const noteUrl = (slug: string) => `/posts/${slug}/`;
 
 test('CNAME is itejawi.com', () => {
   expect(readDist('CNAME').trim()).toBe('itejawi.com');
@@ -49,16 +58,15 @@ test('legacy URLs exist with exact casing', () => {
   expect(paths).not.toContain('posts/add_gmail_delegate_silently/index.html');
 });
 
-test('feed.xml lists the notes', () => {
-  const feed = readDist('feed.xml');
+test('feed.xml lists every live note, newest first', () => {
+  const $ = load(readDist('feed.xml'), { xml: true });
+  const items = $('item').toArray().map((item) => ({ title: $(item).children('title').text(), link: $(item).children('link').text() }));
 
-  expect(feed).toContain('How to add a Google Workspace delegate without notifying the user');
-  expect(feed).toContain('Three GAM commands I run every Monday morning');
-  expect(feed).toContain('A delete lock for AI agents: parsing shell commands in a PreToolUse hook');
-  expect(feed).toContain('Claude is the boss, Codex is the worker: splitting work between two coding agents');
-  for (const slug of ['Add_gmail_delegate_silently', 'three-gam-commands-every-monday', 'delete-lock-for-ai-agents', 'claude-boss-codex-worker', 'Welcome']) {
-    expect(feed).toContain(`https://itejawi.com/posts/${slug}/`);
-  }
+  expect(notes.length).toBeGreaterThanOrEqual(5);
+  expect(items).toEqual(notes.map((note) => ({
+    title: note.data.title,
+    link: `https://itejawi.com${noteUrl(note.data.slug)}`,
+  })));
 });
 
 test('old taxonomy pages redirect', () => {
@@ -73,21 +81,18 @@ test('writing index has no dates', () => {
   const html = readDist('writing/index.html');
   const $ = loadDist('writing/index.html');
 
-  expect(html).toContain('No. 01');
-  expect(html).toContain('No. 02');
-  expect(html).toContain('No. 03');
+  for (const note of numbered) expect(html).toContain(formatNo(note.no!));
   // Post dates stay hidden; the footer's copyright year is outside <main>.
-  for (const date of ['2025', '2026', 'Feb', 'May', 'Nov']) {
-    expect($('main').text()).not.toContain(date);
+  expect($('main time')).toHaveLength(0);
+  expect($('main').text()).not.toMatch(/\b20\d\d\b/);
+  for (const note of notes) {
+    for (const dateStyle of ['long', 'medium'] as const) {
+      const shown = note.data.date.toLocaleDateString('en-GB', { timeZone: site.timeZone, dateStyle });
+      expect($('main').text()).not.toContain(shown.replace(/ \d{4}$/, ''));
+    }
   }
   expect($('footer.site-footer').text()).toContain(`© ${new Date().getFullYear()} Ali Al-Itejawi`);
-  expect($('main ol li a').map((_, link) => $(link).attr('href')).get()).toEqual([
-    '/posts/claude-boss-codex-worker/',
-    '/posts/delete-lock-for-ai-agents/',
-    '/posts/three-gam-commands-every-monday/',
-    '/posts/Add_gmail_delegate_silently/',
-    '/posts/Welcome/',
-  ]);
+  expect($('main ol li a').map((_, link) => $(link).attr('href')).get()).toEqual(notes.map((note) => noteUrl(note.data.slug)));
   expect($('main ol li').last().text()).not.toContain('No.');
   expect($('main ol li').toArray().every((item) => /\d+ min/.test($(item).text()))).toBe(true);
 });
@@ -346,10 +351,11 @@ test('llms.txt summarises the site from the same data as the pages', () => {
   expect(llms.startsWith('# Ali Al-Itejawi\n')).toBe(true);
   expect(llms).toContain('https://itejawi.com/projects/brain/');
   expect(llms).toContain('https://itejawi.com/projects/daily-diff/');
-  expect(llms).toContain('https://itejawi.com/posts/Add_gmail_delegate_silently/');
-  expect(llms).toContain('https://itejawi.com/posts/three-gam-commands-every-monday/');
-  expect(llms).toContain('https://itejawi.com/posts/delete-lock-for-ai-agents/');
-  expect(llms).not.toContain('/posts/Welcome/');
+  for (const note of notes) {
+    const link = `https://itejawi.com${noteUrl(note.data.slug)}`;
+    if (note.no === null) expect(llms).not.toContain(link);
+    else expect(llms).toContain(`- [${note.data.title}](${link}): ${note.data.description}`);
+  }
   expect(llms).not.toContain('FILL IN');
   expect(llms).not.toMatch(/\b20\d\d\b/);
 });
@@ -374,9 +380,8 @@ test('sitemap lists the real pages and leaves out redirects', () => {
   expect(readDist('sitemap-index.xml')).toContain('https://itejawi.com/sitemap-0.xml');
   const sitemap = readDist('sitemap-0.xml');
 
-  for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/',
-    '/posts/Add_gmail_delegate_silently/', '/posts/three-gam-commands-every-monday/',
-    '/posts/delete-lock-for-ai-agents/', '/posts/claude-boss-codex-worker/', '/about/', '/now/']) {
+  for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/', '/about/', '/now/',
+    ...notes.map((note) => noteUrl(note.data.slug))]) {
     expect(sitemap).toContain(`<loc>https://itejawi.com${path}</loc>`);
   }
   for (const path of ['/tags/', '/categories/', '/archives/', '/404']) {
@@ -456,5 +461,31 @@ test('the old Jekyll offline cache gets a script that removes it', () => {
   expect(worker).not.toContain("addEventListener('fetch'");
   for (const page of ['index.html', 'about/index.html', 'writing/index.html']) {
     expect(readDist(page)).not.toContain('serviceWorker');
+  }
+});
+
+test('every live note has a page with its number, topic and a single title', () => {
+  for (const note of notes) {
+    const $ = loadDist(`posts/${note.data.slug}/index.html`);
+
+    expect($('.article-kicker').text()).toContain(note.no === null ? 'Field note' : `Field note ${formatNo(note.no)}`);
+    expect($('.article-kicker').text()).toContain(note.data.topic);
+    // Astro's Markdown turns straight quotes into curly ones; compare without that.
+    const plain = (text: string) => squash(text).replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"');
+    expect($('h1').map((_, heading) => plain($(heading).text())).get(), `${note.file}: one <h1>, the title`).toEqual([plain(note.data.title)]);
+    expect(squash($('.lede').text()).length).toBeGreaterThan(20);
+  }
+});
+
+test('notes follow the house format, so the page does not repeat itself', () => {
+  for (const note of notes) {
+    const prose = note.body.replace(/```[\s\S]*?```/g, '');
+    const firstParagraph = prose.split(/\n\s*\n/).map((block) => block.trim()).find(Boolean) ?? '';
+
+    // The page prints the title, the description (as the lede) and the section numbers itself.
+    expect(prose, `${note.file}: no "# Title" line, the layout prints the title`).not.toMatch(/^# /m);
+    expect(prose, `${note.file}: no hand-numbered headings, the layout numbers them`).not.toMatch(/^##+ \d+[.):]? /m);
+    expect(firstParagraph, `${note.file}: do not open with the description, it is already the lede`).not.toBe(note.data.description);
+    expect(prose, `${note.file}: no hand-written contents list`).not.toMatch(/^##+ (Table of contents|Contents)\s*$/im);
   }
 });

@@ -5,6 +5,20 @@ import sitemap from '@astrojs/sitemap';
 // Old theme addresses that only redirect; they do not belong in the sitemap.
 const redirected = ['/tags/', '/categories/', '/archives/'];
 
+// Drafts and scheduled notes are shown by `astro dev` and by nothing else. The flag comes
+// from the command that is running, because import.meta.env.DEV also turns on for a build
+// started with NODE_ENV=test, which would publish them.
+const unpublishedInDev = {
+  name: 'unpublished-in-dev',
+  hooks: {
+    'astro:config:setup': ({ command, updateConfig }) => {
+      updateConfig({
+        vite: { define: { 'import.meta.env.SHOW_UNPUBLISHED': JSON.stringify(command === 'dev') } },
+      });
+    },
+  },
+};
+
 export default defineConfig({
   site: 'https://itejawi.com',
   trailingSlash: 'always',
@@ -13,6 +27,7 @@ export default defineConfig({
     format: 'directory',
   },
   integrations: [
+    unpublishedInDev,
     mdx(),
     sitemap({ filter: (page) => !redirected.some((path) => new URL(page).pathname === path) }),
   ],

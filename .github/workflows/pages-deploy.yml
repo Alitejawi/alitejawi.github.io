@@ -9,6 +9,11 @@ on:
       - README.md
       - LICENSE
 
+  # Notes dated today go live with this morning build (08:02 in Amsterdam in winter,
+  # 09:02 in summer). Off the full hour, where GitHub delays scheduled runs the most.
+  schedule:
+    - cron: "2 7 * * *"
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 

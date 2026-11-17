@@ -7,6 +7,6 @@ topic: General
 numbered: false
 ---
 
-# Treat this site as a place where I post some random code that you may find useful. 
+**Treat this site as a place where I post some random code that you may find useful.**
 
 Every once in a while I'll post something that other engineers and developers might find useful. Full scripts, snippets or just ideas on how to improve your work.
