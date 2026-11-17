@@ -1,0 +1,22 @@
+name: "Check"
+
+# Runs the same build and tests as the deploy, on every pull request, without publishing.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build and test
+        uses: ./.github/actions/build-and-test

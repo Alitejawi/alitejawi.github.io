@@ -398,6 +398,10 @@ test('not-found page offers a way back and stays out of search', () => {
     expect($(`main a[href="${href}"]`).length).toBeGreaterThan(0);
   }
   expect($('meta[name="robots"]').attr('content')).toContain('noindex');
+  // GitHub serves this file for any missing address; it has no address of its own to point at.
+  expect($('link[rel="canonical"]')).toHaveLength(0);
+  expect($('meta[property="og:url"]')).toHaveLength(0);
+  expect(loadDist('index.html')('link[rel="canonical"]').attr('href')).toBe('https://itejawi.com/');
   expect(loadDist('index.html')('meta[name="robots"]')).toHaveLength(0);
 });
 
@@ -513,6 +517,10 @@ test('every note and project has its own link-preview image', () => {
     expect($('meta[property="og:image"]').attr('content')).toBe(image);
     expect($('meta[name="twitter:image"]').attr('content')).toBe(image);
     expect($('meta[property="og:type"]').attr('content')).toBe('article');
+    // The share card names the site on its own line, so the title stands alone there.
+    expect($('meta[property="og:title"]').attr('content')).toBe(title);
+    expect($('meta[name="twitter:title"]').attr('content')).toBe(title);
+    expect($('title').text()).toBe(`${title} · Ali Al-Itejawi`);
     expect($('meta[property="og:image:alt"]').attr('content')).toContain(title);
     expect($('meta[name="twitter:image:alt"]').attr('content')).toContain(title);
   }

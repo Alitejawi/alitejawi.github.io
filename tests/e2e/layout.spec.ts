@@ -1,9 +1,5 @@
-import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-
-// Every page in the sitemap, so a new note or project is covered without an edit here.
-const sitemap = readFileSync(new URL('../../dist/sitemap-0.xml', import.meta.url), 'utf8');
-const pages = [...sitemap.matchAll(/<loc>https:\/\/itejawi\.com([^<]*)<\/loc>/g)].map((match) => match[1]);
+import { pages } from './helpers/pages';
 
 test.use({ viewport: { width: 375, height: 812 } });
 

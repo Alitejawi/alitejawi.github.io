@@ -88,8 +88,9 @@ function layout({ kicker, chip, meta, title }: Card): Node {
   );
 }
 
-export async function renderCard(card: Card): Promise<Uint8Array> {
+export async function renderCard(card: Card): Promise<Uint8Array<ArrayBuffer>> {
   // Satori takes React-style elements; plain objects of the same shape work without React.
   const svg = await satori(layout(card) as unknown as Parameters<typeof satori>[0], { width: WIDTH, height: HEIGHT, fonts: loadFonts() });
-  return new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } }).render().asPng();
+  // Copied into a plain array, which is what a Response body accepts.
+  return new Uint8Array(new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } }).render().asPng());
 }

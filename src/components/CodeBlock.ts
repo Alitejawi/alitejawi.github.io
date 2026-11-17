@@ -38,6 +38,20 @@ for (const pre of document.querySelectorAll<HTMLPreElement>('.article-body pre')
   bar.append(title, copy, status);
   pre.before(block);
   block.append(bar, pre);
-  pre.tabIndex = 0;
-  pre.setAttribute('aria-label', `${label} code`);
+
+  // A block wider than the column scrolls sideways. Only then does it need to be a
+  // keyboard stop (so the arrow keys can scroll it), with a role that may carry a name.
+  const fit = () => {
+    if (pre.scrollWidth > pre.clientWidth) {
+      pre.tabIndex = 0;
+      pre.setAttribute('role', 'group');
+      pre.setAttribute('aria-label', `${label} code`);
+    } else {
+      pre.removeAttribute('tabindex');
+      pre.removeAttribute('role');
+      pre.removeAttribute('aria-label');
+    }
+  };
+  if ('ResizeObserver' in window) new ResizeObserver(fit).observe(pre);
+  else fit();
 }

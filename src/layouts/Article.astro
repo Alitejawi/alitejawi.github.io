@@ -24,7 +24,7 @@ const current = Astro.url.pathname.startsWith('/projects/') ? 'projects' : 'writ
 const ogImage = `/og${Astro.url.pathname.replace(/\/$/, '')}.png`;
 ---
 
-<Base title={`${title} · ${site.name}`} description={lede} ogImage={ogImage} ogAlt={`${kicker}: ${title}`} ogType="article">
+<Base title={`${title} · ${site.name}`} description={lede} ogImage={ogImage} ogAlt={`${kicker}: ${title}`} ogTitle={title} ogType="article">
   <Nav slot="nav" current={current} />
   <article class:list={['article', { 'has-contents': hasContents }]}>
     <header class="article-header">
