@@ -46,3 +46,18 @@ test.describe('with reduced motion', () => {
     await expect(page.getByRole('button', { name: /status ticker/ })).toHaveCount(0);
   });
 });
+
+test.describe('on a touch screen', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test('a second tap restarts the ticker', async ({ page }) => {
+    await page.goto('/');
+    const ticker = page.locator('[data-ticker]');
+
+    await ticker.tap();
+    expect(await playState(page)).toBe('paused');
+    // A touch screen has no pointer to move away, so nothing but the tap may hold it paused.
+    await ticker.tap();
+    expect(await playState(page)).toBe('running');
+  });
+});

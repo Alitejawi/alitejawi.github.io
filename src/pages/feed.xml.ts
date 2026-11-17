@@ -1,20 +1,8 @@
 import rss from '@astrojs/rss';
 import type { APIRoute } from 'astro';
 import { site } from '../data/site';
+import { forFeed } from '../lib/feed';
 import { getNotes } from '../lib/notes';
-
-/**
- * A note's HTML as a feed reader should get it: the same text as the page, without the
- * site's styling hooks, and with links that still work outside the site.
- */
-function forFeed(html: string, page: string): string {
-  return html
-    // Syntax colouring is a span and a style per token; a reader needs only the code.
-    .replace(/<\/?span[^>]*>/g, '')
-    .replace(/ (?:style|class|tabindex|data-[\w-]+)="[^"]*"/g, '')
-    .replace(/(href|src)="\/(?!\/)/g, `$1="${site.url}/`)
-    .replace(/href="#/g, `href="${page}#`);
-}
 
 export const GET: APIRoute = async () => {
   const notes = await getNotes();

@@ -77,9 +77,16 @@ const { items } = Astro.props;
     font-variant-numeric: tabular-nums;
   }
 
-  .ticker:hover .ticker-track,
   .ticker[data-paused] .ticker-track {
     animation-play-state: paused;
+  }
+
+  /* Hover pauses for a mouse only. On a touch screen a tap leaves "hover" stuck on, which
+     would keep the ticker paused after the tap that restarts it. */
+  @media (hover: hover) and (pointer: fine) {
+    .ticker:hover .ticker-track {
+      animation-play-state: paused;
+    }
   }
 
   /* Off screen until it has keyboard focus, then a small label at the end of the strip. */
