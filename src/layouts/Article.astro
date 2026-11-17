@@ -20,9 +20,11 @@ interface Props {
 const { kicker, chip, minutes, title, lede, headings, extraReceipt, prev, next } = Astro.props;
 const hasContents = headings.some((heading) => heading.depth === 2);
 const current = Astro.url.pathname.startsWith('/projects/') ? 'projects' : 'writing';
+// Each article has its own link-preview image, drawn by src/pages/og/[...path].png.ts.
+const ogImage = `/og${Astro.url.pathname.replace(/\/$/, '')}.png`;
 ---
 
-<Base title={`${title} · ${site.name}`} description={lede}>
+<Base title={`${title} · ${site.name}`} description={lede} ogImage={ogImage} ogAlt={`${kicker}: ${title}`} ogType="article">
   <Nav slot="nav" current={current} />
   <article class:list={['article', { 'has-contents': hasContents }]}>
     <header class="article-header">

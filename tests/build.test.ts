@@ -1,4 +1,5 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { load } from 'cheerio';
 import { expect, test } from 'vitest';
 import { formatCount } from '../scripts/bump-espresso.mjs';
@@ -6,7 +7,7 @@ import { bio } from '../src/data/bio';
 import espresso from '../src/data/espresso.json';
 import { site } from '../src/data/site';
 import { formatNo } from '../src/lib/notes';
-import { liveNotes } from './helpers/content';
+import { liveNotes, readProjects } from './helpers/content';
 import { loadDist, readDist } from './helpers/dist';
 
 // The notes this build shows, read from the content folder: a new note needs no edits here.
@@ -488,4 +489,42 @@ test('notes follow the house format, so the page does not repeat itself', () => 
     expect(firstParagraph, `${note.file}: do not open with the description, it is already the lede`).not.toBe(note.data.description);
     expect(prose, `${note.file}: no hand-written contents list`).not.toMatch(/^##+ (Table of contents|Contents)\s*$/im);
   }
+});
+
+test('every note and project has its own link-preview image', () => {
+  const articles = [
+    ...notes.map((note) => ({ path: `posts/${note.data.slug}`, title: note.data.title })),
+    ...readProjects().map((project) => ({ path: `projects/${project.id}`, title: project.title })),
+  ];
+  const seen = new Set<string>();
+
+  expect(articles.length).toBeGreaterThanOrEqual(7);
+  for (const { path, title } of articles) {
+    const png = readFileSync(new URL(`../dist/og/${path}.png`, import.meta.url));
+    const $ = loadDist(`${path}/index.html`);
+    const image = `https://itejawi.com/og/${path}.png`;
+
+    // PNG signature, then width and height in the header chunk.
+    expect(png.subarray(1, 4).toString('latin1')).toBe('PNG');
+    expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+    expect(png.length).toBeLessThan(300_000);
+    seen.add(createHash('sha256').update(png).digest('hex'));
+
+    expect($('meta[property="og:image"]').attr('content')).toBe(image);
+    expect($('meta[name="twitter:image"]').attr('content')).toBe(image);
+    expect($('meta[property="og:type"]').attr('content')).toBe('article');
+    expect($('meta[property="og:image:alt"]').attr('content')).toContain(title);
+    expect($('meta[name="twitter:image:alt"]').attr('content')).toContain(title);
+  }
+  expect(seen.size).toBe(articles.length);
+});
+
+test('pages that are not articles keep the site link-preview image', () => {
+  for (const page of ['index.html', 'about/index.html', 'writing/index.html', 'projects/index.html', 'now/index.html']) {
+    const $ = loadDist(page);
+
+    expect($('meta[property="og:image"]').attr('content')).toBe('https://itejawi.com/assets/img/og.png');
+    expect($('meta[property="og:type"]').attr('content')).toBe('website');
+  }
+  expect(readDist('sitemap-0.xml')).not.toContain('/og/');
 });

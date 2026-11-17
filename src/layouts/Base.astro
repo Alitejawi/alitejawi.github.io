@@ -10,12 +10,22 @@ import ReadmeNote from '../components/ReadmeNote.astro';
 interface Props {
   title: string;
   description: string;
+  /** Link-preview image. Articles pass their own; every other page uses the site image. */
   ogImage?: string;
+  ogAlt?: string;
+  ogType?: 'website' | 'article';
   /** Keep this page out of search results (used by the not-found page). */
   noindex?: boolean;
 }
 
-const { title, description, ogImage = '/assets/img/og.png', noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  ogImage = '/assets/img/og.png',
+  ogAlt = `${site.name}: ${site.headline}`,
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
 const canonical = new URL(Astro.url.pathname, site.url);
 const socialImage = new URL(ogImage, site.url);
 const section = Astro.url.pathname.split('/')[1];
@@ -48,7 +58,7 @@ const person = {
     <link rel="preload" href={geistMono} as="font" type="font/woff2" crossorigin />
     <link rel="alternate" type="application/rss+xml" title={site.name} href="/feed.xml" />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -56,12 +66,12 @@ const person = {
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${site.name}: ${site.headline}`} />
+    <meta property="og:image:alt" content={ogAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
-    <meta name="twitter:image:alt" content={`${site.name}: ${site.headline}`} />
+    <meta name="twitter:image:alt" content={ogAlt} />
     <script type="application/ld+json" set:html={JSON.stringify(person).replace(/</g, '\\u003c')} />
   </head>
   <body>

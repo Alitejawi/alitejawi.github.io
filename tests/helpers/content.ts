@@ -5,6 +5,7 @@ import { site } from '../../src/data/site';
 import { isPublished, numberNotes } from '../../src/lib/notes';
 
 const notesDir = new URL('../../src/content/notes/', import.meta.url);
+const projectsDir = new URL('../../src/content/projects/', import.meta.url);
 
 export interface NoteFile {
   file: string;
@@ -52,3 +53,14 @@ export function liveNotes(now = new Date()) {
 }
 
 export const notesPath = fileURLToPath(notesDir);
+
+/** Every project, as { id, title } from its file name and front matter. */
+export function readProjects(): { id: string; title: string }[] {
+  return readdirSync(projectsDir)
+    .filter((file) => file.endsWith('.mdx'))
+    .map((file) => {
+      const front = readFileSync(new URL(file, projectsDir), 'utf8').match(/^---\n([\s\S]*?)\n---/);
+      if (!front) throw new Error(`${file} has no front matter`);
+      return { id: file.replace(/\.mdx$/, ''), title: String(parse(front[1]).title) };
+    });
+}
