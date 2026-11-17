@@ -19,3 +19,6 @@ playwright-report/
 # Local tool folders
 .gstack/
 .superpowers/
+
+# Written and removed by the tests; ignored in case a run is cut short
+src/content/notes/zz-test-*.md

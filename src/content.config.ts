@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { noteDate } from './lib/note-date';
 
 const notes = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/notes' }),
@@ -9,7 +10,7 @@ const notes = defineCollection({
     title: z.string(),
     description: z.string(),
     // The note goes live on this calendar day (Amsterdam time). A later date schedules it.
-    date: z.coerce.date(),
+    date: noteDate,
     slug: z.string(),
     numbered: z.boolean().default(true),
     // A draft is built by `npm run dev` only, whatever its date.

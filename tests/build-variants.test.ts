@@ -1,11 +1,12 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { load } from 'cheerio';
 import { afterAll, expect, test } from 'vitest';
-import { liveNotes, readNotes } from './helpers/content';
+import { site } from '../src/data/site';
+import { liveNotes, notesPath, readNotes } from './helpers/content';
 import { readDist } from './helpers/dist';
 
 // Builds of the site under other settings than today's. They share Astro's cache folder,
@@ -22,7 +23,10 @@ function build(env: Record<string, string>): (path: string) => string {
 
 afterAll(() => made.forEach((out) => rmSync(out, { recursive: true, force: true })));
 
-test('a build made the day before a note is due leaves that note out everywhere', () => {
+// Each of these runs a whole build: about two seconds here, more on a busy machine.
+const BUILD = { timeout: 120_000 };
+
+test('a build made the day before a note is due leaves that note out everywhere', BUILD, () => {
   const newest = readNotes()
     .filter((note) => !note.data.draft)
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())[0];
@@ -44,14 +48,58 @@ test('a build made the day before a note is due leaves that note out everywhere'
   }
 });
 
-test('no page loads a visitor counter while no GoatCounter code is set', () => {
+test('the built site loads a visitor counter only if site.ts names a GoatCounter code', () => {
+  const code = site.analytics.goatcounter;
+
   for (const page of ['index.html', 'about/index.html', 'writing/index.html', '404.html']) {
-    expect(readDist(page)).not.toContain('goatcounter');
-    expect(readDist(page)).not.toContain('gc.zgo.at');
+    const counter = load(readDist(page))('script[data-goatcounter]');
+
+    if (code) {
+      expect(counter.attr('data-goatcounter')).toBe(`https://${code}.goatcounter.com/count`);
+    } else {
+      expect(counter).toHaveLength(0);
+      expect(readDist(page)).not.toContain('gc.zgo.at');
+    }
   }
 });
 
-test('with a GoatCounter code set, every page loads the counter for that code', () => {
+test('a draft is left out of a build, whatever its date', BUILD, () => {
+  // Written for this test and removed after it, so the check does not depend on a real
+  // draft existing. The zz-test- prefix is git-ignored in case a run is cut short.
+  const file = `${notesPath}zz-test-draft.md`;
+  writeFileSync(file, [
+    '---',
+    'title: A draft that must not be built',
+    'date: 2020-01-01 09:00:00 +0100',
+    'description: Written by the tests to prove that a draft stays out of a build.',
+    'slug: zz-test-draft',
+    'topic: General',
+    'draft: true',
+    '---',
+    '',
+    '## A section',
+    '',
+    'Text that should appear nowhere.',
+    '',
+  ].join('\n'));
+
+  try {
+    const at = build({});
+
+    expect(existsSync(at('posts/zz-test-draft/index.html'))).toBe(false);
+    expect(existsSync(at('og/posts/zz-test-draft.png'))).toBe(false);
+    for (const page of ['index.html', 'writing/index.html', 'feed.xml', 'llms.txt', 'sitemap-0.xml']) {
+      expect(readFileSync(at(page), 'utf8')).not.toContain('zz-test-draft');
+    }
+    // It did not take a number either: the oldest numbered note is still No. 01.
+    const oldest = liveNotes(new Date()).filter((note) => note.no !== null).at(-1)!;
+    expect(load(readFileSync(at(`posts/${oldest.data.slug}/index.html`), 'utf8'))('.article-kicker').text()).toContain('No. 01');
+  } finally {
+    rmSync(file, { force: true });
+  }
+});
+
+test('with a GoatCounter code set, every page loads the counter for that code', BUILD, () => {
   const at = build({ SITE_GOATCOUNTER: 'example-code' });
 
   for (const page of ['index.html', 'about/index.html', 'writing/index.html', 'projects/brain/index.html']) {
@@ -64,7 +112,7 @@ test('with a GoatCounter code set, every page loads the counter for that code', 
   }
 });
 
-test('a GoatCounter code that is not a plain site code stops the build, and says why', () => {
+test('a GoatCounter code that is not a plain site code stops the build, and says why', BUILD, () => {
   let output = '';
   try {
     build({ SITE_GOATCOUNTER: 'evil.example/x?' });

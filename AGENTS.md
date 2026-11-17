@@ -18,8 +18,8 @@ This is the source of [itejawi.com](https://itejawi.com), Ali Al-Itejawi's perso
 | --- | --- |
 | `npm run dev` | Local site with live reload. Shows drafts and scheduled notes. |
 | `npm run check` | Type check. |
-| `npm test` | Builds the site into `dist/` and checks the output. |
-| `npm run test:e2e` | Browser tests against `dist/`. Run `npm test` or `npm run build` first. |
+| `npm test` | Builds the site into `dist/` as it will be once every scheduled note is live, and checks the output. |
+| `npm run test:e2e` | Browser tests against `dist/`. Run `npm test` first, so scheduled notes are covered. |
 | `npm run build` | Production build. |
 
 Write the test first and watch it fail. GitHub runs all of the above before every deploy and on every pull request (`.github/actions/build-and-test`).
@@ -42,7 +42,7 @@ numbered: false                   # optional: no "No. NN", not on the homepage r
 
 - **Scheduling.** A note with a future `date` can be merged at any time. It appears on the morning of that day, when the deploy workflow runs (07:02 UTC), or with any deploy after midnight in Amsterdam.
 - **Format.** No `# Title` line. Sections are `##` headings; the page numbers them and builds the contents list, so do not number them or write a contents list by hand.
-- **Tests.** The tests read the list of notes from the folder. A new note needs no test edits. Add a test only for facts that are specific to the note, as `tests/build.test.ts` does for the delete-lock note.
+- **Tests.** The tests read the list of notes from the folder, scheduled ones included, so a scheduled note is checked when it is merged and not on the morning it is due. Drafts get the format checks only. A new note needs no test edits. Add a test only for facts that are specific to the note, as `tests/build.test.ts` does for the delete-lock note.
 - **Quotes.** Straight quotes in prose are published as curly quotes. A test that looks for text with an apostrophe has to allow for that.
 - **Link preview.** The build draws the share image for each note and project (`src/lib/og-card.ts`). Nothing to make by hand.
 - **Drafts from another machine** arrive with company details already removed. Do not add any back, and check facts by asking Ali, not by guessing.

@@ -24,7 +24,8 @@ export default defineConfig({
       },
     },
   ],
-  // Run npm run build first so these checks exercise the published HTML.
+  // Run npm test first: it builds dist/ with every scheduled note included, so these checks
+  // cover a scheduled note before its day. (After npm run build they cover today's site.)
   webServer: {
     // Opt out of Astro's agent auto-backgrounding so Playwright owns the process.
     command: 'npm run preview -- --host 127.0.0.1 --port 4321 --ignore-lock',

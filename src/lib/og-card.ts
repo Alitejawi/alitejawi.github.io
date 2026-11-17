@@ -76,7 +76,7 @@ function layout({ kicker, chip, meta, title }: Card): Node {
           ...(chip ? [box({ padding: '4px 12px', borderRadius: 6, backgroundColor: color.ghost, color: color.ink }, chip)] : []),
           ...(meta ? [box({}, meta)] : []),
         ),
-        box({ marginTop: 26, fontSize: titleSize(title), fontWeight: 500, lineHeight: 1.08, letterSpacing: '-0.02em', textWrap: 'balance' }, title),
+        box({ marginTop: 26, fontSize: titleSize(title), fontWeight: 500, lineHeight: 1.08, letterSpacing: '-0.02em', textWrap: 'balance', wordBreak: 'break-word' }, title),
       ),
       rule(),
       box(
@@ -89,8 +89,22 @@ function layout({ kicker, chip, meta, title }: Card): Node {
 }
 
 export async function renderCard(card: Card): Promise<Uint8Array<ArrayBuffer>> {
+  // Satori asks for more fonts when it meets a character ours cannot draw (an emoji, another
+  // script). There are none to give, and the image would show an empty box, so stop instead.
+  const missing: string[] = [];
   // Satori takes React-style elements; plain objects of the same shape work without React.
-  const svg = await satori(layout(card) as unknown as Parameters<typeof satori>[0], { width: WIDTH, height: HEIGHT, fonts: loadFonts() });
+  const svg = await satori(layout(card) as unknown as Parameters<typeof satori>[0], {
+    width: WIDTH,
+    height: HEIGHT,
+    fonts: loadFonts(),
+    loadAdditionalAsset: async (_language, segment) => {
+      missing.push(segment);
+      return [];
+    },
+  });
+  if (missing.length > 0) {
+    throw new Error(`Share image for "${card.title}": the font cannot draw "${missing.join('')}". Reword the title, kicker or topic.`);
+  }
   // Copied into a plain array, which is what a Response body accepts.
   return new Uint8Array(new Resvg(svg, { fitTo: { mode: 'width', value: WIDTH } }).render().asPng());
 }

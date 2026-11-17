@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { sidewaysOverflow } from './helpers/overflow';
 
 const button = (page: Page) => page.locator('[data-readme-open]');
 const note = (page: Page) => page.locator('dialog[data-readme]');
@@ -10,12 +11,6 @@ async function openNote(page: Page) {
   await note(page).evaluate((element) => Promise.all(element.getAnimations().map((animation) => animation.finished)));
 }
 
-async function overflow(page: Page) {
-  return page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    innerWidth: window.innerWidth,
-  }));
-}
 
 test.describe('README note on a desktop screen', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
@@ -114,8 +109,7 @@ test.describe('README note on a phone', () => {
     expect([375, 360]).toContain(pageWidth);
     expect(box?.x).toBe(0);
     expect(box?.width).toBe(pageWidth);
-    const { scrollWidth, innerWidth } = await overflow(page);
-    expect(scrollWidth).toBeLessThanOrEqual(innerWidth);
+    expect(await sidewaysOverflow(page)).toBe(0);
     const inner = await note(page).locator('[data-readme-body]').evaluate((element) => ({
       scrollWidth: element.scrollWidth,
       clientWidth: element.clientWidth,

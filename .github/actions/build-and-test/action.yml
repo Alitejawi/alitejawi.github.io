@@ -1,7 +1,7 @@
 name: Build and test the site
 description: >
-  Installs, type-checks, builds and tests the site, including the browser tests.
-  Leaves the production build in dist/. Used by the deploy and the pull-request check,
+  Installs, type-checks and tests the site, including the browser tests, then makes the
+  production build and leaves it in dist/. Used by the deploy and the pull-request check,
   so both run exactly the same steps.
 
 runs:
@@ -21,14 +21,11 @@ runs:
       shell: bash
       run: npm run check
 
+    # Builds the site as it will be once every scheduled note is live, and checks it. A
+    # scheduled note with a problem fails here, not on the morning it is due.
     - name: Build tests
       shell: bash
       run: npm test
-
-    # A clean production build: this is the copy the browser tests read and the deploy uploads.
-    - name: Build site
-      shell: bash
-      run: npm run build
 
     - name: Read the Playwright version
       id: playwright
@@ -53,9 +50,15 @@ runs:
       shell: bash
       run: npx playwright install-deps chromium
 
+    # Against the same build as the build tests, so scheduled notes are covered here too.
     - name: Browser tests
       shell: bash
       run: npm run test:e2e
+
+    # The build that gets deployed: today's date, so notes that are not due yet stay out.
+    - name: Build site
+      shell: bash
+      run: npm run build
 
     - name: Keep the browser traces of failed tests
       if: failure()

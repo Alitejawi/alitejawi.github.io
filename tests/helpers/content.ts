@@ -48,7 +48,7 @@ export function readNotes(): NoteFile[] {
 }
 
 /** The notes a build made at `now` shows, newest first, numbered as the site numbers them. */
-export function liveNotes(now = new Date()) {
+export function liveNotes(now: Date) {
   return numberNotes(readNotes().filter((note) => isPublished(note.data, now, site.timeZone)));
 }
 

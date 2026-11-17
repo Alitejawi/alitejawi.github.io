@@ -2,11 +2,12 @@
 
 /* While Geist Sans loads, text is set in Arial scaled to Geist's proportions, so lines break
    in the same places and the page does not jump when the font arrives. The four numbers are
-   what Astro's font tooling computes for Geist Sans against Arial. The range is the Latin
-   subset the site ships: other characters, such as arrows, keep coming from the system font. */
+   what Astro's font tooling computes for Geist Sans against Arial; Liberation Sans and Arimo
+   are Linux fonts with Arial's proportions. The range is the Latin subset the site ships:
+   other characters, such as arrows, keep coming from the system font. */
 @font-face {
   font-family: 'Geist Sans Fallback';
-  src: local('Arial');
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
   size-adjust: 106.1012%;
   ascent-override: 86.7097%;
   descent-override: 20.7349%;

@@ -8,10 +8,11 @@ import espresso from '../src/data/espresso.json';
 import { site } from '../src/data/site';
 import { formatNo } from '../src/lib/notes';
 import { liveNotes, readNotes, readProjects } from './helpers/content';
-import { loadDist, readDist } from './helpers/dist';
+import { ALL_SCHEDULED_LIVE, loadDist, readDist } from './helpers/dist';
 
 // The notes this build shows, read from the content folder: a new note needs no edits here.
-const notes = liveNotes();
+// Scheduled notes are in it (see ALL_SCHEDULED_LIVE), so they are checked before their day.
+const notes = liveNotes(ALL_SCHEDULED_LIVE);
 const numbered = notes.filter((note) => note.no !== null);
 const noteUrl = (slug: string) => `/posts/${slug}/`;
 
@@ -495,7 +496,7 @@ test('notes follow the house format, so the page does not repeat itself', () => 
   }
 });
 
-test('a note that is live carries no leftover editing comments', () => {
+test('a note that is live or scheduled carries no leftover editing comments', () => {
   for (const note of notes) {
     expect(note.body, `${note.file}: remove the <!-- comment --> before publishing`).not.toContain('<!--');
   }
@@ -602,10 +603,11 @@ test('the feed carries each note in full, with links that work outside the site'
     const note = notes[index];
     const html = $(item).children('content\\:encoded').text();
     const body = load(html);
-    const firstWords = note.body.replace(/```[\s\S]*?```/g, '').match(/[A-Za-z][A-Za-z ]{24,}/)?.[0].trim() ?? '';
+    const onPage = loadDist(`posts/${note.data.slug}/index.html`)('.article-body').text();
 
-    expect(firstWords.length, `${note.file}: found a plain sentence to look for`).toBeGreaterThan(20);
-    expect(squash(body.text()), `${note.file}: the body is in the feed`).toContain(firstWords);
+    // Word for word what the page says.
+    expect(squash(body.text()), `${note.file}: the feed has the page's text`).toBe(squash(onPage));
+    expect(squash(onPage).length).toBeGreaterThan(100);
     // A feed reader shows this outside the site: no site-relative links, no page title, no styling.
     for (const link of body('a[href]').toArray()) expect(body(link).attr('href')).toMatch(/^(https?:|mailto:)/);
     expect(body('h1')).toHaveLength(0);
@@ -653,4 +655,40 @@ test('no single file is heavy', () => {
     // A photo straight from a phone is several megabytes; the largest file today is a font near 41 kB.
     expect(statSync(new URL(`../dist/${file}`, import.meta.url)).size, `${file} is over 300 kB`).toBeLessThan(300_000);
   }
+});
+
+test('every link inside the site leads to a page, and every anchor to a place on it', () => {
+  const dist = new URL('../dist/', import.meta.url);
+  const pages = readdirSync(dist, { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && path.endsWith('.html'));
+  const broken: string[] = [];
+  let checked = 0;
+
+  for (const page of pages) {
+    const $ = loadDist(page);
+    const base = new URL(`/${page.replace(/index\.html$/, '')}`, site.url);
+
+    for (const element of $('a[href], link[href], script[src], img[src], source[src]').toArray()) {
+      const raw = $(element).attr('href') ?? $(element).attr('src') ?? '';
+      if (/^(mailto:|data:)/.test(raw)) continue;
+      const url = new URL(raw, base);
+      if (url.origin !== site.url) continue;
+      checked += 1;
+
+      const path = decodeURIComponent(url.pathname).replace(/^\//, '');
+      const file = path === '' || path.endsWith('/') ? `${path}index.html` : path;
+      if (!existsSync(new URL(file, dist))) {
+        // The 404 page is the one place that may name an address that does not exist.
+        if (page !== '404.html') broken.push(`${page}: ${raw} (no such page)`);
+        continue;
+      }
+      const anchor = decodeURIComponent(url.hash.slice(1));
+      if (anchor && file.endsWith('.html') && loadDist(file)(`[id="${anchor}"]`).length === 0) {
+        broken.push(`${page}: ${raw} (no such anchor)`);
+      }
+    }
+  }
+
+  expect(checked).toBeGreaterThan(300);
+  expect(broken).toEqual([]);
 });
