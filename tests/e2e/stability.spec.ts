@@ -58,7 +58,9 @@ test.describe('when the web fonts arrive late', () => {
       await page.goto(path, { waitUntil: 'networkidle' });
       await page.evaluate(() => document.fonts.ready);
 
-      expect(await shift()).toBeLessThanOrEqual(0.005);
+      // 0 on a Mac, where the fallback is Arial. GitHub's Linux uses Liberation Sans and
+      // scored 0.007 on one pair. Every pair scored 0.016 or more with no fallback at all.
+      expect(await shift()).toBeLessThanOrEqual(0.01);
     });
   }
 });
