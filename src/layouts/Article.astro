@@ -13,18 +13,31 @@ interface Props {
   lede: string;
   headings: { depth: number; slug: string; text: string }[];
   extraReceipt?: { title: string; lines: { label: string; value: string }[] };
+  /** Set for field notes: adds a schema.org BlogPosting block. Shown to search engines only. */
+  published?: Date;
   prev?: { href: string; label: string; title: string };
   next?: { href: string; label: string; title: string };
 }
 
-const { kicker, chip, minutes, title, lede, headings, extraReceipt, prev, next } = Astro.props;
+const { kicker, chip, minutes, title, lede, headings, extraReceipt, published, prev, next } = Astro.props;
 const hasContents = headings.some((heading) => heading.depth === 2);
 const current = Astro.url.pathname.startsWith('/projects/') ? 'projects' : 'writing';
 // Each article has its own link-preview image, drawn by src/pages/og/[...path].png.ts.
 const ogImage = `/og${Astro.url.pathname.replace(/\/$/, '')}.png`;
+const posting = published && {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: lede,
+  url: new URL(Astro.url.pathname, site.url).href,
+  image: new URL(ogImage, site.url).href,
+  author: { '@type': 'Person', name: site.name, url: site.url },
+  // The date follows the same switch as the dates on the pages.
+  ...(site.showDates ? { datePublished: published.toISOString() } : {}),
+};
 ---
 
-<Base title={`${title} · ${site.name}`} description={lede} ogImage={ogImage} ogAlt={`${kicker}: ${title}`} ogTitle={title} ogType="article">
+<Base title={`${title} · ${site.name}`} description={lede} ogImage={ogImage} ogAlt={`${kicker}: ${title}`} ogTitle={title} ogType="article" structuredData={posting ? [posting] : []}>
   <Nav slot="nav" current={current} />
   <article class:list={['article', { 'has-contents': hasContents }]}>
     <header class="article-header">
@@ -126,6 +139,8 @@ const ogImage = `/og${Astro.url.pathname.replace(/\/$/, '')}.png`;
 
   .article-body :global(p) {
     margin-bottom: 1.25rem;
+    /* No single word left alone on a paragraph's last line. */
+    text-wrap: pretty;
   }
 
   .article-body :global(> :first-child) {
@@ -292,6 +307,27 @@ const ogImage = `/og${Astro.url.pathname.replace(/\/$/, '')}.png`;
   @media (width < 900px) {
     .article.has-contents {
       grid-template-columns: minmax(0, 640px);
+    }
+  }
+
+  /* Code prints dark on white and wraps: a printed page has no sideways scroll.
+     These sit here, after the screen rules they have to beat. */
+  @media print {
+    .article-body :global(pre),
+    .article-body :global(.code-block) {
+      border: 1px solid var(--mid-grey);
+      background: #fff !important;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .article-body :global(.code-block pre) {
+      border: 0;
+    }
+
+    .article-body :global(pre),
+    .article-body :global(pre *) {
+      color: var(--ink) !important;
     }
   }
 </style>

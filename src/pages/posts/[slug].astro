@@ -41,6 +41,7 @@ const pending = note.status === 'live' ? '' : `${note.status === 'draft' ? 'Draf
   title={note.data.title}
   lede={note.data.description}
   headings={headings}
+  published={note.data.date}
   extraReceipt={note.data.commands?.length ? { title: 'Commands used', lines: note.data.commands } : undefined}
   prev={prev}
   next={next}

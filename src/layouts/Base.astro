@@ -17,6 +17,8 @@ interface Props {
   /** Title on share cards, which show the site name separately. Defaults to the page title. */
   ogTitle?: string;
   ogType?: 'website' | 'article';
+  /** Extra schema.org blocks for this page, next to the Person block every page has. */
+  structuredData?: Record<string, unknown>[];
   /** Keep this page out of search results (used by the not-found page). */
   noindex?: boolean;
 }
@@ -28,8 +30,11 @@ const {
   ogAlt = `${site.name}: ${site.headline}`,
   ogTitle = title,
   ogType = 'website',
+  structuredData = [],
   noindex = false,
 } = Astro.props;
+// "<" is escaped so no text can close the script element early.
+const json = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u003c');
 const canonical = new URL(Astro.url.pathname, site.url);
 const socialImage = new URL(ogImage, site.url);
 const section = Astro.url.pathname.split('/')[1];
@@ -52,6 +57,7 @@ const person = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f1eee7" />
     <title>{title}</title>
     <meta name="description" content={description} />
     {!noindex && <link rel="canonical" href={canonical} />}
@@ -76,7 +82,7 @@ const person = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
     <meta name="twitter:image:alt" content={ogAlt} />
-    <script type="application/ld+json" set:html={JSON.stringify(person).replace(/</g, '\\u003c')} />
+    {[person, ...structuredData].map((block) => <script type="application/ld+json" set:html={json(block)} />)}
     {goatcounter && <script is:inline async data-goatcounter={goatcounter.endpoint} src={goatcounter.script}></script>}
   </head>
   <body>

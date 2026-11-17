@@ -129,3 +129,56 @@ pre {
     scroll-behavior: auto !important;
   }
 }
+
+/* A printed page or a saved PDF is the content: no navigation, buttons or contents list. */
+@media print {
+  .nav-shell,
+  .skip-link,
+  [data-readme-open],
+  dialog,
+  .contents,
+  .code-bar,
+  .article-pagination,
+  .site-footer .links {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .article {
+    display: block !important;
+  }
+
+  /* Sections fade in when scrolled to; paper cannot scroll. */
+  [data-fade] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* A link on paper needs its address written out. */
+  .article-body a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    color: var(--dark-grey);
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+  }
+
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  pre,
+  figure,
+  table {
+    break-inside: avoid;
+  }
+}

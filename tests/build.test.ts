@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { load } from 'cheerio';
 import { expect, test } from 'vitest';
-import { formatCount } from '../scripts/bump-espresso.mjs';
+import { PER_DAY, formatCount } from '../scripts/bump-espresso.mjs';
 import { bio } from '../src/data/bio';
 import espresso from '../src/data/espresso.json';
 import { site } from '../src/data/site';
@@ -227,8 +227,8 @@ test('homepage shows espresso count', () => {
   const html = readDist('index.html');
 
   expect(html).toContain(formatCount(espresso.count));
-  expect(html).toContain('+3 every day');
-  expect(html).not.toContain('+2 every day');
+  // The chip states the amount the daily workflow really adds.
+  expect(loadDist('index.html')('.espresso .chip').text()).toBe(`+${PER_DAY} every day`);
 });
 
 test('homepage receipt lists numbered notes only', () => {
@@ -319,8 +319,7 @@ test('about shows live espresso count', () => {
   const html = readDist('about/index.html');
 
   expect(html).toContain(formatCount(espresso.count));
-  expect(html).toContain('+3 every day');
-  expect(html).not.toContain('+2 every day');
+  expect(loadDist('about/index.html')('.chip').first().text()).toBe(`+${PER_DAY} every day`);
   expect(html).toContain('29');
 });
 
@@ -602,4 +601,38 @@ test('the writing page links to the feed', () => {
   const $ = loadDist('writing/index.html');
 
   expect($('main a[href="/feed.xml"]').text()).toContain('RSS');
+});
+
+test('each note describes itself to search engines, without a date while dates are hidden', () => {
+  for (const note of notes) {
+    const $ = loadDist(`posts/${note.data.slug}/index.html`);
+    const blocks = $('script[type="application/ld+json"]').toArray().map((script) => JSON.parse($(script).text()));
+    const posting = blocks.find((block) => block['@type'] === 'BlogPosting');
+
+    expect(posting, `${note.file}: BlogPosting block`).toBeDefined();
+    expect(posting.headline).toBe(note.data.title);
+    expect(posting.description).toBe(note.data.description);
+    expect(posting.url).toBe(`https://itejawi.com${noteUrl(note.data.slug)}`);
+    expect(posting.image).toBe(`https://itejawi.com/og/posts/${note.data.slug}.png`);
+    expect(posting.author).toMatchObject({ '@type': 'Person', name: 'Ali Al-Itejawi', url: 'https://itejawi.com' });
+    expect(site.showDates).toBe(false);
+    expect(posting).not.toHaveProperty('datePublished');
+    expect(blocks.some((block) => block['@type'] === 'Person')).toBe(true);
+  }
+  expect(readDist('index.html')).not.toContain('BlogPosting');
+});
+
+test('the browser frame takes the paper colour on phones', () => {
+  expect(loadDist('index.html')('meta[name="theme-color"]').attr('content')).toBe('#f1eee7');
+});
+
+test('no single file is heavy', () => {
+  const files = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && /\.[a-z0-9]+$/i.test(path));
+
+  expect(files.length).toBeGreaterThan(30);
+  for (const file of files) {
+    // A photo straight from a phone is several megabytes; the largest file today is a font near 41 kB.
+    expect(statSync(new URL(`../dist/${file}`, import.meta.url)).size, `${file} is over 300 kB`).toBeLessThan(300_000);
+  }
 });

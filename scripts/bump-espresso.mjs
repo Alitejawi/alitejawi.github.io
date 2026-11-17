@@ -1,12 +1,15 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+/** Espressos added per day. The homepage chip, the About page and the workflow all follow this. */
+export const PER_DAY = 3;
+
 /**
  * @param {string} path
- * @param {number} [by=3]
+ * @param {number} [by=PER_DAY]
  * @returns {{ from: number, to: number }}
  */
-export function bumpEspresso(path, by = 3) {
+export function bumpEspresso(path, by = PER_DAY) {
   const data = JSON.parse(readFileSync(path, 'utf8'));
   const from = data?.count;
 
@@ -35,7 +38,7 @@ if (import.meta.main) {
       throw new Error('Days must be a positive integer');
     }
     const path = fileURLToPath(new URL('../src/data/espresso.json', import.meta.url));
-    const { from, to } = bumpEspresso(path, 3 * days);
+    const { from, to } = bumpEspresso(path, PER_DAY * days);
     console.log(`${from} -> ${to}`);
   } catch (error) {
     console.error(`Failed to bump espresso count: ${error.message}`);

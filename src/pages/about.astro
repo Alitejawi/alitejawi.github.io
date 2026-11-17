@@ -7,7 +7,7 @@ import Chip from '../components/Chip.astro';
 import { site } from '../data/site';
 import { bio } from '../data/bio';
 import espresso from '../data/espresso.json';
-import { formatCount } from '../../scripts/bump-espresso.mjs';
+import { PER_DAY, formatCount } from '../../scripts/bump-espresso.mjs';
 ---
 
 <Base
@@ -27,7 +27,7 @@ import { formatCount } from '../../scripts/bump-espresso.mjs';
     <Receipt title="A few personal facts" aside={site.location}>
       <div>
         <ReceiptLine label="Espressos consumed" value={formatCount(espresso.count)} />
-        <Chip text="+3 every day" />
+        <Chip text={`+${PER_DAY} every day`} />
       </div>
       <div>
         <ReceiptLine label="Countries visited" value={bio.facts.countries} />
