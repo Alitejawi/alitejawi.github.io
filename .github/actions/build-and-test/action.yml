@@ -1,0 +1,70 @@
+name: Build and test the site
+description: >
+  Installs, type-checks and tests the site, including the browser tests, then makes the
+  production build and leaves it in dist/. Used by the deploy and the pull-request check,
+  so both run exactly the same steps.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@v7
+      with:
+        node-version: 26
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Type check
+      shell: bash
+      run: npm run check
+
+    # Builds the site as it will be once every scheduled note is live, and checks it. A
+    # scheduled note with a problem fails here, not on the morning it is due.
+    - name: Build tests
+      shell: bash
+      run: npm test
+
+    - name: Read the Playwright version
+      id: playwright
+      shell: bash
+      run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+    - name: Restore the test browser
+      id: browser
+      uses: actions/cache@v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+    - name: Install the test browser
+      if: steps.browser.outputs.cache-hit != 'true'
+      shell: bash
+      run: npx playwright install --with-deps chromium
+
+    # A restored browser still needs its system libraries.
+    - name: Install the test browser's system libraries
+      if: steps.browser.outputs.cache-hit == 'true'
+      shell: bash
+      run: npx playwright install-deps chromium
+
+    # Against the same build as the build tests, so scheduled notes are covered here too.
+    - name: Browser tests
+      shell: bash
+      run: npm run test:e2e
+
+    # The build that gets deployed: today's date, so notes that are not due yet stay out.
+    - name: Build site
+      shell: bash
+      run: npm run build
+
+    - name: Keep the browser traces of failed tests
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: browser-test-traces
+        path: test-results/
+        retention-days: 7
+        if-no-files-found: ignore

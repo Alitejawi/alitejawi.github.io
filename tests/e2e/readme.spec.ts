@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { sidewaysOverflow } from './helpers/overflow';
 
 const button = (page: Page) => page.locator('[data-readme-open]');
 const note = (page: Page) => page.locator('dialog[data-readme]');
@@ -10,12 +11,6 @@ async function openNote(page: Page) {
   await note(page).evaluate((element) => Promise.all(element.getAnimations().map((animation) => animation.finished)));
 }
 
-async function overflow(page: Page) {
-  return page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    innerWidth: window.innerWidth,
-  }));
-}
 
 test.describe('README note on a desktop screen', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
@@ -53,12 +48,15 @@ test.describe('README note on a desktop screen', () => {
     await openNote(page);
     const box = await note(page).evaluate((element) => {
       const { top, right, bottom, left } = element.getBoundingClientRect();
-      return { top, right, bottom, left, origin: getComputedStyle(element).transformOrigin };
+      // The page's own width: the window less the scrollbar that Windows and Linux draw beside it.
+      const pageWidth = document.documentElement.getBoundingClientRect().width;
+      return { top, right, bottom, left, pageWidth, origin: getComputedStyle(element).transformOrigin };
     });
 
     expect(box.top).toBeGreaterThanOrEqual(0);
     expect(box.left).toBeGreaterThanOrEqual(0);
-    expect(1280 - box.right).toBeLessThanOrEqual(24);
+    expect([1280, 1265]).toContain(box.pageWidth);
+    expect(box.pageWidth - box.right).toBeLessThanOrEqual(24);
     expect(800 - box.bottom).toBeLessThanOrEqual(24);
     // The computed origin is in pixels: the far corner of the panel.
     expect(box.origin).toBe(`${box.right - box.left}px ${box.bottom - box.top}px`);
@@ -106,10 +104,12 @@ test.describe('README note on a phone', () => {
     await openNote(page);
 
     const box = await note(page).boundingBox();
+    // The page's own width: the window less the scrollbar that Windows and Linux draw beside it.
+    const pageWidth = await page.evaluate(() => document.documentElement.getBoundingClientRect().width);
+    expect([375, 360]).toContain(pageWidth);
     expect(box?.x).toBe(0);
-    expect(box?.width).toBe(375);
-    const { scrollWidth, innerWidth } = await overflow(page);
-    expect(scrollWidth).toBeLessThanOrEqual(innerWidth);
+    expect(box?.width).toBe(pageWidth);
+    expect(await sidewaysOverflow(page)).toBe(0);
     const inner = await note(page).locator('[data-readme-body]').evaluate((element) => ({
       scrollWidth: element.scrollWidth,
       clientWidth: element.clientWidth,

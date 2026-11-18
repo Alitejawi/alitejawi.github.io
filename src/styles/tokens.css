@@ -9,8 +9,9 @@
   --dashed-line: #9a978f;
   --accent: #ff9100;
 
-  --font-body: 'Geist Sans', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  /* Set by the <Font /> elements in Base.astro: the font, its matched fallback, then system fonts. */
+  --font-body: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
   --page-width: 1120px;
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
 

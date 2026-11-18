@@ -3,7 +3,7 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync,
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import { bumpEspresso, formatCount } from '../scripts/bump-espresso.mjs';
+import { PER_DAY, bumpEspresso, formatCount } from '../scripts/bump-espresso.mjs';
 
 let directory: string;
 let path: string;
@@ -84,7 +84,8 @@ test('CLI bumps data and rejects invalid files', () => {
 test('the bot commit message names the same amount the script adds', () => {
   const workflow = readFileSync(new URL('../.github/workflows/daily-espressos.yml', import.meta.url), 'utf8');
 
-  expect(workflow).toContain('git commit -m "Daily espressos +$(( 3 * ${{ steps.rest.outputs.days }} ))"');
+  // PER_DAY in the script is the one place the amount is set; the workflow has to agree with it.
+  expect(workflow).toContain(`git commit -m "Daily espressos +$(( ${PER_DAY} * \${{ steps.rest.outputs.days }} ))"`);
   expect(workflow).toContain('node scripts/bump-espresso.mjs "${{ steps.rest.outputs.days }}"');
 });
 

@@ -1,9 +1,20 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { load } from 'cheerio';
 import { expect, test } from 'vitest';
-import { formatCount } from '../scripts/bump-espresso.mjs';
+import { PER_DAY, formatCount } from '../scripts/bump-espresso.mjs';
 import { bio } from '../src/data/bio';
 import espresso from '../src/data/espresso.json';
-import { loadDist, readDist } from './helpers/dist';
+import { site } from '../src/data/site';
+import { formatNo } from '../src/lib/notes';
+import { liveNotes, readNotes, readProjects } from './helpers/content';
+import { ALL_SCHEDULED_LIVE, loadDist, readDist } from './helpers/dist';
+
+// The notes this build shows, read from the content folder: a new note needs no edits here.
+// Scheduled notes are in it (see ALL_SCHEDULED_LIVE), so they are checked before their day.
+const notes = liveNotes(ALL_SCHEDULED_LIVE);
+const numbered = notes.filter((note) => note.no !== null);
+const noteUrl = (slug: string) => `/posts/${slug}/`;
 
 test('CNAME is itejawi.com', () => {
   expect(readDist('CNAME').trim()).toBe('itejawi.com');
@@ -49,16 +60,15 @@ test('legacy URLs exist with exact casing', () => {
   expect(paths).not.toContain('posts/add_gmail_delegate_silently/index.html');
 });
 
-test('feed.xml lists the notes', () => {
-  const feed = readDist('feed.xml');
+test('feed.xml lists every live note, newest first', () => {
+  const $ = load(readDist('feed.xml'), { xml: true });
+  const items = $('item').toArray().map((item) => ({ title: $(item).children('title').text(), link: $(item).children('link').text() }));
 
-  expect(feed).toContain('How to add a Google Workspace delegate without notifying the user');
-  expect(feed).toContain('Three GAM commands I run every Monday morning');
-  expect(feed).toContain('A delete lock for AI agents: parsing shell commands in a PreToolUse hook');
-  expect(feed).toContain('Claude is the boss, Codex is the worker: splitting work between two coding agents');
-  for (const slug of ['Add_gmail_delegate_silently', 'three-gam-commands-every-monday', 'delete-lock-for-ai-agents', 'claude-boss-codex-worker', 'Welcome']) {
-    expect(feed).toContain(`https://itejawi.com/posts/${slug}/`);
-  }
+  expect(notes.length).toBeGreaterThanOrEqual(5);
+  expect(items).toEqual(notes.map((note) => ({
+    title: note.data.title,
+    link: `https://itejawi.com${noteUrl(note.data.slug)}`,
+  })));
 });
 
 test('old taxonomy pages redirect', () => {
@@ -73,21 +83,18 @@ test('writing index has no dates', () => {
   const html = readDist('writing/index.html');
   const $ = loadDist('writing/index.html');
 
-  expect(html).toContain('No. 01');
-  expect(html).toContain('No. 02');
-  expect(html).toContain('No. 03');
+  for (const note of numbered) expect(html).toContain(formatNo(note.no!));
   // Post dates stay hidden; the footer's copyright year is outside <main>.
-  for (const date of ['2025', '2026', 'Feb', 'May', 'Nov']) {
-    expect($('main').text()).not.toContain(date);
+  expect($('main time')).toHaveLength(0);
+  expect($('main').text()).not.toMatch(/\b20\d\d\b/);
+  for (const note of notes) {
+    for (const dateStyle of ['long', 'medium'] as const) {
+      const shown = note.data.date.toLocaleDateString('en-GB', { timeZone: site.timeZone, dateStyle });
+      expect($('main').text()).not.toContain(shown.replace(/ \d{4}$/, ''));
+    }
   }
   expect($('footer.site-footer').text()).toContain(`© ${new Date().getFullYear()} Ali Al-Itejawi`);
-  expect($('main ol li a').map((_, link) => $(link).attr('href')).get()).toEqual([
-    '/posts/claude-boss-codex-worker/',
-    '/posts/delete-lock-for-ai-agents/',
-    '/posts/three-gam-commands-every-monday/',
-    '/posts/Add_gmail_delegate_silently/',
-    '/posts/Welcome/',
-  ]);
+  expect($('main ol li a').map((_, link) => $(link).attr('href')).get()).toEqual(notes.map((note) => noteUrl(note.data.slug)));
   expect($('main ol li').last().text()).not.toContain('No.');
   expect($('main ol li').toArray().every((item) => /\d+ min/.test($(item).text()))).toBe(true);
 });
@@ -221,8 +228,8 @@ test('homepage shows espresso count', () => {
   const html = readDist('index.html');
 
   expect(html).toContain(formatCount(espresso.count));
-  expect(html).toContain('+3 every day');
-  expect(html).not.toContain('+2 every day');
+  // The chip states the amount the daily workflow really adds.
+  expect(loadDist('index.html')('.espresso .chip').text()).toBe(`+${PER_DAY} every day`);
 });
 
 test('homepage receipt lists numbered notes only', () => {
@@ -313,8 +320,7 @@ test('about shows live espresso count', () => {
   const html = readDist('about/index.html');
 
   expect(html).toContain(formatCount(espresso.count));
-  expect(html).toContain('+3 every day');
-  expect(html).not.toContain('+2 every day');
+  expect(loadDist('about/index.html')('.chip').first().text()).toBe(`+${PER_DAY} every day`);
   expect(html).toContain('29');
 });
 
@@ -329,6 +335,19 @@ test('now page exists', () => {
   expect(html).toContain('Automated DLP security reporting and fixes');
   expect(html).toContain('Fine-tuning local AI models for inference');
   expect(html).not.toContain('FILL IN');
+});
+
+test('now page names the book being read, with its author', () => {
+  const $ = loadDist('now/index.html');
+  const reading = $('.receipt-body > div').filter((_, group) => $(group).find('h2').text().trim() === 'Reading');
+  const lines = reading.find('.receipt-line').toArray().map((line) => ({
+    label: $(line).find('.receipt-label').text().trim(),
+    value: $(line).find('.receipt-value').text().trim(),
+  }));
+
+  expect(lines).toEqual([{ label: 'Tuesdays with Morrie', value: 'Mitch Albom' }]);
+  // The bare "Books" line was a placeholder for this.
+  expect(reading.text()).not.toMatch(/\bBooks\b/);
 });
 
 test('robots.txt allows crawling', () => {
@@ -346,10 +365,11 @@ test('llms.txt summarises the site from the same data as the pages', () => {
   expect(llms.startsWith('# Ali Al-Itejawi\n')).toBe(true);
   expect(llms).toContain('https://itejawi.com/projects/brain/');
   expect(llms).toContain('https://itejawi.com/projects/daily-diff/');
-  expect(llms).toContain('https://itejawi.com/posts/Add_gmail_delegate_silently/');
-  expect(llms).toContain('https://itejawi.com/posts/three-gam-commands-every-monday/');
-  expect(llms).toContain('https://itejawi.com/posts/delete-lock-for-ai-agents/');
-  expect(llms).not.toContain('/posts/Welcome/');
+  for (const note of notes) {
+    const link = `https://itejawi.com${noteUrl(note.data.slug)}`;
+    if (note.no === null) expect(llms).not.toContain(link);
+    else expect(llms).toContain(`- [${note.data.title}](${link}): ${note.data.description}`);
+  }
   expect(llms).not.toContain('FILL IN');
   expect(llms).not.toMatch(/\b20\d\d\b/);
 });
@@ -374,9 +394,8 @@ test('sitemap lists the real pages and leaves out redirects', () => {
   expect(readDist('sitemap-index.xml')).toContain('https://itejawi.com/sitemap-0.xml');
   const sitemap = readDist('sitemap-0.xml');
 
-  for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/',
-    '/posts/Add_gmail_delegate_silently/', '/posts/three-gam-commands-every-monday/',
-    '/posts/delete-lock-for-ai-agents/', '/posts/claude-boss-codex-worker/', '/about/', '/now/']) {
+  for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/', '/about/', '/now/',
+    ...notes.map((note) => noteUrl(note.data.slug))]) {
     expect(sitemap).toContain(`<loc>https://itejawi.com${path}</loc>`);
   }
   for (const path of ['/tags/', '/categories/', '/archives/', '/404']) {
@@ -392,6 +411,10 @@ test('not-found page offers a way back and stays out of search', () => {
     expect($(`main a[href="${href}"]`).length).toBeGreaterThan(0);
   }
   expect($('meta[name="robots"]').attr('content')).toContain('noindex');
+  // GitHub serves this file for any missing address; it has no address of its own to point at.
+  expect($('link[rel="canonical"]')).toHaveLength(0);
+  expect($('meta[property="og:url"]')).toHaveLength(0);
+  expect(loadDist('index.html')('link[rel="canonical"]').attr('href')).toBe('https://itejawi.com/');
   expect(loadDist('index.html')('meta[name="robots"]')).toHaveLength(0);
 });
 
@@ -457,4 +480,228 @@ test('the old Jekyll offline cache gets a script that removes it', () => {
   for (const page of ['index.html', 'about/index.html', 'writing/index.html']) {
     expect(readDist(page)).not.toContain('serviceWorker');
   }
+});
+
+test('every live note has a page with its number, topic and a single title', () => {
+  for (const note of notes) {
+    const $ = loadDist(`posts/${note.data.slug}/index.html`);
+
+    expect($('.article-kicker').text()).toContain(note.no === null ? 'Field note' : `Field note ${formatNo(note.no)}`);
+    expect($('.article-kicker').text()).toContain(note.data.topic);
+    // Astro's Markdown turns straight quotes into curly ones; compare without that.
+    const plain = (text: string) => squash(text).replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"');
+    expect($('h1').map((_, heading) => plain($(heading).text())).get(), `${note.file}: one <h1>, the title`).toEqual([plain(note.data.title)]);
+    expect(squash($('.lede').text()).length).toBeGreaterThan(20);
+  }
+});
+
+test('notes follow the house format, so the page does not repeat itself', () => {
+  // Drafts and scheduled notes too: the format is checked before a note can go live.
+  for (const note of readNotes()) {
+    const prose = note.body.replace(/```[\s\S]*?```/g, '');
+    const firstParagraph = prose.split(/\n\s*\n/).map((block) => block.trim()).find(Boolean) ?? '';
+
+    // The page prints the title, the description (as the lede) and the section numbers itself.
+    expect(prose, `${note.file}: no "# Title" line, the layout prints the title`).not.toMatch(/^# /m);
+    expect(prose, `${note.file}: no hand-numbered headings, the layout numbers them`).not.toMatch(/^##+ \d+[.):]? /m);
+    expect(firstParagraph, `${note.file}: do not open with the description, it is already the lede`).not.toBe(note.data.description);
+    expect(prose, `${note.file}: no hand-written contents list`).not.toMatch(/^##+ (Table of contents|Contents)\s*$/im);
+  }
+});
+
+test('a note that is live or scheduled carries no leftover editing comments', () => {
+  for (const note of notes) {
+    expect(note.body, `${note.file}: remove the <!-- comment --> before publishing`).not.toContain('<!--');
+  }
+});
+
+test('a draft is not built, linked or listed anywhere', () => {
+  const html = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && /\.(html|xml|txt)$/.test(path));
+
+  for (const draft of readNotes().filter((note) => note.data.draft)) {
+    expect(existsSync(new URL(`../dist/posts/${draft.data.slug}/index.html`, import.meta.url))).toBe(false);
+    expect(existsSync(new URL(`../dist/og/posts/${draft.data.slug}.png`, import.meta.url))).toBe(false);
+    for (const page of html) expect(readDist(page), `${page} mentions the draft`).not.toContain(draft.data.slug);
+  }
+});
+
+test('every note and project has its own link-preview image', () => {
+  const articles = [
+    ...notes.map((note) => ({ path: `posts/${note.data.slug}`, title: note.data.title })),
+    ...readProjects().map((project) => ({ path: `projects/${project.id}`, title: project.title })),
+  ];
+  const seen = new Set<string>();
+
+  expect(articles.length).toBeGreaterThanOrEqual(7);
+  for (const { path, title } of articles) {
+    const png = readFileSync(new URL(`../dist/og/${path}.png`, import.meta.url));
+    const $ = loadDist(`${path}/index.html`);
+    const image = `https://itejawi.com/og/${path}.png`;
+
+    // PNG signature, then width and height in the header chunk.
+    expect(png.subarray(1, 4).toString('latin1')).toBe('PNG');
+    expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+    expect(png.length).toBeLessThan(300_000);
+    seen.add(createHash('sha256').update(png).digest('hex'));
+
+    expect($('meta[property="og:image"]').attr('content')).toBe(image);
+    expect($('meta[name="twitter:image"]').attr('content')).toBe(image);
+    expect($('meta[property="og:type"]').attr('content')).toBe('article');
+    // The share card names the site on its own line, so the title stands alone there.
+    expect($('meta[property="og:title"]').attr('content')).toBe(title);
+    expect($('meta[name="twitter:title"]').attr('content')).toBe(title);
+    expect($('title').text()).toBe(`${title} · Ali Al-Itejawi`);
+    expect($('meta[property="og:image:alt"]').attr('content')).toContain(title);
+    expect($('meta[name="twitter:image:alt"]').attr('content')).toContain(title);
+  }
+  expect(seen.size).toBe(articles.length);
+});
+
+test('pages that are not articles keep the site link-preview image', () => {
+  for (const page of ['index.html', 'about/index.html', 'writing/index.html', 'projects/index.html', 'now/index.html']) {
+    const $ = loadDist(page);
+
+    expect($('meta[property="og:image"]').attr('content')).toBe('https://itejawi.com/assets/img/og.png');
+    expect($('meta[property="og:type"]').attr('content')).toBe('website');
+  }
+  expect(readDist('sitemap-0.xml')).not.toContain('/og/');
+});
+
+test('text keeps its line breaks while the web font loads', () => {
+  const $ = loadDist('index.html');
+  const head = $('head').html() ?? '';
+  const styles = readdirSync(new URL('../dist/_astro/', import.meta.url))
+    .filter((file) => file.endsWith('.css'))
+    .map((file) => readDist(`_astro/${file}`))
+    .join('\n');
+  const fallback = styles.match(/@font-face\s*\{[^}]*Geist Sans Fallback[^}]*\}/)?.[0] ?? '';
+
+  // The fonts the top of every page needs are fetched early: body, titles, mono labels.
+  expect($('link[rel="preload"][as="font"][type="font/woff2"]')).toHaveLength(3);
+  // Until they arrive, text sits in a local font scaled to the same proportions...
+  expect(fallback).toMatch(/src:\s*local\(["']?Arial["']?\)/);
+  expect(fallback).toContain('size-adjust');
+  // ...limited to the characters the web font has, so arrows still come from the system font.
+  expect(fallback).toContain('unicode-range');
+  expect(head).toMatch(/--font-geist-sans:\s*"Geist Sans[^"]*",\s*"?Geist Sans Fallback"?,\s*system-ui,\s*sans-serif/);
+  expect(head).toMatch(/--font-geist-mono:\s*"Geist Mono[^"]*",\s*ui-monospace,\s*monospace/);
+  expect(head).not.toContain('fallback: ');
+});
+
+test('no page loads a script that blocks the first paint', () => {
+  for (const page of ['index.html', 'about/index.html', `posts/${notes[0].data.slug}/index.html`, 'projects/brain/index.html']) {
+    expect(loadDist(page)('script[src]:not([type="module"]):not([async]):not([defer])'), page).toHaveLength(0);
+  }
+});
+
+test('pages stay light', () => {
+  const pages = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && path.endsWith('.html'));
+
+  expect(pages.length).toBeGreaterThanOrEqual(12);
+  for (const page of pages) {
+    // HTML with its inlined styles and scripts, before compression.
+    expect(Buffer.byteLength(readDist(page)), `${page} is over 100 kB`).toBeLessThan(100_000);
+  }
+});
+
+test('the feed carries each note in full, with links that work outside the site', () => {
+  const $ = load(readDist('feed.xml'), { xml: true });
+  const items = $('item').toArray();
+
+  expect($('channel > language').text()).toBe('en');
+  expect(items).toHaveLength(notes.length);
+  items.forEach((item, index) => {
+    const note = notes[index];
+    const html = $(item).children('content\\:encoded').text();
+    const body = load(html);
+    const onPage = loadDist(`posts/${note.data.slug}/index.html`)('.article-body').text();
+
+    // Word for word what the page says.
+    expect(squash(body.text()), `${note.file}: the feed has the page's text`).toBe(squash(onPage));
+    expect(squash(onPage).length).toBeGreaterThan(100);
+    // A feed reader shows this outside the site: no site-relative links, no page title, no styling.
+    for (const link of body('a[href]').toArray()) expect(body(link).attr('href')).toMatch(/^(https?:|mailto:)/);
+    expect(body('h1')).toHaveLength(0);
+    expect(html).not.toMatch(/ (style|class|tabindex)=/);
+    // Every fenced block arrives as one <pre>: an opening and a closing fence each.
+    expect(body('pre').length).toBe((note.body.match(/^```/gm) ?? []).length / 2);
+  });
+});
+
+test('the writing page links to the feed', () => {
+  const $ = loadDist('writing/index.html');
+
+  expect($('main a[href="/feed.xml"]').text()).toContain('RSS');
+});
+
+test('each note describes itself to search engines, without a date while dates are hidden', () => {
+  for (const note of notes) {
+    const $ = loadDist(`posts/${note.data.slug}/index.html`);
+    const blocks = $('script[type="application/ld+json"]').toArray().map((script) => JSON.parse($(script).text()));
+    const posting = blocks.find((block) => block['@type'] === 'BlogPosting');
+
+    expect(posting, `${note.file}: BlogPosting block`).toBeDefined();
+    expect(posting.headline).toBe(note.data.title);
+    expect(posting.description).toBe(note.data.description);
+    expect(posting.url).toBe(`https://itejawi.com${noteUrl(note.data.slug)}`);
+    expect(posting.image).toBe(`https://itejawi.com/og/posts/${note.data.slug}.png`);
+    expect(posting.author).toMatchObject({ '@type': 'Person', name: 'Ali Al-Itejawi', url: 'https://itejawi.com' });
+    expect(site.showDates).toBe(false);
+    expect(posting).not.toHaveProperty('datePublished');
+    expect(blocks.some((block) => block['@type'] === 'Person')).toBe(true);
+  }
+  expect(readDist('index.html')).not.toContain('BlogPosting');
+});
+
+test('the browser frame takes the paper colour on phones', () => {
+  expect(loadDist('index.html')('meta[name="theme-color"]').attr('content')).toBe('#f1eee7');
+});
+
+test('no single file is heavy', () => {
+  const files = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && /\.[a-z0-9]+$/i.test(path));
+
+  expect(files.length).toBeGreaterThan(30);
+  for (const file of files) {
+    // A photo straight from a phone is several megabytes; the largest file today is a font near 41 kB.
+    expect(statSync(new URL(`../dist/${file}`, import.meta.url)).size, `${file} is over 300 kB`).toBeLessThan(300_000);
+  }
+});
+
+test('every link inside the site leads to a page, and every anchor to a place on it', () => {
+  const dist = new URL('../dist/', import.meta.url);
+  const pages = readdirSync(dist, { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && path.endsWith('.html'));
+  const broken: string[] = [];
+  let checked = 0;
+
+  for (const page of pages) {
+    const $ = loadDist(page);
+    const base = new URL(`/${page.replace(/index\.html$/, '')}`, site.url);
+
+    for (const element of $('a[href], link[href], script[src], img[src], source[src]').toArray()) {
+      const raw = $(element).attr('href') ?? $(element).attr('src') ?? '';
+      if (/^(mailto:|data:)/.test(raw)) continue;
+      const url = new URL(raw, base);
+      if (url.origin !== site.url) continue;
+      checked += 1;
+
+      const path = decodeURIComponent(url.pathname).replace(/^\//, '');
+      const file = path === '' || path.endsWith('/') ? `${path}index.html` : path;
+      if (!existsSync(new URL(file, dist))) {
+        // The 404 page is the one place that may name an address that does not exist.
+        if (page !== '404.html') broken.push(`${page}: ${raw} (no such page)`);
+        continue;
+      }
+      const anchor = decodeURIComponent(url.hash.slice(1));
+      if (anchor && file.endsWith('.html') && loadDist(file)(`[id="${anchor}"]`).length === 0) {
+        broken.push(`${page}: ${raw} (no such anchor)`);
+      }
+    }
+  }
+
+  expect(checked).toBeGreaterThan(300);
+  expect(broken).toEqual([]);
 });

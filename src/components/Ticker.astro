@@ -8,7 +8,7 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<div class="ticker" aria-label="Status updates">
+<div class="ticker" role="group" aria-label="Status updates" data-ticker>
   <div class="ticker-track" data-ticker-track>
     {[false, true].map((duplicate) => (
       <ul class="ticker-group" aria-hidden={duplicate ? 'true' : undefined}>
@@ -19,16 +19,23 @@ const { items } = Astro.props;
       </ul>
     ))}
   </div>
+  {/* Shown on keyboard focus only; without JavaScript it stays hidden because it could do nothing. */}
+  <button type="button" class="ticker-toggle" data-ticker-toggle hidden>
+    <span data-ticker-action>Pause</span><span class="rest"> the status ticker</span>
+  </button>
 </div>
 
 <script>
   import '../scripts/clock';
+  import '../scripts/ticker';
 </script>
 
 <style>
   .ticker {
+    position: relative;
     overflow: hidden;
     min-width: 0;
+    cursor: pointer;
     border-radius: 0.25rem;
     background: var(--ghost-grey);
     color: var(--ink);
@@ -70,8 +77,54 @@ const { items } = Astro.props;
     font-variant-numeric: tabular-nums;
   }
 
-  .ticker:hover .ticker-track {
+  .ticker[data-paused] .ticker-track {
     animation-play-state: paused;
+  }
+
+  /* Hover pauses for a mouse only. On a touch screen a tap leaves "hover" stuck on, which
+     would keep the ticker paused after the tap that restarts it. */
+  @media (hover: hover) and (pointer: fine) {
+    .ticker:hover .ticker-track {
+      animation-play-state: paused;
+    }
+  }
+
+  /* Off screen until it has keyboard focus, then a small label at the end of the strip. */
+  .ticker-toggle {
+    position: absolute;
+    inset: 0 0 0 auto;
+    padding: 0 0.625rem;
+    border: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+  }
+
+  .ticker-toggle:not(:focus-visible) {
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .ticker-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  /* The full name is for screen readers; on screen the one word is enough. */
+  .ticker-toggle .rest {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   @keyframes ticker-scroll {
@@ -79,6 +132,15 @@ const { items } = Astro.props;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* Nothing moves, so there is nothing to pause. */
+    .ticker {
+      cursor: auto;
+    }
+
+    .ticker-toggle {
+      display: none;
+    }
+
     .ticker-track {
       display: block;
       width: auto;

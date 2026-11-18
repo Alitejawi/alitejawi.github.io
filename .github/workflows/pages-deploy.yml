@@ -9,6 +9,11 @@ on:
       - README.md
       - LICENSE
 
+  # Notes dated today go live with this morning build (08:02 in Amsterdam in winter,
+  # 09:02 in summer). Off the full hour, where GitHub delays scheduled runs the most.
+  schedule:
+    - cron: "2 7 * * *"
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -28,31 +33,18 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v7
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 26
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Test site
-        run: npm test
-
-      - name: Build site
-        run: npm run build
+      # Type check, build tests, production build and browser tests. A failure stops the deploy.
+      - name: Build and test
+        uses: ./.github/actions/build-and-test
 
       - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -65,4 +57,16 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+
+      # The deploy step can report success while the site does not answer. Ask the site itself:
+      # the homepage, and the script that clears the old site's cache from returning browsers.
+      - name: Check that the live site answers
+        env:
+          SITE: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          for page in "" "sw.min.js" "feed.xml"; do
+            curl --fail --silent --show-error --location --retry 5 --retry-delay 10 --retry-all-errors \
+              --output /dev/null "${SITE%/}/${page}"
+            echo "ok ${SITE%/}/${page}"
+          done

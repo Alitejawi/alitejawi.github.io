@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { formatNo, numberNotes, readMinutes } from '../src/lib/notes';
+import { noteDate } from '../src/lib/note-date';
+import { dayIn, formatNo, isPublished, numberNotes, readMinutes } from '../src/lib/notes';
 
 test('readMinutes', () => {
   expect(readMinutes('word '.repeat(440))).toBe(2);
@@ -35,4 +36,41 @@ test('numberNotes', () => {
   ]);
   expect(notes).toEqual([delegate, welcome, monday]);
   expect(notes.every((note) => !('no' in note))).toBe(true);
+});
+
+test('dayIn gives the calendar day in a time zone', () => {
+  // 23:10 UTC on the 23rd is already the 24th in Amsterdam (UTC+1 in winter).
+  expect(dayIn('Europe/Amsterdam', new Date('2026-11-23T23:10:00Z'))).toBe('2026-11-24');
+  expect(dayIn('Europe/Amsterdam', new Date('2026-11-23T22:50:00Z'))).toBe('2026-11-23');
+  // Summer time is UTC+2.
+  expect(dayIn('Europe/Amsterdam', new Date('2026-07-01T22:10:00Z'))).toBe('2026-07-02');
+});
+
+test('a note goes live on the Amsterdam calendar day of its date', () => {
+  const note = { date: new Date('2026-11-24T09:00:00+01:00'), draft: false };
+  const live = (now: string) => isPublished(note, new Date(now), 'Europe/Amsterdam');
+
+  expect(live('2026-11-23T23:59:00+01:00')).toBe(false);
+  // The morning deploy runs before 09:00; the day counts, not the hour.
+  expect(live('2026-11-24T00:01:00+01:00')).toBe(true);
+  expect(live('2026-11-24T08:02:00+01:00')).toBe(true);
+  expect(live('2027-01-01T12:00:00+01:00')).toBe(true);
+});
+
+test('a draft never goes live, whatever its date', () => {
+  const draft = { date: new Date('2025-01-01T09:00:00+01:00'), draft: true };
+
+  expect(isPublished(draft, new Date('2026-11-24T12:00:00+01:00'), 'Europe/Amsterdam')).toBe(false);
+});
+
+test('a note needs a real date', () => {
+  const read = (value: unknown) => noteDate.safeParse(value);
+
+  expect(read('2026-11-24 09:00:00 +0100').data?.toISOString()).toBe('2026-11-24T08:00:00.000Z');
+  expect(read(new Date('2026-11-24T08:00:00Z')).data?.toISOString()).toBe('2026-11-24T08:00:00.000Z');
+  // An empty `date:` reads as null. Plain coercion makes that 1 January 1970, which would
+  // publish the note at once and renumber every other note.
+  for (const missing of [null, undefined, '', '   ', 'soon', 0, false]) {
+    expect(read(missing).success, `${JSON.stringify(missing)} is not a date`).toBe(false);
+  }
 });

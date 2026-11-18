@@ -1,9 +1,20 @@
-@import '@fontsource/geist-sans/latin-400.css';
-@import '@fontsource/geist-sans/latin-500.css';
-@import '@fontsource/geist-sans/latin-600.css';
-@import '@fontsource/geist-mono/latin-400.css';
-@import '@fontsource/geist-mono/latin-500.css';
 @import './tokens.css';
+
+/* While Geist Sans loads, text is set in Arial scaled to Geist's proportions, so lines break
+   in the same places and the page does not jump when the font arrives. The four numbers are
+   what Astro's font tooling computes for Geist Sans against Arial; Liberation Sans and Arimo
+   are Linux fonts with Arial's proportions. The range is the Latin subset the site ships:
+   other characters, such as arrows, keep coming from the system font. */
+@font-face {
+  font-family: 'Geist Sans Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Arimo');
+  size-adjust: 106.1012%;
+  ascent-override: 86.7097%;
+  descent-override: 20.7349%;
+  line-gap-override: 9.425%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 *,
 *::before,
@@ -127,5 +138,58 @@ pre {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* A printed page or a saved PDF is the content: no navigation, buttons or contents list. */
+@media print {
+  .nav-shell,
+  .skip-link,
+  [data-readme-open],
+  dialog,
+  .contents,
+  .code-bar,
+  .article-pagination,
+  .site-footer .links {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .article {
+    display: block !important;
+  }
+
+  /* Sections fade in when scrolled to; paper cannot scroll. */
+  [data-fade] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* A link on paper needs its address written out. */
+  .article-body a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    color: var(--dark-grey);
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+  }
+
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  pre,
+  figure,
+  table {
+    break-inside: avoid;
   }
 }

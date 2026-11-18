@@ -2,7 +2,9 @@ name: "Daily Espressos"
 
 on:
   schedule:
-    - cron: "0 13 * * *"
+    # Off the full hour: GitHub starts runs scheduled for :00 hours late, which can
+    # push this past midnight UTC and count the wrong day.
+    - cron: "17 12 * * *"
   workflow_dispatch:
 
 permissions:
@@ -14,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 26
 

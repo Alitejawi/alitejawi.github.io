@@ -9,7 +9,7 @@ import FadeIn from '../components/FadeIn.astro';
 import { site } from '../data/site';
 import espresso from '../data/espresso.json';
 import { formatNo, getNotes, readMinutes } from '../lib/notes';
-import { formatCount } from '../../scripts/bump-espresso.mjs';
+import { PER_DAY, formatCount } from '../../scripts/bump-espresso.mjs';
 
 const notes = (await getNotes()).filter((note) => note.no !== null);
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -28,7 +28,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
           <p class="espresso-count">{formatCount(espresso.count)}</p>
           <div class="espresso-caption">
             <span class="label">Espressos consumed</span>
-            <Chip text="+3 every day" />
+            <Chip text={`+${PER_DAY} every day`} />
           </div>
         </div>
       </div>

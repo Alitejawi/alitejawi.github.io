@@ -1,8 +1,8 @@
 ---
 import '../styles/global.css';
-import geistBody from '@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2?url';
-import geistMono from '@fontsource/geist-mono/files/geist-mono-latin-400-normal.woff2?url';
+import { Font } from 'astro:assets';
 import { site } from '../data/site';
+import { goatcounter } from '../lib/analytics';
 import SiteFooter from '../components/SiteFooter.astro';
 import Nav from '../components/Nav.astro';
 import ReadmeNote from '../components/ReadmeNote.astro';
@@ -10,12 +10,30 @@ import ReadmeNote from '../components/ReadmeNote.astro';
 interface Props {
   title: string;
   description: string;
+  /** Link-preview image. Articles pass their own; every other page uses the site image. */
   ogImage?: string;
+  ogAlt?: string;
+  /** Title on share cards, which show the site name separately. Defaults to the page title. */
+  ogTitle?: string;
+  ogType?: 'website' | 'article';
+  /** Extra schema.org blocks for this page, next to the Person block every page has. */
+  structuredData?: Record<string, unknown>[];
   /** Keep this page out of search results (used by the not-found page). */
   noindex?: boolean;
 }
 
-const { title, description, ogImage = '/assets/img/og.png', noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  ogImage = '/assets/img/og.png',
+  ogAlt = `${site.name}: ${site.headline}`,
+  ogTitle = title,
+  ogType = 'website',
+  structuredData = [],
+  noindex = false,
+} = Astro.props;
+// "<" is escaped so no text can close the script element early.
+const json = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u003c');
 const canonical = new URL(Astro.url.pathname, site.url);
 const socialImage = new URL(ogImage, site.url);
 const section = Astro.url.pathname.split('/')[1];
@@ -38,31 +56,34 @@ const person = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f1eee7" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {!noindex && <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/assets/img/favicons/favicon.ico" sizes="any" />
     <link rel="icon" href="/assets/img/favicons/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/assets/img/favicons/apple-touch-icon.png" />
-    <link rel="preload" href={geistBody} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={geistMono} as="font" type="font/woff2" crossorigin />
+    {/* Preload what the top of every page uses: body text, titles (500) and the mono labels. */}
+    <Font cssVariable="--font-geist-sans" preload={[{ weight: '400' }, { weight: '500' }]} />
+    <Font cssVariable="--font-geist-mono" preload={[{ weight: '400' }]} />
     <link rel="alternate" type="application/rss+xml" title={site.name} href="/feed.xml" />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={site.name} />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {!noindex && <meta property="og:url" content={canonical} />}
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${site.name}: ${site.headline}`} />
+    <meta property="og:image:alt" content={ogAlt} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
+    <meta name="twitter:title" content={ogTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
-    <meta name="twitter:image:alt" content={`${site.name}: ${site.headline}`} />
-    <script type="application/ld+json" set:html={JSON.stringify(person).replace(/</g, '\\u003c')} />
+    <meta name="twitter:image:alt" content={ogAlt} />
+    {[person, ...structuredData].map((block) => <script type="application/ld+json" set:html={json(block)} />)}
+    {goatcounter && <script is:inline async data-goatcounter={goatcounter.endpoint} src={goatcounter.script}></script>}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

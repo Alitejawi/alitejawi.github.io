@@ -1,19 +1,6 @@
 import { expect, test } from '@playwright/test';
-
-const pages = [
-  '/',
-  '/writing/',
-  '/posts/Add_gmail_delegate_silently/',
-  '/posts/three-gam-commands-every-monday/',
-  '/posts/delete-lock-for-ai-agents/',
-  '/posts/claude-boss-codex-worker/',
-  '/posts/Welcome/',
-  '/projects/',
-  '/projects/brain/',
-  '/projects/daily-diff/',
-  '/about/',
-  '/now/',
-];
+import { sidewaysOverflow } from './helpers/overflow';
+import { pages } from './helpers/pages';
 
 test.use({ viewport: { width: 375, height: 812 } });
 
@@ -24,11 +11,7 @@ for (const path of pages) {
       expect(response?.status()).toBe(200);
       await page.evaluate(() => document.fonts.ready);
 
-      const { scrollWidth, innerWidth } = await page.evaluate(() => ({
-        scrollWidth: document.documentElement.scrollWidth,
-        innerWidth: window.innerWidth,
-      }));
-      expect(scrollWidth).toBeLessThanOrEqual(innerWidth);
+      expect(await sidewaysOverflow(page)).toBe(0);
     });
   });
 }
@@ -55,9 +38,19 @@ test('a very long unknown address does not overflow the not-found page', async (
   await page.evaluate(() => document.fonts.ready);
   await expect(page.locator('.asked .receipt-value')).toContainText('…');
 
-  const { scrollWidth, innerWidth } = await page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    innerWidth: window.innerWidth,
-  }));
-  expect(scrollWidth).toBeLessThanOrEqual(innerWidth);
+  expect(await sidewaysOverflow(page)).toBe(0);
+});
+
+test('the overflow check notices content only a few pixels too wide', async ({ page }) => {
+  // The check's own check: 10px too wide still fits inside the window where a scrollbar is drawn.
+  await page.goto('/now/');
+  expect(await sidewaysOverflow(page)).toBe(0);
+
+  await page.evaluate(() => {
+    const bar = document.createElement('div');
+    bar.style.cssText = `width: ${document.documentElement.getBoundingClientRect().width + 10}px; height: 1px;`;
+    document.body.append(bar);
+  });
+
+  expect(await sidewaysOverflow(page)).toBe(10);
 });
