@@ -52,6 +52,7 @@ feed: false                       # optional: left out of the RSS feed, the one 
 
 | Path | What |
 | --- | --- |
+| `src/styles/tokens.css` | Colors, the type scale, corners and shadows. Components use these; a test fails on a size, corner or shadow written straight into a component. |
 | `src/data/site.ts` | Name, headline, links, ticker text, feature switches. |
 | `src/data/bio.ts` | The first-person text shared by the About page and the README note. |
 | `src/data/espresso.json` | The espresso count and the last UTC day it counted (`through`). The Daily Espressos workflow commits to it; do not edit by hand. |

@@ -145,7 +145,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   h1 {
     max-width: 18ch;
     margin: 1.5rem 0 1.125rem;
-    font-size: clamp(2.25rem, 4vw, 2.75rem);
+    font-size: var(--text-hero);
     font-weight: 500;
     line-height: 1.08;
     letter-spacing: -0.02em;
@@ -155,7 +155,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
     max-width: 38ch;
     margin: 0;
     color: var(--dark-grey);
-    font-size: 1.0625rem;
+    font-size: var(--text-home-lede);
     line-height: 1.5;
   }
 
@@ -165,7 +165,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 
   .espresso-count {
     margin: 0 0 0.625rem;
-    font-size: clamp(4rem, 10vw, 7rem);
+    font-size: var(--text-count);
     font-weight: 500;
     line-height: 1;
     letter-spacing: -0.04em;
@@ -256,7 +256,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   .project h3,
   .notes h3 {
     margin-bottom: 0.625rem;
-    font-size: 1.25rem;
+    font-size: var(--text-xl);
     font-weight: 500;
     line-height: 1.35;
     letter-spacing: -0.01em;
