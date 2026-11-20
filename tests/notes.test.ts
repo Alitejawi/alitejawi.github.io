@@ -39,16 +39,16 @@ test('numberNotes', () => {
 });
 
 test('dayIn gives the calendar day in a time zone', () => {
-  // 23:10 UTC on the 23rd is already the 24th in Amsterdam (UTC+1 in winter).
-  expect(dayIn('Europe/Amsterdam', new Date('2026-11-23T23:10:00Z'))).toBe('2026-11-24');
-  expect(dayIn('Europe/Amsterdam', new Date('2026-11-23T22:50:00Z'))).toBe('2026-11-23');
+  // 23:10 UTC on the 23rd is already the 24th in Spain (UTC+1 in winter).
+  expect(dayIn('Europe/Madrid', new Date('2026-11-23T23:10:00Z'))).toBe('2026-11-24');
+  expect(dayIn('Europe/Madrid', new Date('2026-11-23T22:50:00Z'))).toBe('2026-11-23');
   // Summer time is UTC+2.
-  expect(dayIn('Europe/Amsterdam', new Date('2026-07-01T22:10:00Z'))).toBe('2026-07-02');
+  expect(dayIn('Europe/Madrid', new Date('2026-07-01T22:10:00Z'))).toBe('2026-07-02');
 });
 
-test('a note goes live on the Amsterdam calendar day of its date', () => {
+test('a note goes live on the Spanish calendar day of its date', () => {
   const note = { date: new Date('2026-11-24T09:00:00+01:00'), draft: false };
-  const live = (now: string) => isPublished(note, new Date(now), 'Europe/Amsterdam');
+  const live = (now: string) => isPublished(note, new Date(now), 'Europe/Madrid');
 
   expect(live('2026-11-23T23:59:00+01:00')).toBe(false);
   // The morning deploy runs before 09:00; the day counts, not the hour.
@@ -60,7 +60,7 @@ test('a note goes live on the Amsterdam calendar day of its date', () => {
 test('a draft never goes live, whatever its date', () => {
   const draft = { date: new Date('2025-01-01T09:00:00+01:00'), draft: true };
 
-  expect(isPublished(draft, new Date('2026-11-24T12:00:00+01:00'), 'Europe/Amsterdam')).toBe(false);
+  expect(isPublished(draft, new Date('2026-11-24T12:00:00+01:00'), 'Europe/Madrid')).toBe(false);
 });
 
 test('a note needs a real date', () => {

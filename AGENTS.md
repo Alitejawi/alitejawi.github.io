@@ -32,7 +32,7 @@ A note is one Markdown file in `src/content/notes/`. Its front matter has exactl
 ---
 title: "The title, printed as the page's only <h1>"
 description: "One or two sentences. Printed under the title, so do not repeat them in the body."
-date: 2026-11-24 09:00:00 +0100   # goes live on this calendar day, Amsterdam time
+date: 2026-11-24 09:00:00 +0100   # goes live on this calendar day, Spanish time
 slug: the-url-part                # /posts/the-url-part/
 topic: AI agents                  # the chip next to the note number
 draft: true                       # optional: never built, except by npm run dev
@@ -40,7 +40,7 @@ numbered: false                   # optional: no "No. NN", not on the homepage r
 ---
 ```
 
-- **Scheduling.** A note with a future `date` can be merged at any time. It appears on the morning of that day, when the deploy workflow runs (07:02 UTC), or with any deploy after midnight in Amsterdam.
+- **Scheduling.** A note with a future `date` can be merged at any time. It appears on the morning of that day, when the deploy workflow runs (07:02 UTC), or with any deploy after midnight in Spain.
 - **Format.** No `# Title` line. Sections are `##` headings; the page numbers them and builds the contents list, so do not number them or write a contents list by hand.
 - **Tests.** The tests read the list of notes from the folder, scheduled ones included, so a scheduled note is checked when it is merged and not on the morning it is due. Drafts get the format checks only. A new note needs no test edits. Add a test only for facts that are specific to the note, as `tests/build.test.ts` does for the delete-lock note.
 - **Quotes.** Straight quotes in prose are published as curly quotes. A test that looks for text with an apostrophe has to allow for that.

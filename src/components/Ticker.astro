@@ -14,7 +14,7 @@ const { items } = Astro.props;
       <ul class="ticker-group" aria-hidden={duplicate ? 'true' : undefined}>
         {items.map((item) => <li>{item}</li>)}
         <li>
-          Amsterdam <span data-clock data-time-zone={site.timeZone}>--:--</span>
+          {site.location} <span data-clock data-time-zone={site.timeZone}>--:--</span>
         </li>
       </ul>
     ))}

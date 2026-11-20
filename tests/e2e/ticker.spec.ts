@@ -34,7 +34,7 @@ test('tapping the ticker pauses it, and it stays paused on the next page', async
 test('the ticker is a labelled group, readable by a screen reader', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('group', { name: 'Status updates' })).toContainText('Amsterdam');
+  await expect(page.getByRole('group', { name: 'Status updates' })).toContainText('Spain');
 });
 
 test.describe('with reduced motion', () => {
