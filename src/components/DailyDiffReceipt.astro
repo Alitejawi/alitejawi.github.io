@@ -9,18 +9,25 @@ import { site } from '../data/site';
 
 <Figure no={1} caption="Three weeks of briefs, as a receipt">
   <div class:list={['brief-figure', { single: !site.showPlaceholders }]}>
-    <Receipt title="The Daily Diff" aside="Run stats" footer="Email · podcast · paper">
-      <Chip text="19 Oct – 11 Nov 2026" />
-      <div>
-        <ReceiptLine label="Briefs sent" value="21" />
-        <ReceiptLine label="Candidates / day" value="median 193" />
-        <ReceiptLine label="Picks / day" value="median 18" />
+    <div class="printout">
+      <div class="paper-slot">
+        <div class="paper" data-printer-paper>
+          <Receipt title="The Daily Diff" aside="Run stats" footer="Email · podcast · paper">
+            <Chip text="19 Oct – 11 Nov 2026" />
+            <div>
+              <ReceiptLine label="Briefs sent" value="21" />
+              <ReceiptLine label="Candidates / day" value="median 193" />
+              <ReceiptLine label="Picks / day" value="median 18" />
+            </div>
+            <div>
+              <ReceiptLine label="Podcast succeeded" value="18/18" />
+              <ReceiptLine label="Email sent" value="~07:34" />
+            </div>
+          </Receipt>
+        </div>
       </div>
-      <div>
-        <ReceiptLine label="Podcast succeeded" value="18/18" />
-        <ReceiptLine label="Email sent" value="~07:34" />
-      </div>
-    </Receipt>
+      <div class="printer" data-printer aria-hidden="true"></div>
+    </div>
     {site.showPlaceholders && (
       <div class="photo-placeholder">
         <span class="label muted">Photo of a printed brief</span>
@@ -30,7 +37,80 @@ import { site } from '../data/site';
   </div>
 </Figure>
 
+<script>
+  // The brief really comes out of a thermal printer, so the figure prints too: the first time the
+  // printer scrolls into view, the receipt rises out of it, header first, in line-sized jumps.
+  // It waits inside the printer only when it starts below the window, so it never vanishes from
+  // view. With reduced motion, or without JavaScript, the receipt is simply there.
+  const paper = document.querySelector<HTMLElement>('[data-printer-paper]');
+  const printer = document.querySelector<HTMLElement>('[data-printer]');
+  const motion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (paper && printer && motion && 'IntersectionObserver' in window
+    && printer.getBoundingClientRect().top >= window.innerHeight) {
+    paper.dataset.loaded = '';
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      const height = paper.offsetHeight;
+      delete paper.dataset.loaded;
+      // About one receipt line per jump, fed at a steady 300px a second.
+      paper.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], {
+        duration: Math.min(1600, Math.max(700, (height / 300) * 1000)),
+        easing: `steps(${Math.max(6, Math.round(height / 18))})`,
+      });
+    }, { threshold: 1, rootMargin: '0px 0px -10% 0px' });
+    observer.observe(printer);
+  }
+</script>
+
 <style>
+  /* The paper stands in a slot that hides whatever is still inside the printer below it. */
+  .printout {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .paper-slot {
+    padding-inline: 0.75rem;
+    overflow: clip;
+  }
+
+  .paper[data-loaded] {
+    transform: translateY(100%);
+  }
+
+  /* The printer: the same dark, dotted body as the navigation and the README button. */
+  .printer {
+    position: relative;
+    height: 1.75rem;
+    border-radius: 0.5rem;
+    background: var(--ink);
+    background-image: radial-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px);
+    background-size: 3px 3px;
+    box-shadow: 0 8px 22px rgb(0 0 0 / 18%);
+  }
+
+  /* Its status light. */
+  .printer::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translateY(-50%);
+  }
+
+  @media print {
+    .printer {
+      display: none;
+    }
+  }
+
   .brief-figure {
     display: grid;
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
