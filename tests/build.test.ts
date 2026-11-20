@@ -515,6 +515,16 @@ test('a note that is live or scheduled carries no leftover editing comments', ()
   }
 });
 
+test('the site says Ali is in Spain, and no page still says Amsterdam', () => {
+  const pages = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && /\.(html|xml|txt)$/.test(path));
+
+  for (const page of pages) expect(readDist(page), `${page} says Amsterdam`).not.toMatch(/amsterdam/i);
+  expect(loadDist('about/index.html')('main').text()).toContain('Principal Systems Engineer in Spain');
+  expect(loadDist('index.html')('[data-ticker]').text()).toContain('Spain');
+  expect(readDist('llms.txt')).toContain('Principal Systems Engineer in Spain');
+});
+
 test('a draft is not built, linked or listed anywhere', () => {
   const html = readdirSync(new URL('../dist/', import.meta.url), { recursive: true })
     .filter((path): path is string => typeof path === 'string' && /\.(html|xml|txt)$/.test(path));

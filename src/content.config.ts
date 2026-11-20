@@ -9,7 +9,7 @@ const notes = defineCollection({
   schema: z.strictObject({
     title: z.string(),
     description: z.string(),
-    // The note goes live on this calendar day (Amsterdam time). A later date schedules it.
+    // The note goes live on this calendar day (Spanish time). A later date schedules it.
     date: noteDate,
     slug: z.string(),
     numbered: z.boolean().default(true),

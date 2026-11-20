@@ -5,8 +5,8 @@ export const site: {
   lede: string;
   url: 'https://itejawi.com';
   email: 'ali@itejawi.com';
-  location: 'Amsterdam';
-  timeZone: 'Europe/Amsterdam';
+  location: 'Spain';
+  timeZone: 'Europe/Madrid';
   links: {
     github: 'https://github.com/alitejawi';
     linkedin: 'https://www.linkedin.com/in/alitejawi/';
@@ -23,8 +23,8 @@ export const site: {
   lede: 'Secure, automated, invisible. Okta, Google Workspace, Jamf, and the AI systems I build on top.',
   url: 'https://itejawi.com',
   email: 'ali@itejawi.com',
-  location: 'Amsterdam',
-  timeZone: 'Europe/Amsterdam',
+  location: 'Spain',
+  timeZone: 'Europe/Madrid',
   links: {
     github: 'https://github.com/alitejawi',
     linkedin: 'https://www.linkedin.com/in/alitejawi/',
