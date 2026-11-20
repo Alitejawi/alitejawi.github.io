@@ -15,6 +15,8 @@ const notes = defineCollection({
     numbered: z.boolean().default(true),
     // A draft is built by `npm run dev` only, whatever its date.
     draft: z.boolean().default(false),
+    // false leaves the note out of the RSS feed, the one place that prints a note's date.
+    feed: z.boolean().default(true),
     topic: z.string(),
     commands: z.array(z.strictObject({ label: z.string(), value: z.string() })).optional(),
   }),

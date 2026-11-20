@@ -60,15 +60,40 @@ test('legacy URLs exist with exact casing', () => {
   expect(paths).not.toContain('posts/add_gmail_delegate_silently/index.html');
 });
 
+// A note with `feed: false` stays out of the feed, the one place that prints a note's date.
+const feedNotes = notes.filter((note) => note.data.feed);
+
 test('feed.xml lists every live note, newest first', () => {
   const $ = load(readDist('feed.xml'), { xml: true });
   const items = $('item').toArray().map((item) => ({ title: $(item).children('title').text(), link: $(item).children('link').text() }));
 
-  expect(notes.length).toBeGreaterThanOrEqual(5);
-  expect(items).toEqual(notes.map((note) => ({
+  expect(feedNotes.length).toBeGreaterThanOrEqual(5);
+  expect(items).toEqual(feedNotes.map((note) => ({
     title: note.data.title,
     link: `https://itejawi.com${noteUrl(note.data.slug)}`,
   })));
+});
+
+test('a note kept out of the feed is still on the site', () => {
+  const $ = load(readDist('feed.xml'), { xml: true });
+  const links = $('item > link').toArray().map((link) => $(link).text());
+  const kept = notes.filter((note) => !note.data.feed);
+
+  expect(kept.map((note) => note.data.slug)).toContain('dprk-backdoor-on-a-mac');
+  for (const note of kept) {
+    expect(links).not.toContain(`https://itejawi.com${noteUrl(note.data.slug)}`);
+    expect(loadDist(`posts/${note.data.slug}/index.html`)('h1').text()).toBe(note.data.title);
+  }
+});
+
+test('the North Korean backdoor note never says when it happened', () => {
+  const $ = loadDist('posts/dprk-backdoor-on-a-mac/index.html');
+  const text = [$('main').text(), $('title').text(), $('meta[name="description"]').attr('content') ?? ''].join(' ');
+
+  expect(text).toContain('a North Korean backdoor on a Mac');
+  expect(text).not.toMatch(/\b(19|20)\d\d\b/);
+  expect(text).not.toMatch(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/);
+  expect(text).not.toMatch(/\b(Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\b/);
 });
 
 test('old taxonomy pages redirect', () => {
@@ -700,9 +725,9 @@ test('the feed carries each note in full, with links that work outside the site'
   const items = $('item').toArray();
 
   expect($('channel > language').text()).toBe('en');
-  expect(items).toHaveLength(notes.length);
+  expect(items).toHaveLength(feedNotes.length);
   items.forEach((item, index) => {
-    const note = notes[index];
+    const note = feedNotes[index];
     const html = $(item).children('content\\:encoded').text();
     const body = load(html);
     const onPage = loadDist(`posts/${note.data.slug}/index.html`)('.article-body').text();

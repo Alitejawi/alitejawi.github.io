@@ -5,7 +5,8 @@ import { forFeed } from '../lib/feed';
 import { getNotes } from '../lib/notes';
 
 export const GET: APIRoute = async () => {
-  const notes = await getNotes();
+  // A note can opt out with `feed: false`: the feed is the one place that prints its date.
+  const notes = (await getNotes()).filter((note) => note.data.feed);
 
   return rss({
     title: `${site.name} · Field notes`,
