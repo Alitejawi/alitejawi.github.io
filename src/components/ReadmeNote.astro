@@ -117,10 +117,33 @@ const facts = [
       });
     };
 
+    // The ASCII decode (src/scripts/decode.ts) loads when a visitor heads for the button, not
+    // with the page, and plays each time the note opens. Never with reduced motion.
+    const motion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let decode: ((opened: Promise<unknown>, onHidden: () => void) => Promise<void>) | undefined;
+    let loading: Promise<unknown> | undefined;
+    const load = () => {
+      if (motion) {
+        loading ??= import('../scripts/decode')
+          .then(({ readmeDecoder }) => { decode = readmeDecoder(body); })
+          .catch(() => undefined);
+      }
+      return loading;
+    };
+    for (const type of ['pointerenter', 'pointerdown', 'focus']) open.addEventListener(type, load, { once: true, passive: true });
+
     open.hidden = false;
-    open.addEventListener('click', () => {
+    open.addEventListener('click', async () => {
       note.showModal();
       markCurrent();
+      if (!motion) return;
+      // Hide the text until the effect holds it. If the effect is not there within 400 ms, show it.
+      note.dataset.decoding = '';
+      const show = () => { delete note.dataset.decoding; };
+      const opened = Promise.all(note.getAnimations().map((animation) => animation.finished));
+      await Promise.race([load(), new Promise((resolve) => setTimeout(resolve, 400))]);
+      if (decode) decode(opened, show);
+      else show();
     });
     note.querySelector('[data-readme-close]')?.addEventListener('click', () => note.close());
     // The panel's children cover it completely, so a click on the dialog itself is a click on the backdrop.
@@ -139,6 +162,10 @@ const facts = [
 </script>
 
 <style is:global>
+  .readme[data-decoding] .readme-body {
+    -webkit-text-fill-color: transparent;
+  }
+
   /* Global on purpose: ::backdrop and @starting-style must match the same selectors as the open state. */
 
   .readme-open {

@@ -225,9 +225,11 @@ test('delete-lock note only says what the check on the real files backed up', ()
 });
 
 test('homepage shows espresso count', () => {
-  const html = readDist('index.html');
+  const $ = loadDist('index.html');
 
-  expect(html).toContain(formatCount(espresso.count));
+  expect($('.espresso-count').text()).toBe(formatCount(espresso.count));
+  // Commas sit outside the decode effect, so the digits scramble around them.
+  expect($('.espresso-count [data-ascii="skip"]').text()).toBe(formatCount(espresso.count).replace(/\d/g, ''));
   // The chip states the amount the daily workflow really adds.
   expect(loadDist('index.html')('.espresso .chip').text()).toBe(`+${PER_DAY} every day`);
 });
