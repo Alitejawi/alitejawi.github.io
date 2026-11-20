@@ -55,12 +55,13 @@ export function liveNotes(now: Date) {
 export const notesPath = fileURLToPath(notesDir);
 
 /** Every project, as { id, title } from its file name and front matter. */
-export function readProjects(): { id: string; title: string }[] {
+export function readProjects(): { id: string; title: string; oneLiner: string; receiptValue: string }[] {
   return readdirSync(projectsDir)
     .filter((file) => file.endsWith('.mdx'))
     .map((file) => {
       const front = readFileSync(new URL(file, projectsDir), 'utf8').match(/^---\n([\s\S]*?)\n---/);
       if (!front) throw new Error(`${file} has no front matter`);
-      return { id: file.replace(/\.mdx$/, ''), title: String(parse(front[1]).title) };
+      const data = parse(front[1]);
+      return { id: file.replace(/\.mdx$/, ''), title: String(data.title), oneLiner: String(data.oneLiner), receiptValue: String(data.receiptValue) };
     });
 }

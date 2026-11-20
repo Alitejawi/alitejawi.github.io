@@ -330,18 +330,41 @@ test('about has no books placeholder', () => {
   expect(readDist('about/index.html')).not.toContain('TBA');
 });
 
-test('now page exists', () => {
-  const html = readDist('now/index.html');
+/** The receipt groups on a page, by their heading. */
+function receiptGroup($: ReturnType<typeof loadDist>, heading: string) {
+  return $('.receipt-body > div').filter((_, group) => $(group).find('h2, h3').first().text().trim() === heading);
+}
 
-  expect(html).toContain('Improved offboarding pipelines');
-  expect(html).toContain('Automated DLP security reporting and fixes');
-  expect(html).toContain('Fine-tuning local AI models for inference');
-  expect(html).not.toContain('FILL IN');
+test('About says what Ali is building now, in a part the old Now address leads to', () => {
+  const $ = loadDist('about/index.html');
+  const building = receiptGroup($, 'Building now');
+
+  expect(building.attr('id')).toBe('now');
+  expect(building.find('.receipt-label').toArray().map((line) => $(line).text().trim())).toEqual([
+    '01 Improved offboarding pipelines',
+    '02 Automated DLP security reporting and fixes',
+    '03 Fine-tuning local AI models for inference',
+  ]);
+  expect($.html()).not.toContain('FILL IN');
 });
 
-test('now page names the book being read, with its author', () => {
+test('the old Now address redirects to that part of About', () => {
   const $ = loadDist('now/index.html');
-  const reading = $('.receipt-body > div').filter((_, group) => $(group).find('h2').text().trim() === 'Reading');
+
+  expect($('meta[http-equiv="refresh" i]').attr('content')).toContain('/about/#now');
+});
+
+test('the menu offers Writing, Projects and About', () => {
+  for (const page of ['index.html', 'about/index.html', 'projects/index.html']) {
+    const $ = loadDist(page);
+    expect($('nav[aria-label="Main navigation"] li a').toArray().map((link) => $(link).text().trim()), page)
+      .toEqual(['Writing', 'Projects', 'About']);
+  }
+});
+
+test('About names the book being read, with its author', () => {
+  const $ = loadDist('about/index.html');
+  const reading = receiptGroup($, 'Reading');
   const lines = reading.find('.receipt-line').toArray().map((line) => ({
     label: $(line).find('.receipt-label').text().trim(),
     value: $(line).find('.receipt-value').text().trim(),
@@ -373,7 +396,21 @@ test('llms.txt summarises the site from the same data as the pages', () => {
     else expect(llms).toContain(`- [${note.data.title}](${link}): ${note.data.description}`);
   }
   expect(llms).not.toContain('FILL IN');
+  expect(llms).not.toContain('/now/');
   expect(llms).not.toMatch(/\b20\d\d\b/);
+});
+
+test('the projects page lists each project on a receipt, with its result and what it does', () => {
+  const $ = loadDist('projects/index.html');
+  const projects = readProjects();
+
+  expect($('main .receipt')).toHaveLength(projects.length);
+  for (const project of projects) {
+    const line = $(`main .receipt a.receipt-line[href="/projects/${project.id}/"]`);
+    expect(line.find('.receipt-label').text().trim()).toBe(project.title.split(':')[0]);
+    expect(line.find('.receipt-value').text().trim()).toBe(project.receiptValue);
+    expect(line.closest('.receipt').text()).toContain(project.oneLiner);
+  }
 });
 
 test('no empty image boxes while site.showPlaceholders is false', () => {
@@ -396,11 +433,11 @@ test('sitemap lists the real pages and leaves out redirects', () => {
   expect(readDist('sitemap-index.xml')).toContain('https://itejawi.com/sitemap-0.xml');
   const sitemap = readDist('sitemap-0.xml');
 
-  for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/', '/about/', '/now/',
+  for (const path of ['/', '/writing/', '/projects/', '/projects/brain/', '/projects/daily-diff/', '/about/',
     ...notes.map((note) => noteUrl(note.data.slug))]) {
     expect(sitemap).toContain(`<loc>https://itejawi.com${path}</loc>`);
   }
-  for (const path of ['/tags/', '/categories/', '/archives/', '/404']) {
+  for (const path of ['/tags/', '/categories/', '/archives/', '/now/', '/404']) {
     expect(sitemap).not.toContain(`https://itejawi.com${path}`);
   }
 });
@@ -571,7 +608,7 @@ test('every note and project has its own link-preview image', () => {
 });
 
 test('pages that are not articles keep the site link-preview image', () => {
-  for (const page of ['index.html', 'about/index.html', 'writing/index.html', 'projects/index.html', 'now/index.html']) {
+  for (const page of ['index.html', 'about/index.html', 'writing/index.html', 'projects/index.html']) {
     const $ = loadDist(page);
 
     expect($('meta[property="og:image"]').attr('content')).toBe('https://itejawi.com/assets/img/og.png');

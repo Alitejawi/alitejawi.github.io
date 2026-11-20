@@ -3,15 +3,14 @@ import { site } from '../data/site';
 import Ticker from './Ticker.astro';
 
 interface Props {
-  current?: 'writing' | 'projects' | 'now' | 'about';
-  newDot?: 'writing' | 'projects' | 'now' | 'about';
+  current?: 'writing' | 'projects' | 'about';
+  newDot?: 'writing' | 'projects' | 'about';
 }
 
 const { current, newDot } = Astro.props;
 const links = [
   { id: 'writing', label: 'Writing', href: '/writing/' },
   { id: 'projects', label: 'Projects', href: '/projects/' },
-  { id: 'now', label: 'Now', href: '/now/' },
   { id: 'about', label: 'About', href: '/about/' },
 ] as const;
 ---

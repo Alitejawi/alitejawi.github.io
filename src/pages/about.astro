@@ -8,11 +8,19 @@ import { site } from '../data/site';
 import { bio } from '../data/bio';
 import espresso from '../data/espresso.json';
 import { PER_DAY, formatCount } from '../../scripts/bump-espresso.mjs';
+
+// What used to be the Now page. /now/ redirects to #now.
+const building = [
+  'Improved offboarding pipelines',
+  'Automated DLP security reporting and fixes',
+  'Fine-tuning local AI models for inference',
+];
+const reading = [{ title: 'Tuesdays with Morrie', author: 'Mitch Albom' }];
 ---
 
 <Base
   title={`About · ${site.name}`}
-  description="About Ali Al-Itejawi: security, systems and IT, the AI systems I build, and espresso."
+  description="About Ali Al-Itejawi: security, systems and IT, the AI systems I build, what I'm building and reading now, and espresso."
 >
   <Nav slot="nav" current="about" />
   <h1>About</h1>
@@ -24,12 +32,21 @@ import { PER_DAY, formatCount } from '../../scripts/bump-espresso.mjs';
       <p>{bio.copy.people}</p>
       <p class="contact">Say hello: <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
     </div>
-    <Receipt title="A few personal facts" aside={site.location}>
-      <div>
-        <ReceiptLine label="Espressos consumed" value={formatCount(espresso.count)} />
-        <Chip text={`+${PER_DAY} every day`} />
+    <Receipt title={site.name} aside={site.location} footer="Thank you for reading">
+      <div class="receipt-group" id="now">
+        <h3>Building now</h3>
+        {building.map((item, i) => <ReceiptLine label={`${String(i + 1).padStart(2, '0')} ${item}`} />)}
       </div>
-      <div>
+      <div class="receipt-group">
+        <h3>Reading</h3>
+        {reading.map(({ title, author }) => <ReceiptLine label={title} value={author} />)}
+      </div>
+      <div class="receipt-group">
+        <h3>A few personal facts</h3>
+        <div class="espresso">
+          <ReceiptLine label="Espressos consumed" value={formatCount(espresso.count)} />
+          <Chip text={`+${PER_DAY} every day`} />
+        </div>
         <ReceiptLine label="Countries visited" value={bio.facts.countries} />
         <ReceiptLine label="Music" value={bio.facts.music} />
       </div>
@@ -59,6 +76,21 @@ import { PER_DAY, formatCount } from '../../scripts/bump-espresso.mjs';
 
   .about-copy .contact {
     margin-bottom: 0;
+  }
+
+  .receipt-group h3 {
+    margin: 0 0 0.625rem;
+    color: var(--dark-grey);
+    font: inherit;
+  }
+
+  /* Old links to /now/ land here, clear of the floating menu. */
+  #now {
+    scroll-margin-top: 9rem;
+  }
+
+  .espresso {
+    margin-bottom: 0.5rem;
   }
 
   @media (width < 900px) {
