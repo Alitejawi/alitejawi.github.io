@@ -2,8 +2,8 @@ name: "Daily Espressos"
 
 on:
   schedule:
-    # Off the full hour: GitHub starts runs scheduled for :00 hours late, which can
-    # push this past midnight UTC and count the wrong day.
+    # Off the full hour: GitHub starts runs scheduled for :00 hours late. Even so, runs have
+    # landed up to ten hours late; the script counts by date, so a late run is still right.
     - cron: "17 12 * * *"
   workflow_dispatch:
 
@@ -11,12 +11,20 @@ permissions:
   contents: write
   actions: write
 
+# One run at a time: a manual run waits for the scheduled one instead of racing it.
+concurrency:
+  group: daily-espressos
+  cancel-in-progress: false
+
 jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # The tip of main when the run starts, so a run that waited sees the last run's count.
+          ref: main
 
       - name: Set up Node
         uses: actions/setup-node@v7
@@ -24,34 +32,37 @@ jobs:
           node-version: 26
 
       # 1-2 random rest days a week, the same days brain-sync rests (scripts/rest-day.mjs).
-      # No commit on a rest day; the next run adds the missed days.
+      # No commit on a rest day; the next work day adds the days since the last counted one.
       - name: Rest day check
         id: rest
         run: |
-          read -r kind days < <(node scripts/rest-day.mjs)
+          kind=$(node scripts/rest-day.mjs)
           echo "kind=$kind" >> "$GITHUB_OUTPUT"
-          echo "days=$days" >> "$GITHUB_OUTPUT"
-          echo "$kind ($days days)"
+          echo "$kind day"
 
+      # Adds 3 for every UTC day after the last counted day in src/data/espresso.json, up to
+      # today. A repeated run adds 0; a run after a failed one adds the missed days.
       - name: Increment espressos counter
-        if: steps.rest.outputs.kind == 'work'
-        run: node scripts/bump-espresso.mjs "${{ steps.rest.outputs.days }}"
-
-      - name: Commit and push
+        id: bump
         if: steps.rest.outputs.kind == 'work'
         run: |
-          if git diff --quiet; then
-            echo "No change to commit"
-            exit 0
-          fi
+          added=$(node scripts/bump-espresso.mjs)
+          echo "added=$added" >> "$GITHUB_OUTPUT"
+          echo "added $added"
+
+      - name: Commit and push
+        if: steps.bump.outputs.added && steps.bump.outputs.added != '0'
+        env:
+          ADDED: ${{ steps.bump.outputs.added }}
+        run: |
           git config user.name "Ali Al-Itejawi"
           git config user.email "ali@itejawi.com"
           git add src/data/espresso.json
-          git commit -m "Daily espressos +$(( 3 * ${{ steps.rest.outputs.days }} ))"
+          git commit -m "Daily espressos +$ADDED"
           git push
 
       - name: Trigger pages deploy
-        if: steps.rest.outputs.kind == 'work'
+        if: steps.bump.outputs.added && steps.bump.outputs.added != '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run pages-deploy.yml --ref main

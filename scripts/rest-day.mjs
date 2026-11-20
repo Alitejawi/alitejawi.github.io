@@ -35,20 +35,8 @@ export function isRestDay(date) {
   return restDays(date).includes(date.getUTCDay() || 7);
 }
 
-/**
- * Days of espressos to add on a work day: today plus the rest days just before it.
- * @param {Date} date
- */
-export function daysToBump(date) {
-  let days = 1;
-  for (let d = new Date(date.getTime() - DAY); isRestDay(d); d = new Date(d.getTime() - DAY)) {
-    days += 1;
-  }
-  return days;
-}
-
 if (import.meta.main) {
   const arg = process.argv[2];
   const today = arg ? new Date(`${arg}T12:00:00Z`) : new Date();
-  console.log(isRestDay(today) ? 'rest 0' : `work ${daysToBump(today)}`);
+  console.log(isRestDay(today) ? 'rest' : 'work');
 }
