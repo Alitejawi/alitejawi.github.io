@@ -6,7 +6,7 @@ import ReceiptLine from '../../components/ReceiptLine.astro';
 import { site } from '../../data/site';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-// "Brain: an AI knowledge base" prints as the line "Brain", with "an AI knowledge base" in the receipt's header.
+// "Brain: an AI knowledge base" heads its receipt as "Brain", with "an AI knowledge base" on its line.
 const parts = (title: string) => {
   const [name, ...rest] = title.split(':');
   return { name, kind: rest.join(':').trim() };
@@ -21,17 +21,19 @@ const parts = (title: string) => {
       const { name, kind } = parts(project.data.title);
       return (
         <li>
-          <Receipt title={`No. ${String(index + 1).padStart(2, '0')}`} aside={kind}>
-            <ReceiptLine label={name} value={project.data.receiptValue} href={`/projects/${project.id}/`} />
+          <Receipt title={name} href={`/projects/${project.id}/`} aside={`No. ${String(index + 1).padStart(2, '0')}`}>
+            <div>
+              <ReceiptLine label={kind} value={project.data.receiptValue} note={project.data.receiptNote} />
+            </div>
             <p class="project-note">{project.data.oneLiner}</p>
             {(project.data.image || site.showPlaceholders) && (
-              <a class="project-image" href={`/projects/${project.id}/`} tabindex="-1" aria-hidden="true">
+              <div class="project-image">
                 {project.data.image ? (
                   <img src={project.data.image} alt="" width="640" height="400" loading="lazy" />
                 ) : (
                   <span class="label muted">Image coming soon</span>
                 )}
-              </a>
+              </div>
             )}
           </Receipt>
         </li>

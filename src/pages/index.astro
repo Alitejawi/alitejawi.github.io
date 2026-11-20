@@ -49,6 +49,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
             <ReceiptLine
               label={project.data.title.split(':')[0]}
               value={project.data.receiptValue}
+              note={project.data.receiptNote}
               href={`/projects/${project.id}/`}
             />
           ))}

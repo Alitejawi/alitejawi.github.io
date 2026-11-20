@@ -244,13 +244,17 @@ test('homepage receipt lists numbered notes only', () => {
   expect(receipt.text()).not.toContain('Welcome');
 });
 
-test('homepage has no dates and no Work section', () => {
+test('homepage has no post dates and no Work section', () => {
   const $ = loadDist('index.html');
   const receipt = $('[data-receipt]');
 
+  // Post dates stay hidden (site.showDates). The dates on project results are when they were
+  // measured, and stay (AGENTS.md rule 2).
   expect(receipt).toHaveLength(1);
-  expect(receipt.text()).not.toContain('2025');
-  expect(receipt.text()).not.toContain('2026');
+  expect($('time')).toHaveLength(0);
+  const fieldNotes = receipt.find('.receipt-group').filter((_, group) => $(group).find('h3').text() === 'Field notes');
+  expect(fieldNotes).toHaveLength(1);
+  expect(fieldNotes.text()).not.toMatch(/20\d\d/);
   const headings = $('h1, h2, h3, h4, h5, h6').map((_, heading) => $(heading).text().trim()).get();
   expect(headings).not.toContain('Work');
 });
@@ -400,17 +404,53 @@ test('llms.txt summarises the site from the same data as the pages', () => {
   expect(llms).not.toMatch(/\b20\d\d\b/);
 });
 
-test('the projects page lists each project on a receipt, with its result and what it does', () => {
+test('the projects page lists each project on a receipt headed and linked by its name', () => {
   const $ = loadDist('projects/index.html');
   const projects = readProjects();
 
   expect($('main .receipt')).toHaveLength(projects.length);
+  // A screen reader's list of headings names the projects, not "No. 01" and "No. 02".
+  expect($('main h2').map((_, heading) => $(heading).text().trim()).get())
+    .toEqual(expect.arrayContaining(projects.map((project) => project.title.split(':')[0])));
   for (const project of projects) {
-    const line = $(`main .receipt a.receipt-line[href="/projects/${project.id}/"]`);
-    expect(line.find('.receipt-label').text().trim()).toBe(project.title.split(':')[0]);
-    expect(line.find('.receipt-value').text().trim()).toBe(project.receiptValue);
-    expect(line.closest('.receipt').text()).toContain(project.oneLiner);
+    const [name, ...kind] = project.title.split(':');
+    const receipt = $(`main .receipt:has(h2 a[href="/projects/${project.id}/"])`);
+    expect(receipt.find('h2').text().trim()).toBe(name);
+    expect(receipt.find('.receipt-line .receipt-label').text().trim()).toBe(kind.join(':').trim());
+    expect(receipt.find('.receipt-line .receipt-value').text().trim()).toBe(project.receiptValue);
+    expect(receipt.find('.receipt-note').text().trim()).toBe(project.receiptNote ?? '');
+    expect(receipt.text()).toContain(project.oneLiner);
   }
+});
+
+test('each project result on the homepage carries the date it was measured', () => {
+  const $ = loadDist('index.html');
+
+  for (const project of readProjects()) {
+    const line = $(`[data-receipt] a.receipt-line[href="/projects/${project.id}/"]`);
+    expect(line.find('.receipt-value').text().trim()).toBe(project.receiptValue);
+    expect(line.next('.receipt-note').text().trim()).toBe(project.receiptNote ?? '');
+  }
+});
+
+test('the project results are the case studies\' own numbers, with the same dates', () => {
+  const projects = Object.fromEntries(readProjects().map((project) => [project.id, project]));
+
+  // Brain: hit@5 before and after the search rebuild, both scored on 9 November 2026.
+  expect(projects.brain.receiptValue).toBe('42 → 68% hit@5');
+  expect(projects.brain.receiptNote).toBe('Measured 9 Nov 2026');
+  expect(projects.brain.body).toContain('Before and after the search rebuild, both scored on 9 November 2026');
+  expect(projects.brain.body).toMatch(/\| hit@5 [^|]*\| 42% \| 68% \|/);
+
+  // The Daily Diff: the medians from the brief notes, 19 October to 11 November 2026.
+  expect(projects['daily-diff'].receiptValue).toBe('193 → 18 picks');
+  expect(projects['daily-diff'].receiptNote).toBe('Daily median, 19 Oct to 11 Nov 2026');
+  expect(projects['daily-diff'].body).toContain('From the brief notes, 19 October to 11 November 2026');
+  expect(projects['daily-diff'].body).toContain('| Candidates per day | median 193');
+  expect(projects['daily-diff'].body).toContain('| Picks per day | median 18');
+
+  // A measured number is stated exactly, not rounded to "about".
+  for (const project of Object.values(projects)) expect(project.oneLiner).not.toMatch(/about \d/);
 });
 
 test('no empty image boxes while site.showPlaceholders is false', () => {

@@ -54,14 +54,32 @@ export function liveNotes(now: Date) {
 
 export const notesPath = fileURLToPath(notesDir);
 
-/** Every project, as { id, title } from its file name and front matter. */
-export function readProjects(): { id: string; title: string; oneLiner: string; receiptValue: string }[] {
+export interface ProjectFile {
+  id: string;
+  title: string;
+  oneLiner: string;
+  receiptValue: string;
+  /** When and how the receipt value was measured, if it is a measurement. */
+  receiptNote?: string;
+  body: string;
+}
+
+/** Every project, from its file name, front matter and case study. */
+export function readProjects(): ProjectFile[] {
   return readdirSync(projectsDir)
     .filter((file) => file.endsWith('.mdx'))
     .map((file) => {
-      const front = readFileSync(new URL(file, projectsDir), 'utf8').match(/^---\n([\s\S]*?)\n---/);
-      if (!front) throw new Error(`${file} has no front matter`);
-      const data = parse(front[1]);
-      return { id: file.replace(/\.mdx$/, ''), title: String(data.title), oneLiner: String(data.oneLiner), receiptValue: String(data.receiptValue) };
+      const source = readFileSync(new URL(file, projectsDir), 'utf8');
+      const match = source.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+      if (!match) throw new Error(`${file} has no front matter`);
+      const data = parse(match[1]);
+      return {
+        id: file.replace(/\.mdx$/, ''),
+        title: String(data.title),
+        oneLiner: String(data.oneLiner),
+        receiptValue: String(data.receiptValue),
+        receiptNote: data.receiptNote === undefined ? undefined : String(data.receiptNote),
+        body: match[2],
+      };
     });
 }
