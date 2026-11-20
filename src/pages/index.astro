@@ -25,7 +25,16 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
         <h1 id="headline">{site.headline}</h1>
         <p class="lede">{site.lede}</p>
         <div class="espresso">
-          <p class="espresso-count">{formatCount(espresso.count)}</p>
+          <script is:inline>
+            // First homepage view of a visit: hide the count before it paints, so it can
+            // decode in (src/scripts/decode.ts). Reduced motion or blocked storage: no effect.
+            try {
+              if (!matchMedia('(prefers-reduced-motion: reduce)').matches && !sessionStorage.getItem('decoded:espresso')) {
+                document.documentElement.dataset.decoding = 'espresso';
+              }
+            } catch {}
+          </script>
+          <p class="espresso-count">{formatCount(espresso.count).split(',').map((digits, index) => (index ? <><span data-ascii="skip">,</span>{digits}</> : digits))}</p>
           <div class="espresso-caption">
             <span class="label">Espressos consumed</span>
             <Chip text={`+${PER_DAY} every day`} />
@@ -111,6 +120,15 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
   </FadeIn>
 </Base>
 
+<script>
+  const count = document.querySelector<HTMLElement>('.espresso-count');
+  if (count && document.documentElement.dataset.decoding?.split(' ').includes('espresso')) {
+    import('../scripts/decode')
+      .then(({ decodeIn }) => decodeIn(count, 'espresso', { origin: 'top-left' }))
+      .catch(() => document.documentElement.removeAttribute('data-decoding'));
+  }
+</script>
+
 <style>
   .hero {
     display: grid;
@@ -151,6 +169,19 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
     line-height: 1;
     letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
+    /* The decode scrambles the digits in the count's own font, where they will land. */
+    --ascii-font: var(--font-body);
+  }
+
+  /* Hidden before the first paint while it waits to decode; shown after 3 s if no script takes over. */
+  :global(html[data-decoding~='espresso']) .espresso-count {
+    -webkit-text-fill-color: transparent;
+    animation: decode-fallback 0s 3s forwards;
+  }
+
+  /* The commas stay put while the digits scramble around them. */
+  .espresso-count [data-ascii='skip'] {
+    -webkit-text-fill-color: currentColor;
   }
 
   .espresso-caption {

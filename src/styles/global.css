@@ -142,7 +142,22 @@ pre {
 }
 
 /* A printed page or a saved PDF is the content: no navigation, buttons or contents list. */
+/* The ASCII decode (src/scripts/decode.ts) draws in the site's mono font. */
+:root {
+  --ascii-font: var(--font-mono);
+  --ascii-accent: var(--accent);
+}
+
+/* Text hidden for the decode appears after 3 s if no script takes it over. */
+@keyframes decode-fallback {
+  to {
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
 @media print {
+  .glyph-field,
+  .ar-overlay,
   .nav-shell,
   .skip-link,
   [data-readme-open],

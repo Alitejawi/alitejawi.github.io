@@ -58,5 +58,6 @@ numbered: false                   # optional: no "No. NN", not on the homepage r
 | `src/layouts/Base.astro`, `Article.astro` | Page shell and the article page. |
 | `astro.config.mjs` (`fonts`), `src/styles/global.css` | The fonts, and the fallback face that keeps text from re-wrapping while they load. |
 | `public/sw.min.js` | Removes the old site's offline cache from returning browsers. Keep it. |
+| `src/scripts/decode.ts` | The ASCII decode (ascii-reveal): the README note on every open, the espresso count on the first homepage view of a visit, the not-found page with its glyph field. Off with reduced motion; articles never load it. |
 | `tests/build.test.ts` | Checks on the built pages. |
-| `tests/e2e/` | Browser tests: layout, accessibility, privacy, the README note, the ticker. |
+| `tests/e2e/` | Browser tests: layout, accessibility, privacy, the README note, the ticker, the decode. |

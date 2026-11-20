@@ -7,6 +7,11 @@ import { site } from '../data/site';
 
 <Base title={`Page not found · ${site.name}`} description="That address is not on this site." noindex>
   <div class="not-found">
+    <script is:inline>
+      // Hide the page's text before it paints, so it can decode in (src/scripts/decode.ts).
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.dataset.decoding = 'notfound';
+    </script>
+    <canvas class="glyph-field" data-glyph-field data-ascii="skip" aria-hidden="true"></canvas>
     <h1>This page isn't on the receipt.</h1>
     <p class="muted">The address may be mistyped, or the page may have moved.</p>
     <Receipt title={new URL(site.url).host} aside="No. 404" footer="No refund needed">
@@ -26,6 +31,8 @@ import { site } from '../data/site';
 </Base>
 
 <script>
+  import { decodeIn, glyphField } from '../scripts/decode';
+
   // Show the address the visitor asked for. textContent keeps it inert, and long
   // addresses are shortened so the receipt line cannot overflow.
   const value = document.querySelector('.asked .receipt-value');
@@ -34,11 +41,38 @@ import { site } from '../data/site';
     value.textContent = path.length > 24 ? `${path.slice(0, 23)}…` : path;
     value.setAttribute('title', path);
   }
+
+  const field = document.querySelector<HTMLCanvasElement>('[data-glyph-field]');
+  if (field) glyphField(field);
+  const page = document.querySelector<HTMLElement>('.not-found');
+  if (page && document.documentElement.dataset.decoding?.split(' ').includes('notfound')) {
+    decodeIn(page, 'notfound', { origin: 'top-left' });
+  }
 </script>
 
 <style>
   .not-found {
+    position: relative;
+    isolation: isolate;
     max-width: 40rem;
+  }
+
+  /* Hidden before the first paint while it waits to decode; shown after 3 s if no script takes over. */
+  :global(html[data-decoding~='notfound']) .not-found {
+    -webkit-text-fill-color: transparent;
+    animation: decode-fallback 0s 3s forwards;
+  }
+
+  .glyph-field {
+    position: absolute;
+    inset: -2rem 0 0;
+    z-index: -1;
+    width: 100%;
+    height: calc(100% + 2rem);
+    color: var(--dashed-line);
+    font-family: var(--font-mono);
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse at 30% 35%, #000 25%, transparent 75%);
   }
 
   .not-found > p {
