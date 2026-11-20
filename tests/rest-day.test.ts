@@ -1,5 +1,7 @@
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';
-import { daysToBump, isoWeek, isRestDay, restDays } from '../scripts/rest-day.mjs';
+import { isoWeek, isRestDay, restDays } from '../scripts/rest-day.mjs';
 
 const day = (s: string) => new Date(`${s}T12:00:00Z`);
 
@@ -20,10 +22,11 @@ test('rest days match brain-sync rest-day.sh', () => {
   expect(restDays(day('2027-01-04'))).toEqual([3, 4]);
 });
 
-test('a work day after rest days catches up', () => {
+test('the CLI says whether a day is a rest day or a work day', () => {
+  const script = fileURLToPath(new URL('../scripts/rest-day.mjs', import.meta.url));
+  const run = (date: string) => spawnSync(process.execPath, [script, date], { encoding: 'utf8' }).stdout;
+
   expect(isRestDay(day('2026-11-20'))).toBe(true); // Friday
-  expect(daysToBump(day('2026-11-21'))).toBe(2); // Saturday covers Friday too
-  expect(daysToBump(day('2026-11-18'))).toBe(1);
-  expect(isRestDay(day('2026-01-05')) && isRestDay(day('2026-01-06'))).toBe(true);
-  expect(daysToBump(day('2026-01-07'))).toBe(3);
+  expect(run('2026-11-20')).toBe('rest\n');
+  expect(run('2026-11-21')).toBe('work\n');
 });
