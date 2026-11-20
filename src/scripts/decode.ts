@@ -57,8 +57,10 @@ export function readmeDecoder(body: HTMLElement) {
 /**
  * A faint field of drifting glyphs, drawn into a canvas that fills its positioned parent.
  * Adapted from the background of the ascii-reveal demo site (MIT License, Copyright (c) 2026
- * Quan Hoang). About 15 frames a second; nothing is drawn off screen, in a hidden tab or while
- * a decode runs. With reduced motion it draws one still frame.
+ * Quan Hoang). It drifts for five seconds and then holds still, so it never competes with the
+ * page for long (WCAG 2.2.2 asks that motion beside content stop within five seconds). About 15
+ * frames a second; nothing is drawn off screen, in a hidden tab or while a decode runs. With
+ * reduced motion it draws one still frame.
  */
 export function glyphField(canvas: HTMLCanvasElement) {
   const context = canvas.getContext('2d');
@@ -68,6 +70,7 @@ export function glyphField(canvas: HTMLCanvasElement) {
   const column = cell * 0.62 * 1.4;
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const start = performance.now();
+  const drift = 5_000;
   let width = 0;
   let height = 0;
   let last = 0;
@@ -75,7 +78,7 @@ export function glyphField(canvas: HTMLCanvasElement) {
   let busy = false;
 
   const draw = (now: number) => {
-    const t = still ? 0 : now - start;
+    const t = still ? 0 : Math.min(now - start, drift);
     const scale = Math.min(window.devicePixelRatio || 1, 2);
     context.setTransform(scale, 0, 0, scale, 0, 0);
     context.clearRect(0, 0, width, height);
@@ -114,6 +117,10 @@ export function glyphField(canvas: HTMLCanvasElement) {
     busy = Boolean((event as CustomEvent<{ active: boolean }>).detail?.active);
   });
   const loop = (now: number) => {
+    if (now - start >= drift) {
+      draw(now);
+      return;
+    }
     requestAnimationFrame(loop);
     if (document.hidden || !onScreen || busy || now - last < 66) return;
     last = now;

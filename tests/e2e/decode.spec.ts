@@ -126,6 +126,18 @@ test.describe('the not-found page', () => {
   });
 });
 
+test('the glyph field settles into a still picture after five seconds', async ({ page }) => {
+  // WCAG 2.2.2: motion that starts by itself and runs beside content stops within five seconds,
+  // or offers a pause button (as the ticker does).
+  await page.goto('/no/such/page/');
+  const field = page.locator('[data-glyph-field]');
+  await page.waitForTimeout(5_300);
+
+  const still = await field.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
+  await page.waitForTimeout(700);
+  expect(await field.evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())).toBe(still);
+});
+
 test.describe('with reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 
