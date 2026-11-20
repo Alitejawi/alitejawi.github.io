@@ -1,16 +1,18 @@
 ---
 interface Props {
   title: string;
+  /** Makes the title a link, and the whole receipt clickable with it. */
+  href?: string;
   aside?: string;
   footer?: string;
 }
 
-const { title, aside, footer } = Astro.props;
+const { title, href, aside, footer } = Astro.props;
 ---
 
-<section class="receipt" data-receipt aria-label={title}>
+<section class:list={['receipt', { linked: href }]} data-receipt aria-label={title}>
   <header class="receipt-header">
-    <h2>{title}</h2>
+    <h2>{href ? <a href={href}>{title}</a> : title}</h2>
     {aside && <span class="receipt-aside">{aside}</span>}
   </header>
   <div class="receipt-body"><slot /></div>
@@ -42,6 +44,41 @@ const { title, aside, footer } = Astro.props;
   h2 {
     margin: 0;
     font: inherit;
+  }
+
+  /* The title's link covers the whole receipt, so a tap anywhere on it opens the page. */
+  .linked {
+    position: relative;
+  }
+
+  h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h2 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .linked:hover h2 a {
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.25em;
+  }
+
+  /* Keyboard focus rings the whole receipt, where the browser can tell; elsewhere, the title. */
+  @supports selector(:has(*)) {
+    .linked:has(h2 a:focus-visible) {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    h2 a:focus-visible {
+      outline: none;
+    }
   }
 
   .receipt-aside {

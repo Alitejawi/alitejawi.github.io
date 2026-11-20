@@ -26,6 +26,8 @@ const projects = defineCollection({
     title: z.string(),
     oneLiner: z.string(),
     receiptValue: z.string(),
+    // When the receipt value was measured, printed under it. A measured number keeps its date.
+    receiptNote: z.string().optional(),
     order: z.number(),
     video: z.string().optional(),
     image: z.string().optional(),
