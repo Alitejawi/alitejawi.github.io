@@ -18,6 +18,7 @@ export interface NoteFile {
     date: Date;
     numbered: boolean;
     draft: boolean;
+    feed: boolean;
   };
 }
 
@@ -42,6 +43,7 @@ export function readNotes(): NoteFile[] {
           date: new Date(raw.date),
           numbered: raw.numbered ?? true,
           draft: raw.draft ?? false,
+          feed: raw.feed ?? true,
         },
       };
     });

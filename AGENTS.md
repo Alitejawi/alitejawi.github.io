@@ -37,6 +37,7 @@ slug: the-url-part                # /posts/the-url-part/
 topic: AI agents                  # the chip next to the note number
 draft: true                       # optional: never built, except by npm run dev
 numbered: false                   # optional: no "No. NN", not on the homepage receipt
+feed: false                       # optional: left out of the RSS feed, the one place a note's date shows
 ---
 ```
 

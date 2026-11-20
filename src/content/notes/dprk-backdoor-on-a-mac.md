@@ -1,15 +1,15 @@
 ---
 title: "The meeting was real, the update wasn't: a North Korean backdoor on a Mac"
-description: "Over five weeks, a North Korean group tried three times to get into a small crypto team I look after. The third try put a backdoor on a Mac for about four hours. How it got in, what we treated as stolen, what changed afterwards, and what I still can't prove."
-date: 2026-12-01 09:00:00 +0100
+description: "Over five weeks, a North Korean group tried three times to get into a small crypto team I looked after. The third try put a backdoor on a Mac for about four hours. How it got in, what we treated as stolen, what changed afterwards, and what I still can't prove."
+date: 2026-11-20 09:00:00 +0100
 slug: dprk-backdoor-on-a-mac
 topic: Security
-draft: true
+feed: false
 ---
 
 ## Three tries in five weeks
 
-I look after IT and security for a small crypto organization. Over five weeks, someone tried three times to get into it. The attempts match what has been published about BlueNoroff, the part of North Korea's Lazarus operation that steals from crypto companies. The malware from the last one carries the name of a loader that researchers tie to that group.
+I looked after IT and security for a small crypto organization. Over five weeks, someone tried three times to get into it. The attempts match what has been published about BlueNoroff, the part of North Korea's Lazarus operation that steals from crypto companies. The malware from the last one carries the name of a loader that researchers tie to that group.
 
 - **The first try:** an email that looked like it came from a large crypto exchange, asking for a "token supply schedule". The attached spreadsheet was a compiled AppleScript named `…xlsx.scpt`. Finder hides file extensions by default, so it showed up as `.xlsx`. On the Mac I checked, it had been downloaded but never run.
 - **The second:** an email from a lookalike domain, posing as a real executive at an investment firm. It asked about our exchange listings and how our custody and multisig approvals were set up. Nobody acted on it.
