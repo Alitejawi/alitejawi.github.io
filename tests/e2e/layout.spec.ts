@@ -43,7 +43,7 @@ test('a very long unknown address does not overflow the not-found page', async (
 
 test('the overflow check notices content only a few pixels too wide', async ({ page }) => {
   // The check's own check: 10px too wide still fits inside the window where a scrollbar is drawn.
-  await page.goto('/now/');
+  await page.goto('/about/');
   expect(await sidewaysOverflow(page)).toBe(0);
 
   await page.evaluate(() => {

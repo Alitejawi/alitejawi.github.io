@@ -3,7 +3,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
 // Old theme addresses that only redirect; they do not belong in the sitemap.
-const redirected = ['/tags/', '/categories/', '/archives/'];
+const redirected = ['/tags/', '/categories/', '/archives/', '/now/'];
 
 // Drafts and scheduled notes are shown by `astro dev` and by nothing else. The flag comes
 // from the command that is running, because import.meta.env.DEV also turns on for a build
@@ -69,5 +69,7 @@ export default defineConfig({
     '/tags/': '/writing/',
     '/categories/': '/writing/',
     '/archives/': '/writing/',
+    // Now and About became one page on 20 November 2026.
+    '/now/': '/about/#now',
   },
 });

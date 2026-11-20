@@ -38,7 +38,7 @@ const canonical = new URL(Astro.url.pathname, site.url);
 const socialImage = new URL(ogImage, site.url);
 const section = Astro.url.pathname.split('/')[1];
 const current = section === 'posts' || section === 'writing' ? 'writing'
-  : section === 'projects' || section === 'now' || section === 'about' ? section
+  : section === 'projects' || section === 'about' ? section
   : undefined;
 const person = {
   '@context': 'https://schema.org',
