@@ -85,11 +85,11 @@ import { site } from '../data/site';
   .printer {
     position: relative;
     height: 1.75rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius-key);
     background: var(--ink);
     background-image: radial-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px);
     background-size: 3px 3px;
-    box-shadow: 0 8px 22px rgb(0 0 0 / 18%);
+    box-shadow: var(--shadow-key);
   }
 
   /* Its status light. */
@@ -100,7 +100,7 @@ import { site } from '../data/site';
     right: 0.75rem;
     width: 0.375rem;
     height: 0.375rem;
-    border-radius: 50%;
+    border-radius: var(--radius-round);
     background: var(--accent);
     transform: translateY(-50%);
   }

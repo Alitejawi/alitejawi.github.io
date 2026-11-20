@@ -41,12 +41,12 @@ const links = [
     min-width: 0;
     margin: 1.75rem auto 0;
     padding: 0.625rem 0.75rem;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-panel);
     background: var(--ink);
     background-image: radial-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px);
     background-size: 3px 3px;
     color: var(--mid-grey);
-    box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
+    box-shadow: var(--shadow-nav);
   }
 
   nav {
@@ -66,7 +66,7 @@ const links = [
   .logo-mark {
     width: 1.75rem;
     height: 1.75rem;
-    border-radius: 0.25rem;
+    border-radius: var(--radius-tag);
     background: repeating-linear-gradient(135deg, var(--paper) 0 1.5px, transparent 1.5px 4px);
   }
 
@@ -81,7 +81,7 @@ const links = [
     padding: 0;
     list-style: none;
     font-family: var(--font-mono);
-    font-size: clamp(0.625rem, 2.8vw, 0.875rem);
+    font-size: var(--text-nav);
     letter-spacing: 0.02em;
     text-transform: uppercase;
   }
@@ -107,7 +107,7 @@ const links = [
 
   a:focus-visible {
     outline-color: var(--accent);
-    border-radius: 0.125rem;
+    border-radius: var(--radius-paper);
   }
 
   .new-dot {
@@ -116,7 +116,7 @@ const links = [
     right: -0.375rem;
     width: 0.375rem;
     height: 0.375rem;
-    border-radius: 50%;
+    border-radius: var(--radius-round);
     background: var(--accent);
   }
 </style>
