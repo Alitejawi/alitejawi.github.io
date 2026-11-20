@@ -17,6 +17,8 @@ I looked after IT and security for a small crypto organization. Over five weeks,
 
 ## How the third one got in
 
+The third try came right after our Jamf Pro, Jamf Protect and Jamf Security Cloud contracts ended.
+
 A colleague got a message on Telegram from someone they knew. That person's account had been hijacked. The message held a meeting link on a domain made to look like Microsoft Teams.
 
 The page asked for a "Teams SDK update" and downloaded it: an AppleScript file. My colleague downloaded it twice. Within minutes they were in a genuine Teams meeting and then a Google Meet, where deepfaked people on camera kept them talking and pushed the update.
@@ -41,7 +43,7 @@ From the first download to the Mac going offline was about four hours.
 ## The first hours
 
 - **Telegram first.** We ended every other session on my colleague's Telegram account. A hijacked account can message the rest of the team, and that's how this attack spreads.
-- **Offline, not wiped.** The Mac came off the network. My read-only triage script ran on it, and we kept the results.
+- **Offline, not wiped.** The Mac came off the network. With Jamf gone, there was no agent on it to ask, so my read-only triage script ran on it by hand, and we kept the results.
 - **Read the artifact.** I decompiled the dropper, found where it fetched the second stage from, fingerprinted the backdoor and rebuilt the timeline from browser history and download records.
 
 ## Assume it's stolen
