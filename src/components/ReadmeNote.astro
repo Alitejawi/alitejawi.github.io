@@ -158,6 +158,21 @@ const facts = [
       });
     });
     body.addEventListener('scroll', markCurrent, { passive: true });
+
+    // Below 1240px the button sits over the text. It moves out of the way while the reader
+    // scrolls down, and comes back when they scroll up, or reach the top or the end, where
+    // the footer leaves room for it. Movements under 10px are ignored, so it does not flicker.
+    let last = window.scrollY;
+    const follow = () => {
+      const y = window.scrollY;
+      const end = document.documentElement.scrollHeight - window.innerHeight;
+      if (y <= 0 || y >= end - 1) delete open.dataset.tucked;
+      else if (Math.abs(y - last) < 10) return;
+      else if (y > last) open.dataset.tucked = '';
+      else delete open.dataset.tucked;
+      last = y;
+    };
+    window.addEventListener('scroll', follow, { passive: true });
   }
 </script>
 
@@ -186,11 +201,23 @@ const facts = [
     font-family: var(--font-mono);
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    transition: transform 160ms var(--ease-out);
+    transition:
+      transform 160ms var(--ease-out),
+      opacity 160ms var(--ease-out);
   }
 
   .readme-open[hidden] {
     display: none;
+  }
+
+  /* Out of the way while the reader scrolls down (the script above). Narrower than 1240px
+     only: wider, the button sits clear of the text. It comes back when it takes keyboard focus. */
+  @media (width < 77.5rem) {
+    .readme-open[data-tucked]:not(:focus-visible) {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(calc(100% + 1.375rem));
+    }
   }
 
   .readme-open:active {

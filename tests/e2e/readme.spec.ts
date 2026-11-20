@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { sidewaysOverflow } from './helpers/overflow';
+import { pages } from './helpers/pages';
 
 const button = (page: Page) => page.locator('[data-readme-open]');
 const note = (page: Page) => page.locator('dialog[data-readme]');
@@ -133,6 +134,8 @@ for (const width of [375, 1024, 1280]) {
     await page.evaluate(() => document.fonts.ready);
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
 
+    // Back in its corner at the end, where the footer leaves room for it.
+    await expect(button(page)).toBeInViewport({ ratio: 1 });
     const open = await button(page).boundingBox();
     expect(open).not.toBeNull();
     for (const link of await page.locator('footer.site-footer a').all()) {
@@ -143,3 +146,105 @@ for (const width of [375, 1024, 1280]) {
     }
   });
 }
+
+/** Scrolls the window by `by` pixels and waits until the page has handled the scroll. */
+async function scroll(page: Page, by: number) {
+  await page.evaluate((by) => new Promise((resolve) => {
+    addEventListener('scroll', resolve, { once: true });
+    scrollBy({ top: by, behavior: 'instant' });
+  }), by);
+}
+
+/** The words in the page that the README button hides from view, once it has come to rest. */
+function coveredWords(page: Page) {
+  return page.evaluate(() => {
+    const open = document.querySelector<HTMLElement>('[data-readme-open]')!;
+    open.getAnimations({ subtree: true }).forEach((animation) => animation.finish());
+    if (getComputedStyle(open).opacity === '0') return [];
+    // The label and the + square: the space beside the square is see-through.
+    const parts = [...open.children].map((part) => part.getBoundingClientRect())
+      .filter((box) => box.bottom > 0 && box.top < innerHeight);
+    const words: string[] = [];
+    for (const root of document.querySelectorAll('main, footer')) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode() as Text | null; node; node = walker.nextNode() as Text | null) {
+        if (getComputedStyle(node.parentElement!).visibility === 'hidden') continue;
+        for (const match of node.data.matchAll(/\S+/g)) {
+          const range = document.createRange();
+          range.setStart(node, match.index);
+          range.setEnd(node, match.index + match[0].length);
+          const under = [...range.getClientRects()].some((line) => parts.some((box) =>
+            line.right > box.left && line.left < box.right && line.bottom > box.top && line.top < box.bottom));
+          if (under) words.push(match[0]);
+        }
+      }
+    }
+    return words;
+  });
+}
+
+// Below 1240px the button sits over the text column. It moves out of the way while the reader
+// scrolls down and comes back when they scroll up, or at the end, where the footer leaves room.
+test.describe('README button over the text', () => {
+  for (const width of [375, 1024]) {
+    for (const path of pages) {
+      test(`${path} at ${width}px: scrolling down, the button covers no text`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 800 });
+        await page.goto(path);
+        await page.evaluate(() => document.fonts.ready);
+        const end = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+
+        // At the top the button is in its corner, where a visitor sees it first.
+        for (let y = 0; y < end; y += 300) {
+          await scroll(page, 300);
+          const top = await page.evaluate(() => Math.round(scrollY));
+          expect(await coveredWords(page), `scrolled to ${top}px`).toEqual([]);
+        }
+      });
+    }
+  }
+
+  test.describe('on a phone', () => {
+    test.use({ viewport: { width: 375, height: 812 } });
+
+    test('scrolling back up brings the button back, ready to open the note', async ({ page }) => {
+      await page.goto('/projects/brain/');
+      await scroll(page, 900);
+      await expect(button(page)).not.toBeInViewport();
+
+      await scroll(page, -100);
+      await expect(button(page)).toBeInViewport({ ratio: 1 });
+      await button(page).click();
+      await expect(note(page)).toBeVisible();
+    });
+
+    test('the keyboard still reaches the button while it is out of the way', async ({ page }) => {
+      await page.goto('/projects/brain/');
+      await scroll(page, 900);
+      await expect(button(page)).not.toBeInViewport();
+
+      // The button is the last thing on the page that takes focus.
+      await page.keyboard.press('Shift+Tab');
+      await expect(button(page)).toBeFocused();
+      await expect(button(page)).toBeInViewport({ ratio: 1 });
+    });
+
+    test('with reduced motion the button moves away without animating', async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.goto('/projects/brain/');
+      await scroll(page, 900);
+
+      expect(await button(page).evaluate((element) => element.getAnimations({ subtree: true }).length)).toBe(0);
+      await expect(button(page)).not.toBeInViewport();
+    });
+  });
+
+  test('on a wide screen, where it covers nothing, the button stays in its corner', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/projects/brain/');
+    await scroll(page, 900);
+    await page.waitForTimeout(300);
+
+    await expect(button(page)).toBeInViewport({ ratio: 1 });
+  });
+});
