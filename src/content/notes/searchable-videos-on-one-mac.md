@@ -37,17 +37,17 @@ Two models got one test video, with the same 8 frames and the same prompt:
 
 Gemma was faster. Qwen named more concrete details that I might search for, such as a screen mounted on a concrete wall, or a helmet in profile. I chose Qwen. That choice rests on one video.
 
-The test video is a short logo animation: 6.40 seconds, 1080×1920, music and no speech. The full local run took 38.74 s cold and 19.32 s warm in the coding agent's run. In the canary after deploy, at 00:15 on 21 November 2026, it took 45.1 s.
+The test video is a short logo animation: 6.40 seconds, 1080×1920, music and no speech. The full local run took 38.74 s cold and 19.32 s warm in Codex's run. In the canary after the final deploy, at 00:15 on 21 November 2026 (Spanish time, like every time here), it took 45.1 s.
 
 Then the check that matters. Five queries described what is visible, such as "black leather jacket", "white helmet in profile" and "technical layout with grid lines". Run through the real full-text search code, each one got 0 hits on the old note and 1 hit on the new one.
 
 ## Three ways it failed before I trusted it
 
-1. **One timeout took both parts down.** Code review found that OCR and the model description ran one after the other, so an OCR timeout aborted both. This happened in practice: in the coding agent's own trials, Apple Vision timed out at 120 s in 3 of about 5 runs while other models were using the GPU. The two parts are now independent.
+1. **One timeout took both parts down.** Claude's code review found that OCR and the model description ran one after the other, so an OCR timeout aborted both. This happened in practice: in Codex's own trials, Apple Vision timed out at 120 s in 3 of about 5 runs while other models were using the GPU. The two parts are now independent.
 2. **A failed call looked like an empty video.** Review also found that a video with no text on screen was marked "no visuals" forever if its model call failed, for example while the model server restarted. That now counts as a failure, and it is retried.
 3. **The first live failure saved half an answer.** After deploy, the canary met a busy GPU. The model call timed out, and the code saved the OCR text alone as the final result, on the first try. Now a partial result is saved only after the last of 3 local attempts. Retries reuse a private local copy of the video and never download it again.
 
-Review found the first two by reading the code. The third showed up only in the live canary, when the GPU was busy.
+Claude found the first two by reading the code. The third showed up only in the live canary, when the GPU was busy.
 
 An older bug got fixed on the way. A video without speech counted as a speech-to-text failure, so the old code downloaded it three times before it gave up. The new code records silence as a normal result.
 
@@ -57,7 +57,7 @@ At 00:30 on 21 November, two new videos were described in full. At 01:30, two mo
 
 ## How the work was split
 
-One coding agent built it in its own git worktree. A supervising agent reviewed the code and sent three numbered fixes back. Then the supervisor ran the full test suite itself (2,473 passed and 1 skipped at the final deploy), installed it, and kept a written rollback.
+It used the [boss and worker split](/posts/claude-boss-codex-worker/) I use for most code. A Codex worker built it in its own git worktree. Claude supervised: it reviewed the code and sent the three fixes above back to Codex, one at a time. Then Claude ran the full test suite itself (2,473 passed and 1 skipped at the final deploy), installed it, and kept a written rollback.
 
 ## What I keep
 

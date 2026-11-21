@@ -8,7 +8,7 @@ topic: AI agents
 
 ## One GPU, many clients
 
-Everything here happened on 20 and 21 November 2026, on the machine that runs [Brain](/projects/brain/).
+Everything here happened on 20 and 21 November 2026, on the machine that runs [Brain](/projects/brain/). All times are Spanish time.
 
 That machine is one Mac Studio with 128 GB of memory. It serves the live search and every evaluation of it. Ollama runs the embedding model (`qwen3-embedding:4b`) and the chat and vision models. A reranker, `bge-reranker-v2-m3` at Q8, runs in `llama-server` with one slot (`--parallel 1`). A reranker reads the query together with each candidate note and puts the candidates in a better order.
 
@@ -18,7 +18,7 @@ The results look normal either way. That is the whole problem.
 
 ## The reranker almost never answered
 
-An evaluation agent was studying why some searches missed. In its live window, the reranker finished 4 of 286 known-item searches (looking for one note I know I saved) and 0 of 40 topic searches. The other 322 fell back.
+A Codex worker was evaluating search, to find out why some searches missed. In its live window, the reranker finished 4 of 286 known-item searches (looking for one note I know I saved) and 0 of 40 topic searches. The other 322 fell back.
 
 Live latency, as p50/p95 (the median, and the time 95% of searches beat):
 
@@ -27,7 +27,7 @@ Live latency, as p50/p95 (the median, and the time 95% of searches beat):
 | Known item | 3.223 s | 4.128 s |
 | Topic | 3.187 s | 4.337 s |
 
-The supervising agent checked directly at 00:16 on 21 November. 8 of 8 searches fell back. Then it timed the reranker on its own:
+Claude, which supervised that worker, checked directly at 00:16 on 21 November. 8 of 8 searches fell back. Then it timed the reranker on its own:
 
 | Request | Time |
 |---|---|
@@ -61,9 +61,9 @@ The evaluations were there to measure live search. From about 01:22, they were t
 
 ## The guard that said no
 
-The supervising agent tried to pause the other session's two processes. Its permission guard refused, because they were another session's work.
+Claude tried to pause the other session's two processes. Its permission guard refused, because they were another session's work.
 
-That was the right call. The supervisor protected only what it owned. It held the lock of the [video job](/posts/searchable-videos-on-one-mac/), so two videos kept their last retry.
+That was the right call. Claude protected only what it owned. It held the lock of the [video job](/posts/searchable-videos-on-one-mac/), so two videos kept their last retry.
 
 ## Results that look like success
 
