@@ -744,6 +744,26 @@ test('the feed carries each note in full, with links that work outside the site'
   });
 });
 
+test('the writing page is a receipt: a line per note with its minutes, and its description under it', () => {
+  const $ = loadDist('writing/index.html');
+  const receipt = $('main [data-receipt]');
+
+  expect(receipt).toHaveLength(1);
+  const items = receipt.find('ol > li').toArray().map((item) => $(item));
+  expect(items).toHaveLength(notes.length);
+  items.forEach((item, index) => {
+    const note = notes[index];
+    const line = item.find('a.receipt-line');
+    expect(line.attr('href')).toBe(noteUrl(note.data.slug));
+    expect(squash(line.find('.receipt-label').text())).toContain(note.no === null ? note.data.title : `${formatNo(note.no)} · ${note.data.title}`);
+    expect(line.find('.receipt-value').text()).toMatch(/^\d+ min$/);
+    expect(squash(item.find('.note-description').text())).toBe(squash(note.data.description));
+  });
+  // A screen reader's list of headings still names every note.
+  expect($('main h3').map((_, heading) => squash($(heading).text())).get().every((text, index) => text.includes(notes[index].data.title))).toBe(true);
+  expect($('main h3')).toHaveLength(notes.length);
+});
+
 test('the writing page links to the feed', () => {
   const $ = loadDist('writing/index.html');
 
