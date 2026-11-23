@@ -19,7 +19,7 @@ The pipeline already downloaded each new video once. It did that logged out, at 
 The change keeps that one download as a small video file, 720p where it can. Everything after it runs on the Mac:
 
 - **ffmpeg** extracts mono 16 kHz audio for speech-to-text, and up to 8 frames. The first, middle and last frames and the quarter points come first, then strong scene cuts. Frames that are nearly the same are dropped.
-- **Apple Vision** reads the text on screen in those frames. A filter drops text too tiny to read.
+- **mac-ocr**, a small command-line wrapper around Apple Vision's text recognition, reads the text on screen in those frames. A filter drops text too tiny to read.
 - **A local vision model** gets the frames as one contact sheet through Ollama, at temperature 0, with at most about 150 words and a 240-second timeout.
 
 No cloud model sees the content. A note enriched this way is also summarised only by a local model.
