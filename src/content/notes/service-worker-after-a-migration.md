@@ -4,7 +4,6 @@ date: 2026-11-24 09:00:00 +0100
 description: "I moved this site from Jekyll to Astro. Five days later a browser of mine still showed the old homepage, with no styles. The new site was fine and every check was green. What kept the old page alive, the fourteen-line fix, and the test that now replays the move."
 slug: service-worker-after-a-migration
 topic: Web
-draft: true
 ---
 
 ## What I saw
@@ -74,6 +73,8 @@ self.addEventListener('activate', (event) => {
 
 A returning browser finds this on its next update check and swaps it in. The worker deletes the caches, unregisters itself and reloads the open tabs, which now come from the network.
 
+After the fix went live on 17 November, Dia showed the new site.
+
 ## The test
 
 I couldn't reach into anyone's browser, and I didn't want to ship this on faith. So the fix came with a browser test that replays the move:
@@ -94,10 +95,3 @@ Removing a service worker is a deploy of its own. Replace the file. Don't delete
 Every check I had started from a clean browser, and this bug only exists in a used one. It's the same gap as testing a fresh install and never an upgrade.
 
 I only found it because I opened my own site in a browser that had been there before.
-
-<!--
-Before publishing (Ali):
-1. Did Dia show the new site after the fix went live on 17 November? If yes, add one sentence saying so at the end of "The fix".
-2. Check the wording of "What I saw" against what you remember.
-3. Set the date, then remove `draft: true` and this comment.
--->
